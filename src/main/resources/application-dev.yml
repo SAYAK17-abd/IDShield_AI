@@ -17,7 +17,7 @@ spring:
 application:
   security:
     jwt:
-      access-token-expiration: 86400000 # 24 hours for dev testing
+      access-token-expiration: ${JWT_ACCESS_EXPIRATION_MS:900000} # 15 minutes (secure industry standard)
 
 logging:
   level:
