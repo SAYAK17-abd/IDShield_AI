@@ -1,0 +1,20 @@
+# Dev profile with seamless in-memory database for instant hackathon runs
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    url: ${DB_URL:jdbc:h2:mem:idshield_db;DB_CLOSE_DELAY=-1}
+    driver-class-name: ${DB_DRIVER:org.h2.Driver}
+    username: ${DB_USERNAME:sa}
+    password: ${DB_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO:create-drop}
+
+logging:
+  level:
+    com.project: INFO
+    org.springframework.security: INFO

@@ -1,0 +1,26 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+application:
+  security:
+    jwt:
+      secret-key: 404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970
+      access-token-expiration: 60000
+      refresh-token-expiration: 3600000
+    cors:
+      allowed-origins: http://localhost:3000
+  storage:
+    upload-dir: ./target/test-uploads
+  ai-service:
+    url: http://localhost:8000
+    mock-fallback-enabled: true
+

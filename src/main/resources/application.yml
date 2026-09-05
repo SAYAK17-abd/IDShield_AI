@@ -1,0 +1,99 @@
+server:
+  port: ${PORT:8080}
+  servlet:
+    context-path: /
+
+spring:
+  application:
+    name: idshield-backend
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/idshield_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO:update}
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: ${MAX_FILE_SIZE:10MB}
+      max-request-size: ${MAX_REQUEST_SIZE:12MB}
+
+# Security & Application Specific Configuration
+application:
+  security:
+    jwt:
+      # Default 256-bit key for local development; OVERRIDE IN PRODUCTION VIA JWT_SECRET
+      secret-key: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      access-token-expiration: ${JWT_ACCESS_EXPIRATION_MS:900000}       # 15 mins
+      refresh-token-expiration: ${JWT_REFRESH_EXPIRATION_MS:604800000}   # 7 days
+    cors:
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+      allowed-methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+      allowed-headers: Authorization,Content-Type,X-Requested-With,Accept,Origin
+      allow-credentials: true
+    rate-limit:
+      requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:60}
+      auth-requests-per-minute: ${AUTH_RATE_LIMIT_PER_MINUTE:10}
+
+  storage:
+    upload-dir: ${STORAGE_UPLOAD_DIR:./uploads/documents}
+
+  ai-service:
+    url: ${AI_SERVICE_URL:http://localhost:8000}
+    connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:10000}
+    read-timeout-ms: ${AI_READ_TIMEOUT_MS:30000}
+    mock-fallback-enabled: ${AI_MOCK_FALLBACK_ENABLED:true}
+
+  risk-scoring:
+    weights:
+      tampering: 0.30
+      face-mismatch: 0.30
+      ocr-inconsistency: 0.20
+      identity-inconsistency: 0.20
+    thresholds:
+      low-max: 30
+      medium-max: 60
+
+# Actuator Health & Metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+      roles: ROLE_ADMIN
+
+# OpenAPI / Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operationsSorter: method
+    tagsSorter: alpha
+
+logging:
+  level:
+    root: INFO
+    com.project: INFO
+    org.springframework.security: WARN
+
