@@ -89,6 +89,36 @@ public class SecurityConfig {
                         .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+                            com.project.exception.ErrorResponse error = com.project.exception.ErrorResponse.builder()
+                                    .timestamp(java.time.Instant.now())
+                                    .status(org.springframework.http.HttpStatus.UNAUTHORIZED.value())
+                                    .error("UNAUTHORIZED")
+                                    .message("Authentication required: Token is missing, invalid, or expired. Please login again.")
+                                    .path(request.getRequestURI())
+                                    .build();
+                            new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+                                    .writeValue(response.getOutputStream(), error);
+                        })
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(jakarta.servlet.http.HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+                            com.project.exception.ErrorResponse error = com.project.exception.ErrorResponse.builder()
+                                    .timestamp(java.time.Instant.now())
+                                    .status(org.springframework.http.HttpStatus.FORBIDDEN.value())
+                                    .error("FORBIDDEN")
+                                    .message("Access denied: You do not have permission to access this resource")
+                                    .path(request.getRequestURI())
+                                    .build();
+                            new com.fasterxml.jackson.databind.ObjectMapper()
+                                    .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule())
+                                    .writeValue(response.getOutputStream(), error);
+                        })
+                )
 
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(rateLimitingFilter, UsernamePasswordAuthenticationFilter.class)

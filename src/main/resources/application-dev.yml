@@ -1,4 +1,4 @@
-# Dev profile with seamless in-memory database for instant hackathon runs
+# Dev profile with seamless in-memory database and 24-hour token expiry for smooth testing
 spring:
   config:
     activate:
@@ -13,6 +13,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${JPA_HIBERNATE_DDL_AUTO:create-drop}
+
+application:
+  security:
+    jwt:
+      access-token-expiration: 86400000 # 24 hours for dev testing
 
 logging:
   level:
