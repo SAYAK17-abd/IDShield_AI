@@ -34,11 +34,17 @@ public class AiClient {
 
     public AiClient(
             @Value("${application.ai-service.url:http://localhost:8000}") String aiServiceUrl,
-            @Value("${application.ai-service.connect-timeout-ms:10000}") int connectTimeoutMs,
-            @Value("${application.ai-service.read-timeout-ms:30000}") int readTimeoutMs,
-            @Value("${application.ai-service.mock-fallback-enabled:true}") boolean mockFallbackEnabled
+            @Value("${application.ai-service.connect-timeout-ms:15000}") int connectTimeoutMs,
+            @Value("${application.ai-service.read-timeout-ms:45000}") int readTimeoutMs,
+            @Value("${application.ai-service.mock-fallback-enabled:false}") boolean mockFallbackEnabled
     ) {
-        this.mockFallbackEnabled = mockFallbackEnabled;
+        // Enforce AI_MOCK_MODE=false by default per SIH26188 AI Upgrade Specification
+        String envMock = System.getenv("AI_MOCK_MODE");
+        if (envMock != null) {
+            this.mockFallbackEnabled = Boolean.parseBoolean(envMock);
+        } else {
+            this.mockFallbackEnabled = mockFallbackEnabled;
+        }
 
         ClientHttpRequestFactorySettings settings = ClientHttpRequestFactorySettings.DEFAULTS
                 .withConnectTimeout(Duration.ofMillis(connectTimeoutMs))
@@ -119,22 +125,12 @@ public class AiClient {
         List<String> reasons = new ArrayList<>();
         List<String> inconsistencies = new ArrayList<>();
         boolean tamperingDetected = false;
-        double tamperingConfidence = 0.12;
-        boolean faceMatched = true;
-        double faceConfidence = 0.94;
+        double tamperingConfidence = 0.0;
+        boolean faceMatched = false;
+        double faceConfidence = 0.0;
 
-        // Simulate anomaly for test cases containing "fake" or "suspicious" in filename
-        if (request.getOriginalFilename() != null &&
-                (request.getOriginalFilename().toLowerCase().contains("fake") ||
-                 request.getOriginalFilename().toLowerCase().contains("tampered"))) {
-            tamperingDetected = true;
-            tamperingConfidence = 0.88;
-            reasons.add("Possible photo manipulation and pixel resampling detected in portrait area");
-            faceMatched = false;
-            faceConfidence = 0.22;
-            inconsistencies.add("Face does not match submitted reference identity");
-            inconsistencies.add("Font weight mismatch in identity number field");
-        }
+        inconsistencies.add("AI Service Offline: Please run run_ai_service.bat to start real InsightFace & RapidOCR inference");
+        reasons.add("Real AI Service unreachable on port 8000; screening incomplete");
 
         String docNumber = "ID-99283741";
         String docType = request.getDocumentType() != null ? request.getDocumentType().toUpperCase() : "IDENTITY_CARD";

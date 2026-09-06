@@ -43,6 +43,11 @@ public class DocumentService {
 
     @Transactional
     public DocumentResponseDto uploadDocument(MultipartFile file, String documentType, HttpServletRequest request) {
+        return uploadDocument(file, null, documentType, request);
+    }
+
+    @Transactional
+    public DocumentResponseDto uploadDocument(MultipartFile file, MultipartFile selfie, String documentType, HttpServletRequest request) {
         User currentUser = getCurrentAuthenticatedUser();
 
         // 1. Strict validation (size, extension, MIME type, magic bytes)
@@ -59,6 +64,16 @@ public class DocumentService {
             String storagePath = fileStorageService.storeFile(file, storedFilename);
             String sha256Checksum = fileStorageService.calculateSha256(file);
 
+            // Optional: Store selfie if provided
+            String selfieStoragePath = null;
+            if (selfie != null && !selfie.isEmpty()) {
+                fileValidator.validate(selfie);
+                String selfieExt = fileValidator.getFileExtension(selfie.getOriginalFilename());
+                String storedSelfieName = UUID.randomUUID() + "_selfie." + selfieExt.toLowerCase();
+                selfieStoragePath = fileStorageService.storeFile(selfie, storedSelfieName);
+                log.info("Stored reference selfie at [{}]", selfieStoragePath);
+            }
+
             // 4. Save document metadata
             Document document = Document.builder()
                     .owner(currentUser)
@@ -66,6 +81,7 @@ public class DocumentService {
                     .originalFilename(originalFilename)
                     .storedFilename(storedFilename)
                     .storagePath(storagePath)
+                    .selfieStoragePath(selfieStoragePath)
                     .fileSizeBytes(file.getSize())
                     .mimeType(file.getContentType())
                     .sha256Checksum(sha256Checksum)

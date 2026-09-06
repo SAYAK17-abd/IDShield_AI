@@ -39,15 +39,17 @@ public class DocumentController {
     private final DocumentService documentService;
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Secure document upload", description = "Uploads an identity document (PDF, JPEG, PNG). Validates file size, extension, and magic bytes.")
+    @Operation(summary = "Secure document upload", description = "Uploads an identity document (PDF, JPEG, PNG) and optional reference selfie. Validates file size, extension, and magic bytes.")
     public ResponseEntity<ApiResponse<DocumentResponseDto>> uploadDocument(
             @Parameter(description = "Document file (PDF, JPEG, or PNG, max 10MB)", required = true)
             @RequestParam("file") MultipartFile file,
+            @Parameter(description = "Optional reference selfie photo for 1:1 biometric comparison")
+            @RequestParam(value = "selfie", required = false) MultipartFile selfie,
             @Parameter(description = "Document type (e.g. PASSPORT, NATIONAL_ID, DRIVING_LICENSE)")
             @RequestParam(value = "documentType", defaultValue = "IDENTITY_CARD") String documentType,
             HttpServletRequest request
     ) {
-        DocumentResponseDto response = documentService.uploadDocument(file, documentType, request);
+        DocumentResponseDto response = documentService.uploadDocument(file, selfie, documentType, request);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(response, "Document uploaded and validated successfully"));
     }

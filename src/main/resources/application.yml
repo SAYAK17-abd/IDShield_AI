@@ -59,7 +59,7 @@ application:
     url: ${AI_SERVICE_URL:http://localhost:8000}
     connect-timeout-ms: ${AI_CONNECT_TIMEOUT_MS:10000}
     read-timeout-ms: ${AI_READ_TIMEOUT_MS:30000}
-    mock-fallback-enabled: ${AI_MOCK_FALLBACK_ENABLED:true}
+    mock-fallback-enabled: ${AI_MOCK_FALLBACK_ENABLED:false}
 
   risk-scoring:
     weights:

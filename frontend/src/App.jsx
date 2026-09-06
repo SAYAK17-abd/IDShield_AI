@@ -94,7 +94,7 @@ export default function App() {
 
     try {
       setScreeningStep('1/3: Ingesting & Verifying Magic Bytes...');
-      const uploadResp = await api.uploadDocument(docFile, selectedDocType, authToken);
+      const uploadResp = await api.uploadDocument(docFile, selectedDocType, authToken, selfieFile);
       const docId = uploadResp.data?.id;
       setUploadedDocMeta(uploadResp.data);
 

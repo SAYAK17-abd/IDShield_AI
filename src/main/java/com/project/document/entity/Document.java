@@ -42,6 +42,9 @@ public class Document {
     @Column(nullable = false, length = 500)
     private String storagePath;
 
+    @Column(length = 500)
+    private String selfieStoragePath;
+
     @Column(nullable = false)
     private Long fileSizeBytes;
 

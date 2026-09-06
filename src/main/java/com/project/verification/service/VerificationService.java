@@ -83,13 +83,28 @@ public class VerificationService {
             byte[] fileBytes = fileResource.getContentAsByteArray();
             String base64Content = Base64.getEncoder().encodeToString(fileBytes);
 
-            AiAnalysisRequest aiRequest = AiAnalysisRequest.builder()
+            AiAnalysisRequest.AiAnalysisRequestBuilder requestBuilder = AiAnalysisRequest.builder()
                     .documentId(document.getId())
                     .documentType(document.getDocumentType())
                     .originalFilename(document.getOriginalFilename())
                     .mimeType(document.getMimeType())
-                    .fileBase64(base64Content)
-                    .build();
+                    .fileBase64(base64Content);
+
+            // Read selfie payload if present
+            if (document.getSelfieStoragePath() != null && !document.getSelfieStoragePath().isBlank()) {
+                try {
+                    Resource selfieResource = fileStorageService.loadFileAsResource(document.getSelfieStoragePath());
+                    byte[] selfieBytes = selfieResource.getContentAsByteArray();
+                    requestBuilder.selfieBase64(Base64.getEncoder().encodeToString(selfieBytes));
+                    requestBuilder.selfieFilename("reference_selfie");
+                    log.info("Attached [{}] bytes of reference selfie to AI request for document [{}]",
+                            selfieBytes.length, document.getId());
+                } catch (Exception ex) {
+                    log.warn("Could not load attached selfie for document [{}]: {}", document.getId(), ex.getMessage());
+                }
+            }
+
+            AiAnalysisRequest aiRequest = requestBuilder.build();
 
             // 1. Call internal FastAPI AI service
             AiAnalysisResponse aiResponse = aiClient.analyzeDocument(aiRequest);

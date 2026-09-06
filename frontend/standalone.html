@@ -399,6 +399,9 @@
           const formData = new FormData();
           formData.append('file', docFile);
           formData.append('documentType', selectedDocType);
+          if (selfieFile) {
+            formData.append('selfie', selfieFile);
+          }
 
           const uploadRes = await fetch(`${GATEWAY_BASE_URL}/api/documents/upload`, {
             method: 'POST',

@@ -21,10 +21,13 @@ export const api = {
   },
 
   // Document Management: Upload with multipart/form-data
-  async uploadDocument(file, documentType, token) {
+  async uploadDocument(file, documentType, token, selfie = null) {
     const formData = new FormData();
     formData.append('file', file);
     formData.append('documentType', documentType);
+    if (selfie) {
+      formData.append('selfie', selfie);
+    }
 
     const res = await fetch(`${BASE_URL}/api/documents/upload`, {
       method: 'POST',

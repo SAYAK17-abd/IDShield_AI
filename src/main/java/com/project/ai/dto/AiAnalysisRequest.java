@@ -15,5 +15,8 @@ public class AiAnalysisRequest {
     private String fileBase64;
     private String originalFilename;
     private String mimeType;
+    private String selfieBase64;
+    private String selfieFilename;
+    private String selfieMimeType;
 }
 
