@@ -220,3 +220,22 @@ Expected Output:
 [INFO] BUILD SUCCESS
 ```
 
+---
+
+## 7. Launching the IDShield Desktop GUI Client
+
+For interactive live demonstrations without using a web browser or curl, a dedicated dark-themed Java Swing client is included.
+
+### Starting the Client:
+Double-click `run_desktop_app.bat` or run in PowerShell:
+
+```powershell
+.\run_desktop_app.ps1
+```
+
+### Capabilities:
+- **Auto-Connects to Gateway**: Connects directly to `http://127.0.0.1:8080`, performs JWT login as `admin@idshield.com`, and displays status.
+- **Switch User**: Supports logging in as any user (`investigator@idshield.com`, `user@idshield.com`).
+- **File Upload**: Uploads documents with real-time thumbnail preview and magic-byte inspection.
+- **Real-Time Risk Report**: Renders live AI verification results (Authenticity Score, Tamper Confidence, Facial Match Confidence, Extracted OCR data, and security integrity flags).
+

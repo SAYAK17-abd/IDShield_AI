@@ -132,8 +132,8 @@ http://localhost:8080/swagger-ui.html
 ## 6. Running the Backend
 
 ### Prerequisites
-- Java 25+
-- PostgreSQL (or in-memory fallback)
+- Java 21+ LTS
+- PostgreSQL (or in-memory fallback for dev)
 - Docker (optional)
 
 ### Option A: Running with Maven
@@ -154,8 +154,15 @@ docker build -t idshield-backend:1.0 .
 docker run -d -p 8080:8080 --env-file .env.example --name idshield idshield-backend:1.0
 ```
 
+### Option C: Running the Java Swing Desktop Client
+```bash
+# Double click run_desktop_app.bat or execute:
+.\run_desktop_app.ps1
+```
+
 ### Health Check:
 ```bash
 curl http://localhost:8080/actuator/health
 ```
+
 
