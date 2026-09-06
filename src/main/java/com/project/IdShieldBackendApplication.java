@@ -34,7 +34,7 @@ public class IdShieldBackendApplication {
      * Only runs in 'dev' profile.
      */
     @Bean
-    @Profile("dev")
+    @Profile("!test")
     public CommandLineRunner seedDemoUsers(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return args -> {
             if (!userRepository.existsByEmail("admin@idshield.com")) {
