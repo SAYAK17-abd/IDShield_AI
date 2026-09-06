@@ -840,3 +840,4 @@ public class IDShieldApp extends JFrame {
         });
     }
 }
+

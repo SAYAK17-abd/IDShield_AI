@@ -13,3 +13,4 @@ Write-Host "Connecting to Spring Boot Security Gateway (http://127.0.0.1:8080)" 
 Write-Host "Using Java: $javaExe" -ForegroundColor Gray
 
 & $javaExe src\main\java\com\project\client\IDShieldApp.java
+

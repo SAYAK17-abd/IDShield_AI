@@ -136,11 +136,41 @@ public class AiClient {
             inconsistencies.add("Font weight mismatch in identity number field");
         }
 
+        String docNumber = "ID-99283741";
+        String docType = request.getDocumentType() != null ? request.getDocumentType().toUpperCase() : "IDENTITY_CARD";
+        String citizenName = "Sayak Dutta";
+
+        if (docType.contains("AADHAAR")) {
+            docNumber = "4920 8192 3841";
+            citizenName = "Sayak Dutta (UIDAI Verified)";
+        } else if (docType.contains("PAN")) {
+            docNumber = "ABCDE1234F";
+            citizenName = "SAYAK DUTTA";
+        } else if (docType.contains("VOTER") || docType.contains("EPIC")) {
+            docNumber = "WBF2938172";
+            citizenName = "Sayak Dutta";
+        } else if (docType.contains("DRIVING") || docType.contains("LICENSE")) {
+            docNumber = "WB-0420180029381";
+            citizenName = "Sayak Dutta";
+        } else if (docType.contains("PASSPORT")) {
+            docNumber = "P8291048";
+            citizenName = "DUTTA, SAYAK";
+        } else if (docType.contains("VEHICLE") || docType.contains("RC")) {
+            docNumber = "WB-02-AB-1234";
+            citizenName = "Sayak Dutta";
+        } else if (docType.contains("RATION")) {
+            docNumber = "RC-192837461";
+            citizenName = "Sayak Dutta";
+        } else if (docType.contains("STUDENT")) {
+            docNumber = "BWU/BTECH/2022/041";
+            citizenName = "Sayak Dutta (Student)";
+        }
+
         return AiAnalysisResponse.builder()
                 .ocr(OcrDataDto.builder()
-                        .name("Simulated Citizen")
+                        .name(citizenName)
                         .dateOfBirth("1995-05-12")
-                        .documentNumber("ID-99283741")
+                        .documentNumber(docNumber)
                         .build())
                 .tampering(TamperingDto.builder()
                         .detected(tamperingDetected)

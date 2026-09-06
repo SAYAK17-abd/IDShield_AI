@@ -18,3 +18,4 @@ echo Using Java: "%JAVA_EXE%"
 echo Launching IDShield Desktop Application...
 "%JAVA_EXE%" src\main\java\com\project\client\IDShieldApp.java
 pause
+
