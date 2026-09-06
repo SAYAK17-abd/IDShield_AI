@@ -55,3 +55,4 @@ npx cap init IDShield com.idshield.app
 npx cap add android
 npx cap open android
 ```
+
