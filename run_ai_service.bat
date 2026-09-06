@@ -11,6 +11,11 @@ if errorlevel 1 (
     exit /b 1
 )
 
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr ":8000 " ^| findstr "LISTENING"') do (
+    echo Port 8000 is currently occupied by PID %%a. Freeing port...
+    taskkill /f /pid %%a >nul 2>nul
+)
+
 echo Starting FastAPI AI Service on http://127.0.0.1:8000 ...
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 
