@@ -120,3 +120,4 @@ export default function DocumentUploader({ docName, file, previewUrl, onFileSele
     </div>
   );
 }
+

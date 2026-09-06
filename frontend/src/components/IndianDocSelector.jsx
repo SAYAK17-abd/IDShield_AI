@@ -123,3 +123,4 @@ export default function IndianDocSelector({ selectedDocType, onSelect }) {
     </div>
   );
 }
+

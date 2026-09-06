@@ -88,9 +88,10 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // Gateway Endpoint
-    const GATEWAY_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-      ? 'http://localhost:8080' 
+    // Gateway Endpoint:
+    // Defaults to http://127.0.0.1:8080 when running as file://, localhost, or 127.0.0.1
+    const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+      ? 'http://127.0.0.1:8080' 
       : `${window.location.protocol}//${window.location.hostname}:8080`;
 
     // Indian Documents Catalog

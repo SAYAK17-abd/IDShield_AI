@@ -171,3 +171,4 @@ export default function Navbar({ currentUser, onUserSwitch, gatewayStatus, onOpe
     </header>
   );
 }
+

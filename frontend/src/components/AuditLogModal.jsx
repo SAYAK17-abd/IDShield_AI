@@ -63,3 +63,4 @@ export default function AuditLogModal({ isOpen, onClose, logs, loading }) {
     </div>
   );
 }
+

@@ -67,3 +67,4 @@ export default function SelfieCapture({ file, previewUrl, onSelect, onRemove, do
     </div>
   );
 }
+
