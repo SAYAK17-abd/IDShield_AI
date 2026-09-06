@@ -60,7 +60,15 @@ public class SecurityConfig {
                         .contentTypeOptions(Customizer.withDefaults())
                         .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
                         .referrerPolicy(referrer -> referrer.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
-                        .contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; frame-ancestors 'none';"))
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self' 'unsafe-inline' 'unsafe-eval' https: data: blob:; " +
+                                "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://unpkg.com; " +
+                                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
+                                "font-src 'self' https://fonts.gstatic.com data:; " +
+                                "img-src 'self' data: blob: https:; " +
+                                "connect-src 'self' http://127.0.0.1:8080 http://localhost:8080 https:; " +
+                                "frame-ancestors 'none';"
+                        ))
                 )
 
                 // Stateless Session Management
@@ -72,8 +80,10 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/",
                                 "/index.html",
+                                "/standalone.html",
                                 "/favicon.ico",
                                 "/static/**",
+                                "/assets/**",
                                 "/api/auth/register",
                                 "/api/auth/login",
                                 "/api/auth/refresh",

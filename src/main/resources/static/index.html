@@ -40,11 +40,10 @@
     }
   </script>
 
-  <!-- Google Fonts & Lucide Icons -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- React 18 & Babel Standalone -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -86,10 +85,87 @@
   <div id="root"></div>
 
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, Component } = React;
 
-    // Gateway Endpoint:
-    // Defaults to http://127.0.0.1:8080 when running as file://, localhost, or 127.0.0.1
+    // React Error Boundary to prevent blackouts
+    class ErrorBoundary extends Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+      componentDidCatch(error, errorInfo) {
+        console.error("UI Error caught by boundary:", error, errorInfo);
+      }
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen flex items-center justify-center p-6 text-center bg-slate-950">
+              <div className="glass-card max-w-md p-8 rounded-3xl border border-rose-800 space-y-4">
+                <div className="text-3xl">⚠️</div>
+                <h2 className="text-lg font-bold text-white">Something went wrong</h2>
+                <p className="text-xs text-rose-300 font-mono">{this.state.error?.message || "Render Error"}</p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="py-2 px-4 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-500 transition"
+                >
+                  Reload Application
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    // Pure React SVG Icon Component (No DOM Mutation, Zero removeChild crashes)
+    function Icon({ name, className = "w-4 h-4" }) {
+      const paths = {
+        'chevron-down': <path d="m6 9 6 6 6-6"/>,
+        'check-circle': <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></>,
+        'check': <path d="M20 6 9 17l-5-5"/>,
+        'x': <><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>,
+        'shield': <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></>,
+        'shield-check': <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></>,
+        'shield-alert': <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="M12 8v4"/><path d="M12 16h.01"/></>,
+        'search': <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
+        'user': <><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>,
+        'user-check': <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></>,
+        'file-plus': <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M9 15h6"/><path d="M12 12v6"/></>,
+        'file-text': <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></>,
+        'upload-cloud': <><path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242"/><path d="M12 12v9"/><path d="m16 16-4-4-4 4"/></>,
+        'camera': <><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></>,
+        'cpu': <><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></>,
+        'scan-face': <><path d="M3 7V5a2 2 0 0 1 2-2h2"/><path d="M17 3h2a2 2 0 0 1 2 2v2"/><path d="M21 17v2a2 2 0 0 1-2 2h-2"/><path d="M7 21H5a2 2 0 0 1-2-2v-2"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><path d="M9 9h.01"/><path d="M15 9h.01"/></>,
+        'refresh-cw': <><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>,
+        'alert-triangle': <><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></>,
+        'alert-circle': <><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
+        'alert-octagon': <><polygon points="7.86 2 16.14 2 22 7.86 22 16.14 16.14 22 7.86 22 2 16.14 2 7.86 7.86 2"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></>,
+        'clock': <><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,
+        'info': <><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></>,
+        'external-link': <><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></>
+      };
+
+      return (
+        <svg 
+          xmlns="http://www.w3.org/2000/svg" 
+          viewBox="0 0 24 24" 
+          fill="none" 
+          stroke="currentColor" 
+          strokeWidth="2" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          className={className}
+        >
+          {paths[name] || <circle cx="12" cy="12" r="10" />}
+        </svg>
+      );
+    }
+
+    // Gateway Endpoint
     const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://127.0.0.1:8080' 
       : `${window.location.protocol}//${window.location.hostname}:8080`;
@@ -101,7 +177,6 @@
         name: 'Aadhaar Card',
         dept: 'UIDAI',
         format: '12-Digit UID (XXXX XXXX XXXX)',
-        icon: 'fingerprint',
         color: 'from-amber-500/20 to-orange-500/20 border-orange-500/40 text-orange-400',
         badge: 'UIDAI Verified',
         popular: true
@@ -111,7 +186,6 @@
         name: 'Permanent Account Number (PAN)',
         dept: 'Income Tax Dept',
         format: '10-Digit Alphanumeric (ABCDE1234F)',
-        icon: 'credit-card',
         color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/40 text-blue-400',
         badge: 'Tax Dept',
         popular: true
@@ -121,7 +195,6 @@
         name: 'Voter ID Card (EPIC)',
         dept: 'Election Commission of India',
         format: 'EPIC No. (WBF2938172)',
-        icon: 'vote',
         color: 'from-emerald-500/20 to-teal-500/20 border-emerald-500/40 text-emerald-400',
         badge: 'ECI',
         popular: true
@@ -131,7 +204,6 @@
         name: 'Driving Licence (DL)',
         dept: 'MoRTH / Sarathi',
         format: 'State Code + Year (WB-0420180029381)',
-        icon: 'car',
         color: 'from-purple-500/20 to-indigo-500/20 border-purple-500/40 text-purple-400',
         badge: 'Sarathi',
         popular: true
@@ -141,7 +213,6 @@
         name: 'Indian Passport (Republic of India)',
         dept: 'Ministry of External Affairs',
         format: 'Letter + 7 Digits (P8291048)',
-        icon: 'globe',
         color: 'from-sky-500/20 to-blue-500/20 border-sky-500/40 text-sky-400',
         badge: 'MEA MRZ',
         popular: false
@@ -151,7 +222,6 @@
         name: 'Academic / College Student ID',
         dept: 'Recognized University / Institute',
         format: 'Roll / Enrollment (BWU/BTECH/2022/041)',
-        icon: 'graduation-cap',
         color: 'from-pink-500/20 to-rose-500/20 border-pink-500/40 text-pink-400',
         badge: 'Institute',
         popular: true
@@ -161,7 +231,6 @@
         name: 'Vehicle Registration Certificate (RC)',
         dept: 'MoRTH / Vahan',
         format: 'Reg No (WB-02-AB-1234)',
-        icon: 'truck',
         color: 'from-yellow-500/20 to-amber-500/20 border-yellow-500/40 text-yellow-400',
         badge: 'Vahan',
         popular: false
@@ -171,7 +240,6 @@
         name: 'Ration Card / NFSA Smart Card',
         dept: 'Food & Supplies Dept',
         format: 'NFSA Family ID (RC-192837461)',
-        icon: 'shopping-bag',
         color: 'from-green-500/20 to-emerald-500/20 border-green-500/40 text-green-400',
         badge: 'NFSA',
         popular: false
@@ -247,13 +315,6 @@
       const selfieInputRef = useRef(null);
       const cameraDocRef = useRef(null);
 
-      // Trigger Lucide icon replacement on DOM update
-      useEffect(() => {
-        if (window.lucide) {
-          window.lucide.createIcons();
-        }
-      });
-
       // Login on startup with default Admin user
       useEffect(() => {
         performLogin(currentUser);
@@ -302,7 +363,7 @@
       const handleDocSelect = (file) => {
         if (!file) return;
         setDocFile(file);
-        if (file.type.startsWith('image/')) {
+        if (file.type && file.type.startsWith('image/')) {
           setDocPreviewUrl(URL.createObjectURL(file));
         } else {
           setDocPreviewUrl(null);
@@ -312,7 +373,7 @@
       const handleSelfieSelect = (file) => {
         if (!file) return;
         setSelfieFile(file);
-        if (file.type.startsWith('image/')) {
+        if (file.type && file.type.startsWith('image/')) {
           setSelfiePreviewUrl(URL.createObjectURL(file));
         }
       };
@@ -374,7 +435,7 @@
 
           // STEP 3: Complete & Render
           setScreeningStep('3/3: Synthesizing Transparent Risk Scores...');
-          await new Promise(r => setTimeout(r, 600)); // Smooth UI transition
+          await new Promise(r => setTimeout(r, 600));
           setVerificationResult(verifyData.data);
 
         } catch (err) {
@@ -403,7 +464,6 @@
           });
 
           if (res.ok) {
-            const data = await res.json();
             setVerificationResult(prev => ({
               ...prev,
               investigationStatus: newStatus,
@@ -488,7 +548,7 @@
                   </div>
                   <div className="text-[11px] text-slate-400">{currentUser.email}</div>
                 </div>
-                <i data-lucide="chevron-down" className="w-3.5 h-3.5 text-slate-400"></i>
+                <Icon name="chevron-down" className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
               {/* User Dropdown Menu */}
@@ -533,10 +593,10 @@
                         className="w-full text-left px-3 py-2 rounded-lg text-xs text-purple-300 hover:bg-purple-950/40 flex items-center justify-between font-medium"
                       >
                         <span className="flex items-center gap-1.5">
-                          <i data-lucide="shield-check" className="w-3.5 h-3.5"></i>
+                          <Icon name="shield-check" className="w-3.5 h-3.5 text-purple-400" />
                           View Forensic Audit Logs
                         </span>
-                        <i data-lucide="external-link" className="w-3 h-3 text-purple-400"></i>
+                        <Icon name="external-link" className="w-3 h-3 text-purple-400" />
                       </button>
                     </div>
                   )}
@@ -556,7 +616,7 @@
             }`}>
               <div className="flex items-center space-x-2.5">
                 <div className={`p-2 rounded-xl text-white ${currentUser.avatarBg}`}>
-                  <i data-lucide={currentUser.icon} className="w-4 h-4"></i>
+                  <Icon name={currentUser.icon} className="w-4 h-4" />
                 </div>
                 <div>
                   <div className="font-semibold text-xs text-white">
@@ -579,10 +639,10 @@
             {/* ERROR NOTIFICATION */}
             {errorNotice && (
               <div className="p-4 rounded-2xl bg-rose-950/40 border border-rose-800/60 text-rose-300 text-xs flex items-start space-x-3">
-                <i data-lucide="alert-triangle" className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5"></i>
+                <Icon name="alert-triangle" className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
                 <div className="flex-1 font-medium">{errorNotice}</div>
                 <button onClick={() => setErrorNotice(null)} className="text-rose-400 hover:text-rose-200">
-                  <i data-lucide="x" className="w-4 h-4"></i>
+                  <Icon name="x" className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -595,7 +655,7 @@
                 <div className="glass-card rounded-3xl p-5 sm:p-6 border border-slate-800 shadow-xl space-y-5">
                   <div>
                     <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                      <i data-lucide="file-plus" className="w-5 h-5 text-indigo-400"></i>
+                      <Icon name="file-plus" className="w-5 h-5 text-indigo-400" />
                       Document & Identity Ingestion
                     </h2>
                     <p className="text-xs text-slate-400 mt-1">
@@ -603,7 +663,7 @@
                     </p>
                   </div>
 
-                  {/* INDIAN DOCUMENT TYPE SELECTOR (CAROUSEL / GRID) */}
+                  {/* INDIAN DOCUMENT TYPE SELECTOR */}
                   <div className="space-y-2">
                     <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider flex items-center justify-between">
                       <span>Indian Document Format</span>
@@ -629,7 +689,7 @@
                                 {doc.badge}
                               </span>
                               {isSelected && (
-                                <i data-lucide="check-circle" className="w-3.5 h-3.5 text-indigo-400"></i>
+                                <Icon name="check-circle" className="w-3.5 h-3.5 text-indigo-400" />
                               )}
                             </div>
                             <div className={`text-xs font-semibold leading-tight line-clamp-1 ${isSelected ? 'text-white' : 'text-slate-300'}`}>
@@ -656,7 +716,7 @@
                       ref={docInputRef}
                       className="hidden"
                       accept="image/jpeg,image/png,application/pdf"
-                      onChange={(e) => handleDocSelect(e.target.files[0])}
+                      onChange={(e) => e.target.files && handleDocSelect(e.target.files[0])}
                     />
 
                     {/* Camera Capture for mobile */}
@@ -666,7 +726,7 @@
                       className="hidden"
                       accept="image/*"
                       capture="environment"
-                      onChange={(e) => handleDocSelect(e.target.files[0])}
+                      onChange={(e) => e.target.files && handleDocSelect(e.target.files[0])}
                     />
 
                     <div
@@ -676,7 +736,9 @@
                       onDrop={(e) => {
                         e.preventDefault();
                         setIsDragging(false);
-                        handleDocSelect(e.dataTransfer.files[0]);
+                        if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                          handleDocSelect(e.dataTransfer.files[0]);
+                        }
                       }}
                       className={`border-2 border-dashed rounded-2xl p-4 sm:p-5 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[140px] relative overflow-hidden ${
                         isDragging ? 'border-indigo-500 bg-indigo-950/20' :
@@ -698,7 +760,7 @@
                       ) : docFile ? (
                         <div className="text-center">
                           <div className="w-12 h-12 rounded-xl bg-indigo-950 border border-indigo-800 flex items-center justify-center mx-auto text-indigo-400 mb-2">
-                            <i data-lucide="file-text" className="w-6 h-6"></i>
+                            <Icon name="file-text" className="w-6 h-6" />
                           </div>
                           <div className="text-xs font-semibold text-white">{docFile.name}</div>
                           <div className="text-[10px] text-slate-400">{(docFile.size / 1024).toFixed(1)} KB</div>
@@ -706,7 +768,7 @@
                       ) : (
                         <div className="space-y-2">
                           <div className="w-10 h-10 rounded-full bg-slate-800/80 flex items-center justify-center mx-auto text-indigo-400">
-                            <i data-lucide="upload-cloud" className="w-5 h-5"></i>
+                            <Icon name="upload-cloud" className="w-5 h-5" />
                           </div>
                           <div className="text-xs text-slate-300 font-medium">
                             Drag & drop {selectedDocObj.name} here, or <span className="text-indigo-400 underline">browse</span>
@@ -725,7 +787,7 @@
                         onClick={(e) => { e.stopPropagation(); cameraDocRef.current?.click(); }}
                         className="flex-1 py-1.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-[11px] text-slate-300 flex items-center justify-center gap-1.5 font-medium transition"
                       >
-                        <i data-lucide="camera" className="w-3.5 h-3.5 text-indigo-400"></i>
+                        <Icon name="camera" className="w-3.5 h-3.5 text-indigo-400" />
                         Use Smartphone Camera
                       </button>
                     </div>
@@ -744,7 +806,7 @@
                       className="hidden"
                       accept="image/*"
                       capture="user"
-                      onChange={(e) => handleSelfieSelect(e.target.files[0])}
+                      onChange={(e) => e.target.files && handleSelfieSelect(e.target.files[0])}
                     />
 
                     <div
@@ -756,7 +818,7 @@
                           <img src={selfiePreviewUrl} className="w-10 h-10 rounded-full object-cover border border-indigo-500" />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-slate-400">
-                            <i data-lucide="user-check" className="w-5 h-5"></i>
+                            <Icon name="user-check" className="w-5 h-5" />
                           </div>
                         )}
                         <div className="text-left">
@@ -793,7 +855,7 @@
                         </>
                       ) : (
                         <>
-                          <i data-lucide="shield-check" className="w-4 h-4"></i>
+                          <Icon name="shield-check" className="w-4 h-4" />
                           <span>Run Multi-Signal Security Screening</span>
                         </>
                       )}
@@ -809,7 +871,7 @@
                     <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-5">
                       <div>
                         <h2 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
-                          <i data-lucide="cpu" className="w-5 h-5 text-indigo-400"></i>
+                          <Icon name="cpu" className="w-5 h-5 text-indigo-400" />
                           Verification & Risk Assessment Report
                         </h2>
                         <p className="text-xs text-slate-400 mt-0.5">
@@ -828,7 +890,7 @@
                     {!verificationResult && !isScreening && (
                       <div className="py-20 text-center flex flex-col items-center justify-center space-y-3">
                         <div className="w-16 h-16 rounded-3xl bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-500 shadow-inner">
-                          <i data-lucide="scan-face" className="w-8 h-8"></i>
+                          <Icon name="scan-face" className="w-8 h-8" />
                         </div>
                         <div className="text-sm font-semibold text-slate-300">Ready for Document Screening</div>
                         <div className="text-xs text-slate-500 max-w-sm">
@@ -841,7 +903,7 @@
                     {isScreening && (
                       <div className="py-20 text-center flex flex-col items-center justify-center space-y-4 animate-pulse">
                         <div className="w-16 h-16 rounded-3xl bg-indigo-950/60 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
-                          <i data-lucide="refresh-cw" className="w-8 h-8 animate-spin"></i>
+                          <Icon name="refresh-cw" className="w-8 h-8 animate-spin" />
                         </div>
                         <div className="text-sm font-bold text-white">{screeningStep}</div>
                         <div className="w-64 h-2 bg-slate-800 rounded-full overflow-hidden">
@@ -867,10 +929,10 @@
                             verificationResult.riskLevel === 'LOW' ? 'bg-emerald-600' :
                             verificationResult.riskLevel === 'MEDIUM' ? 'bg-amber-600' : 'bg-rose-600'
                           }`}>
-                            <i data-lucide={
+                            <Icon name={
                               verificationResult.riskLevel === 'LOW' ? 'check-circle' :
                               verificationResult.riskLevel === 'MEDIUM' ? 'alert-circle' : 'alert-octagon'
-                            } className="w-5 h-5"></i>
+                            } className="w-5 h-5" />
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
@@ -965,7 +1027,7 @@
                           <div className="space-y-1.5 text-xs">
                             <div className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800 flex items-center justify-between">
                               <span className="text-slate-300 flex items-center gap-2">
-                                <i data-lucide="check" className="w-3.5 h-3.5 text-emerald-400"></i>
+                                <Icon name="check" className="w-3.5 h-3.5 text-emerald-400" />
                                 Magic-Byte File Signature Verification
                               </span>
                               <span className="text-[10px] font-mono text-emerald-400 font-semibold">PASSED</span>
@@ -973,7 +1035,7 @@
 
                             <div className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800 flex items-center justify-between">
                               <span className="text-slate-300 flex items-center gap-2">
-                                <i data-lucide="check" className="w-3.5 h-3.5 text-emerald-400"></i>
+                                <Icon name="check" className="w-3.5 h-3.5 text-emerald-400" />
                                 Cryptographic SHA-256 Digest Verification
                               </span>
                               <span className="text-[10px] font-mono text-emerald-400 font-semibold">MATCHED</span>
@@ -981,7 +1043,7 @@
 
                             <div className="p-2.5 rounded-xl bg-slate-900/40 border border-slate-800 flex items-center justify-between">
                               <span className="text-slate-300 flex items-center gap-2">
-                                <i data-lucide={verificationResult.tamperingDetected ? 'x' : 'check'} className={`w-3.5 h-3.5 ${verificationResult.tamperingDetected ? 'text-rose-400' : 'text-emerald-400'}`}></i>
+                                <Icon name={verificationResult.tamperingDetected ? 'x' : 'check'} className={`w-3.5 h-3.5 ${verificationResult.tamperingDetected ? 'text-rose-400' : 'text-emerald-400'}`} />
                                 AI Neural Tamper & Pixel Noise Inspection
                               </span>
                               <span className={`text-[10px] font-mono font-semibold ${verificationResult.tamperingDetected ? 'text-rose-400' : 'text-emerald-400'}`}>
@@ -991,7 +1053,7 @@
 
                             {verificationResult.reasons?.map((reason, idx) => (
                               <div key={idx} className="p-2.5 rounded-xl bg-indigo-950/20 border border-indigo-900/30 text-indigo-300 text-[11px] flex items-center gap-2">
-                                <i data-lucide="info" className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0"></i>
+                                <Icon name="info" className="w-3.5 h-3.5 text-indigo-400 flex-shrink-0" />
                                 <span>Signal: {reason}</span>
                               </div>
                             ))}
@@ -1002,7 +1064,7 @@
                     )}
                   </div>
 
-                  {/* OFFICER DECISION ACTIONS BAR (Only for Investigator & Admin) */}
+                  {/* OFFICER DECISION ACTIONS BAR */}
                   {verificationResult && (currentUser.role === 'ROLE_INVESTIGATOR' || currentUser.role === 'ROLE_ADMIN') && (
                     <div className="pt-4 border-t border-slate-800 mt-6 space-y-2">
                       <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
@@ -1015,7 +1077,7 @@
                           onClick={() => handleOfficerDecision('VERIFIED', 'Manual biometric review confirmed identity.')}
                           className="py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow"
                         >
-                          <i data-lucide="check" className="w-3.5 h-3.5"></i>
+                          <Icon name="check" className="w-3.5 h-3.5" />
                           Approve Authentic
                         </button>
                         <button
@@ -1023,7 +1085,7 @@
                           onClick={() => handleOfficerDecision('REVIEW_REQUIRED', 'Marked for forensic lab physical verification.')}
                           className="py-2 px-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow"
                         >
-                          <i data-lucide="clock" className="w-3.5 h-3.5"></i>
+                          <Icon name="clock" className="w-3.5 h-3.5" />
                           Flag for Review
                         </button>
                         <button
@@ -1031,7 +1093,7 @@
                           onClick={() => handleOfficerDecision('REJECTED', 'Tampering confirmed. Identity document rejected.')}
                           className="py-2 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition flex items-center justify-center gap-1.5 shadow"
                         >
-                          <i data-lucide="x" className="w-3.5 h-3.5"></i>
+                          <Icon name="x" className="w-3.5 h-3.5" />
                           Reject as Fake
                         </button>
                       </div>
@@ -1050,7 +1112,7 @@
                 <div className="flex items-center justify-between border-b border-slate-800 pb-3">
                   <div>
                     <h3 className="font-bold text-base text-white flex items-center gap-2">
-                      <i data-lucide="shield" className="w-5 h-5 text-purple-400"></i>
+                      <Icon name="shield" className="w-5 h-5 text-purple-400" />
                       Append-Only System Audit Trail
                     </h3>
                     <p className="text-xs text-slate-400">Forensically logged events stored in PostgreSQL</p>
@@ -1059,7 +1121,7 @@
                     onClick={() => setShowAuditModal(false)}
                     className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
                   >
-                    <i data-lucide="x" className="w-4 h-4"></i>
+                    <Icon name="x" className="w-4 h-4" />
                   </button>
                 </div>
 
@@ -1112,8 +1174,11 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
   </script>
 </body>
 </html>
-
