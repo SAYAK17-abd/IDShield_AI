@@ -136,3 +136,18 @@ $env:JAVA_HOME = "$env:USERPROFILE\.jdks\temurin-21"
 & "$env:USERPROFILE\.maven\apache-maven-3.9.9\bin\mvn.cmd" test
 ```
 - Runs 15 unit/security tests (Surefire BUILD SUCCESS).
+
+
+5. **1-Click Launchers & Documentation**:
+### start_all.bat
+: 1-click startup launching AI service, Spring Boot gateway, and browser.
+### run_ai_service.bat
+: Launches FastAPI on port 8000 with automatic port-conflict clearance.
+### run_backend.bat
+: Launches Spring Boot on port 8080.
+### run_frontend.bat
+: Opens frontend in default browser.
+run.md
+ & 
+### walkthrough.md
+: Complete manual guides and test verification records.

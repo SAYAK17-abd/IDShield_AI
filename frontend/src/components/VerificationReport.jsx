@@ -104,14 +104,20 @@ export default function VerificationReport({
         <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
           <div className="text-[11px] text-slate-400 font-medium">Face Biometric</div>
           <div className="text-base sm:text-lg font-bold text-white mt-1 font-mono">
-            {(result.faceMatchConfidence * 100).toFixed(1)}%
+            {(!result.faceMatchConfidence || result.faceMatchConfidence === 0) && !result.faceMatched
+              ? 'N/A'
+              : `${(result.faceMatchConfidence * 100).toFixed(1)}%`}
           </div>
           <div
             className={`text-[10px] font-semibold mt-0.5 ${
-              result.faceMatched ? 'text-emerald-400' : 'text-rose-400'
+              (!result.faceMatchConfidence || result.faceMatchConfidence === 0) && !result.faceMatched
+                ? 'text-slate-400'
+                : result.faceMatched ? 'text-emerald-400' : 'text-rose-400'
             }`}
           >
-            {result.faceMatched ? 'Matched' : 'Mismatch'}
+            {(!result.faceMatchConfidence || result.faceMatchConfidence === 0) && !result.faceMatched
+              ? 'No Selfie'
+              : result.faceMatched ? 'Matched' : 'Mismatch'}
           </div>
         </div>
 

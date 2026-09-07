@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 import numpy as np
 from typing import Tuple, Optional
 import cv2
@@ -57,18 +57,18 @@ def verify_faces(
     doc_face_count = len(doc_faces)
     doc_detected = doc_face_count > 0
 
-    # If no selfie was provided, return document face detection status
+    # If no selfie was provided, do not mark as matched
     if selfie_img is None:
         return FaceVerificationDto(
-            matched=True if doc_detected else False,
-            confidence=0.5 if doc_detected else 0.0,
-            status="DOCUMENT_FACE_DETECTED" if doc_detected else "FACE_NOT_FOUND_DOCUMENT",
+            matched=False,
+            confidence=0.0,
+            status="NO_SELFIE_PROVIDED" if doc_detected else "FACE_NOT_FOUND_DOCUMENT",
             documentFaceDetected=doc_detected,
             selfieFaceDetected=False,
             documentFaceCount=doc_face_count,
             selfieFaceCount=0,
             threshold=ARCFACE_MATCH_THRESHOLD,
-            reason="Document face detected; no biometric reference selfie provided for 1:1 comparison"
+            reason="Face detected on document; 1:1 biometric comparison was skipped because no live selfie was uploaded"
             if doc_detected else "No usable face detected on identity document"
         )
 

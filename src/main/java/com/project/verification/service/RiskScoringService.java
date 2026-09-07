@@ -75,10 +75,15 @@ public class RiskScoringService {
         // 2. Face Mismatch Component (Weight: 30%)
         double faceMismatchRaw = 0.0;
         if (aiResponse.getFaceVerification() != null) {
+            String status = aiResponse.getFaceVerification().getStatus();
             boolean matched = Boolean.TRUE.equals(aiResponse.getFaceVerification().getMatched());
             Double conf = aiResponse.getFaceVerification().getConfidence();
 
-            if (!matched) {
+            if ("NO_SELFIE_PROVIDED".equalsIgnoreCase(status)) {
+                // Biometric 1:1 verification skipped because user did not supply a selfie
+                faceMismatchRaw = 0.0;
+                reasons.add("Biometric 1:1 facial comparison skipped (no live reference selfie uploaded)");
+            } else if (!matched) {
                 // If face does not match, higher face mismatch risk
                 faceMismatchRaw = (conf != null) ? (1.0 - conf) * 100.0 : 85.0;
                 faceMismatchRaw = Math.max(70.0, faceMismatchRaw);
@@ -94,11 +99,17 @@ public class RiskScoringService {
         // 3. OCR & Inconsistency Component (Weight: 20% OCR, 20% Identity)
         double ocrRaw = 0.0;
         double identityRaw = 0.0;
+        boolean hasDocumentMismatch = false;
 
         if (aiResponse.getInconsistencies() != null && !aiResponse.getInconsistencies().isEmpty()) {
             for (String inc : aiResponse.getInconsistencies()) {
                 reasons.add(inc);
-                if (inc.toLowerCase().contains("ocr") || inc.toLowerCase().contains("font") || inc.toLowerCase().contains("text")) {
+                String lower = inc.toLowerCase();
+                if (lower.contains("mismatch") || lower.contains("document format") || lower.contains("type mismatch")) {
+                    hasDocumentMismatch = true;
+                    identityRaw += 80.0;
+                    ocrRaw += 60.0;
+                } else if (lower.contains("ocr") || lower.contains("font") || lower.contains("text")) {
                     ocrRaw += 40.0;
                 } else {
                     identityRaw += 40.0;
@@ -111,6 +122,11 @@ public class RiskScoringService {
 
         // Aggregate total score bounded between 0 and 100
         int totalScore = (int) Math.round(Math.min(100.0, tamperingScore + faceMismatchScore + ocrScore + identityScore));
+
+        // If a document type mismatch was detected, elevate risk to at least MEDIUM (REVIEW_REQUIRED)
+        if (hasDocumentMismatch && totalScore <= lowRiskMax) {
+            totalScore = lowRiskMax + 15; // 45/100 -> MEDIUM
+        }
 
         // Classify Risk Level
         RiskLevel level;

@@ -1,4 +1,5 @@
-﻿import logging
+import logging
+import re
 import time
 from typing import Optional, List, Dict, Any
 import numpy as np
@@ -132,6 +133,91 @@ def run_full_analysis(
             severity="MEDIUM",
             message="Extracted document typography has low character recognition confidence"
         ))
+
+    # Document Format & Content Cross-Validation
+    if doc_type:
+        dt_upper = doc_type.upper()
+        raw_upper = (ocr_res.rawText or "").upper()
+        detected_fmt = (ocr_res.additionalFields or {}).get("matchedDocFormat", "")
+
+        # Check: Aadhaar Card declared
+        if "AADHAAR" in dt_upper:
+            is_student = (
+                detected_fmt == "STUDENT_ID"
+                or any(k in raw_upper for k in ["UNIVERSITY", "COLLEGE", "STUDENT ID", "DEPARTMENT OF", "BRAINWARE", "ENROLLMENT", "ROLL NO"])
+            )
+            has_aadhaar_pattern = bool(
+                re.search(r"\b\d{4}\s\d{4}\s\d{4}\b", raw_upper)
+                or re.search(r"\b\d{12}\b", raw_upper)
+                or any(k in raw_upper for k in ["UIDAI", "AADHAAR", "UNIQUE IDENTIFICATION", "GOVERNMENT OF INDIA", "MERA AADHAAR"])
+            )
+
+            if is_student and not has_aadhaar_pattern:
+                inconsistencies.append("Document mismatch: User declared Aadhaar Card, but uploaded document is an Academic/College Student ID")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_TYPE_MISMATCH",
+                    severity="HIGH",
+                    message="Document format mismatch: Uploaded document does not match Aadhaar Card specifications (Academic Student ID detected)"
+                ))
+            elif detected_fmt == "PAN_CARD":
+                inconsistencies.append("Document mismatch: User declared Aadhaar Card, but uploaded document is an Income Tax PAN Card")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_TYPE_MISMATCH",
+                    severity="HIGH",
+                    message="Document format mismatch: Uploaded document matches PAN Card format instead of Aadhaar"
+                ))
+            elif detected_fmt == "VOTER_ID":
+                inconsistencies.append("Document mismatch: User declared Aadhaar Card, but uploaded document is an Election Commission Voter ID")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_TYPE_MISMATCH",
+                    severity="HIGH",
+                    message="Document format mismatch: Uploaded document matches Voter ID format instead of Aadhaar"
+                ))
+            elif len(raw_upper) > 25 and not has_aadhaar_pattern:
+                inconsistencies.append("Document verification failed: No 12-digit Aadhaar UID or UIDAI authority marks detected")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_FORMAT_INVALID",
+                    severity="HIGH",
+                    message="Declared Aadhaar card lacks mandatory 12-digit UID pattern and UIDAI security headers"
+                ))
+
+        # Check: PAN Card declared
+        elif "PAN" in dt_upper:
+            has_pan_pattern = bool(
+                re.search(r"\b[A-Z]{5}[0-9]{4}[A-Z]\b", raw_upper)
+                or any(k in raw_upper for k in ["INCOME TAX", "PERMANENT ACCOUNT NUMBER", "GOVT. OF INDIA"])
+            )
+            if detected_fmt == "STUDENT_ID" or any(k in raw_upper for k in ["UNIVERSITY", "COLLEGE", "STUDENT ID"]):
+                inconsistencies.append("Document mismatch: User declared PAN Card, but uploaded document is an Academic/College Student ID")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_TYPE_MISMATCH",
+                    severity="HIGH",
+                    message="Document format mismatch: Uploaded document matches Academic Student ID instead of PAN Card"
+                ))
+            elif detected_fmt == "AADHAAR_CARD":
+                inconsistencies.append("Document mismatch: User declared PAN Card, but uploaded document is an Aadhaar Card")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_TYPE_MISMATCH",
+                    severity="HIGH",
+                    message="Document format mismatch: Uploaded document matches Aadhaar Card format instead of PAN"
+                ))
+            elif len(raw_upper) > 25 and not has_pan_pattern:
+                inconsistencies.append("Document verification failed: No 10-character PAN alphanumeric format or Income Tax header detected")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_FORMAT_INVALID",
+                    severity="HIGH",
+                    message="Declared PAN Card lacks standard 10-character alphanumeric PAN structure"
+                ))
+
+        # Check: Student ID declared
+        elif "STUDENT" in dt_upper:
+            if detected_fmt in ["AADHAAR_CARD", "PAN_CARD", "VOTER_ID"]:
+                inconsistencies.append(f"Document mismatch: User declared Student ID, but uploaded document is a Government {detected_fmt.replace('_', ' ').title()}")
+                risk_indicators.append(RiskIndicatorDto(
+                    type="DOCUMENT_TYPE_MISMATCH",
+                    severity="MEDIUM",
+                    message="Document type mismatch: Uploaded document is a Government ID, not an Academic Student ID"
+                ))
 
     elapsed_ms = int((time.time() - start_time) * 1000)
 

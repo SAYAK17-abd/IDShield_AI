@@ -960,10 +960,18 @@
                           <div className="p-3.5 rounded-2xl bg-slate-900/80 border border-slate-800 text-center">
                             <div className="text-[11px] text-slate-400 font-medium">Face Biometric</div>
                             <div className="text-base sm:text-lg font-bold text-white mt-1 font-mono">
-                              {(verificationResult.faceMatchConfidence * 100).toFixed(1)}%
+                              {(!verificationResult.faceMatchConfidence || verificationResult.faceMatchConfidence === 0) && !verificationResult.faceMatched
+                                ? 'N/A'
+                                : `${(verificationResult.faceMatchConfidence * 100).toFixed(1)}%`}
                             </div>
-                            <div className={`text-[10px] font-semibold mt-0.5 ${verificationResult.faceMatched ? 'text-emerald-400' : 'text-rose-400'}`}>
-                              {verificationResult.faceMatched ? 'Matched' : 'Mismatch'}
+                            <div className={`text-[10px] font-semibold mt-0.5 ${
+                              (!verificationResult.faceMatchConfidence || verificationResult.faceMatchConfidence === 0) && !verificationResult.faceMatched
+                                ? 'text-slate-400'
+                                : verificationResult.faceMatched ? 'text-emerald-400' : 'text-rose-400'
+                            }`}>
+                              {(!verificationResult.faceMatchConfidence || verificationResult.faceMatchConfidence === 0) && !verificationResult.faceMatched
+                                ? 'No Selfie'
+                                : verificationResult.faceMatched ? 'Matched' : 'Mismatch'}
                             </div>
                           </div>
 

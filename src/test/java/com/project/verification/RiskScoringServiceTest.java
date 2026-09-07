@@ -65,5 +65,45 @@ class RiskScoringServiceTest {
         assertTrue(details.getRiskScore() > 60);
         assertTrue(details.getReasons().stream().anyMatch(r -> r.contains("Possible photo manipulation")));
     }
+
+    @Test
+    void calculateRisk_NoSelfieProvided_ShouldNotPenalizeFaceMismatch() {
+        AiAnalysisResponse noSelfieResponse = AiAnalysisResponse.builder()
+                .tampering(TamperingDto.builder().detected(false).confidence(0.02).build())
+                .faceVerification(FaceVerificationDto.builder()
+                        .matched(false)
+                        .confidence(0.0)
+                        .status("NO_SELFIE_PROVIDED")
+                        .build())
+                .inconsistencies(List.of())
+                .build();
+
+        RiskScoreDetails details = riskScoringService.calculateRisk(noSelfieResponse);
+
+        assertEquals(RiskLevel.LOW, details.getRiskLevel());
+        assertEquals(0, details.getRiskScore());
+        assertTrue(details.getReasons().stream().anyMatch(r -> r.contains("no live reference selfie uploaded")));
+    }
+
+    @Test
+    void calculateRisk_DocumentTypeMismatch_ShouldElevateToReviewRequired() {
+        AiAnalysisResponse mismatchResponse = AiAnalysisResponse.builder()
+                .tampering(TamperingDto.builder().detected(false).confidence(0.05).build())
+                .faceVerification(FaceVerificationDto.builder()
+                        .matched(false)
+                        .confidence(0.0)
+                        .status("NO_SELFIE_PROVIDED")
+                        .build())
+                .inconsistencies(List.of(
+                        "Document mismatch: User declared Aadhaar Card, but uploaded document is an Academic/College Student ID"
+                ))
+                .build();
+
+        RiskScoreDetails details = riskScoringService.calculateRisk(mismatchResponse);
+
+        assertEquals(RiskLevel.MEDIUM, details.getRiskLevel());
+        assertTrue(details.getRiskScore() >= 45);
+        assertTrue(details.getReasons().stream().anyMatch(r -> r.contains("Document mismatch")));
+    }
 }
 
