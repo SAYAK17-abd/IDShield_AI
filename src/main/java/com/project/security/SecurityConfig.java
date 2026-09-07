@@ -81,6 +81,7 @@ public class SecurityConfig {
                                 "/",
                                 "/index.html",
                                 "/standalone.html",
+                                "/portal_preview.html",
                                 "/favicon.ico",
                                 "/static/**",
                                 "/assets/**",
