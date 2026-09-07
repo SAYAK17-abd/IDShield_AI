@@ -28,8 +28,8 @@ def test_aadhaar_with_student_id_triggers_mismatch():
     doc_img = np.full((350, 500, 3), 255, dtype=np.uint8)
     cv2.putText(doc_img, "BRAINWARE UNIVERSITY", (30, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 0), 2)
     cv2.putText(doc_img, "STUDENT IDENTITY CARD", (30, 110), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-    cv2.putText(doc_img, "Name: Sayak Dutta", (30, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
-    cv2.putText(doc_img, "Roll: BTS/24/500", (30, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+    cv2.putText(doc_img, "Name: Sample Student", (30, 160), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
+    cv2.putText(doc_img, "Roll: STU/2024/042", (30, 210), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
     _, doc_bytes = cv2.imencode(".jpg", doc_img)
 
     # Request declared as AADHAAR_CARD

@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IDShield AI - National Identity Portal (Dual Theme Auto-Detect)</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class'
+    }
+  </script>
+  <style>
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes scanline {
+      0% { top: 0%; opacity: 0.8; }
+      50% { opacity: 1; }
+      100% { top: 100%; opacity: 0.2; }
+    }
+    .chakra-spin {
+      animation: spin-slow 24s linear infinite;
+    }
+    .scan-laser {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #38bdf8, #818cf8, transparent);
+      box-shadow: 0 0 15px #818cf8;
+      animation: scanline 2.8s ease-in-out infinite;
+    }
+    .tricolor-border {
+      background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #138808 66.6%, #138808 100%);
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans antialiased flex flex-col transition-colors duration-300">
+
+  <!-- TOP TRICOLOR RIBBON -->
+  <div class="h-1.5 w-full tricolor-border sticky top-0 z-50 shadow-md"></div>
+
+  <!-- TOP NAVBAR & CONTROLS -->
+  <header class="sticky top-1.5 z-40 bg-white/90 dark:bg-slate-950/80 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-800/80 shadow-sm transition-colors duration-300">
+    <div class="flex items-center space-x-3 sm:space-x-4">
+      
+      <!-- ASHOK STAMBH (LION CAPITAL) VECTOR CREST -->
+      <div class="w-12 h-14 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-gradient-to-b from-amber-500/10 to-amber-700/5 dark:from-amber-500/20 dark:to-amber-700/10 border border-amber-500/30 dark:border-amber-500/40 shadow-sm" title="Ashok Stambh - National Emblem of India (Satyameva Jayate)">
+        <svg viewBox="0 0 100 130" class="w-10 h-12 text-amber-600 dark:text-amber-400 filter drop-shadow">
+          <path d="M50 12 C44 12 40 16 39 21 C36 21 34 23 34 26 C34 30 36 33 38 35 C38 42 43 47 50 47 C57 42 62 47 62 35 C64 33 66 30 66 26 C66 23 64 21 61 21 C60 16 56 12 50 12 Z" fill="currentColor" opacity="0.95" />
+          <ellipse cx="46" cy="27" rx="1.8" ry="1.2" fill="#0f172a" />
+          <ellipse cx="54" cy="27" rx="1.8" ry="1.2" fill="#0f172a" />
+          <path d="M48 31 Q50 33 52 31" stroke="#0f172a" stroke-width="1.2" fill="none" />
+          <path d="M36 24 C31 24 26 27 25 33 C24 38 27 44 32 46 C35 48 37 46 38 43 C37 36 37 28 36 24 Z" fill="currentColor" opacity="0.8" />
+          <circle cx="28" cy="32" r="1.4" fill="#0f172a" />
+          <path d="M64 24 C69 24 74 27 75 33 C76 38 73 44 68 46 C65 48 63 46 62 43 C63 36 63 28 64 24 Z" fill="currentColor" opacity="0.8" />
+          <circle cx="72" cy="32" r="1.4" fill="#0f172a" />
+          <path d="M33 46 C32 58 35 70 42 75 L58 75 C65 70 68 58 67 46 C62 50 56 52 50 52 C44 52 38 50 33 46 Z" fill="currentColor" opacity="0.9" />
+          <path d="M44 55 Q50 58 56 55 Q50 63 44 55" fill="#0f172a" opacity="0.4" />
+          <rect x="22" y="75" width="56" height="7" rx="2" fill="currentColor" />
+          <circle cx="50" cy="78.5" r="3" fill="#0f172a" />
+          <circle cx="50" cy="78.5" r="1" fill="currentColor" />
+          <circle cx="32" cy="78.5" r="1.8" fill="#0f172a" opacity="0.7" />
+          <circle cx="68" cy="78.5" r="1.8" fill="#0f172a" opacity="0.7" />
+          <path d="M26 82 C28 92 38 97 50 97 C62 97 72 92 74 82 Z" fill="currentColor" opacity="0.85" />
+          <path d="M32 84 C36 93 44 95 50 95 C56 95 64 93 68 84" stroke="#0f172a" stroke-width="1.2" fill="none" opacity="0.5" />
+          <rect x="18" y="97" width="64" height="6" rx="2" fill="currentColor" />
+          <rect x="12" y="106" width="76" height="15" rx="3" fill="currentColor" />
+          <text x="50" y="117" font-size="7" font-weight="bold" fill="#0f172a" text-anchor="middle" font-family="sans-serif">
+            सत्यमेव जयते
+          </text>
+        </svg>
+      </div>
+
+      <!-- MATHEMATICALLY EXACT 24-SPOKE ASHOK CHAKRA -->
+      <div class="w-11 h-11 flex-shrink-0 rounded-full p-0.5 bg-blue-500/10 border border-blue-400/40 flex items-center justify-center shadow-sm" title="Ashok Chakra - 24 Spokes (#000080 Navy Blue)">
+        <svg viewBox="0 0 100 100" class="w-9 h-9 text-[#000080] dark:text-blue-400 chakra-spin">
+          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" stroke-width="3.2" />
+          <circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" stroke-width="0.8" opacity="0.4" />
+          <circle cx="50" cy="50" r="7.5" fill="currentColor" />
+          <circle cx="50" cy="50" r="3" fill="#ffffff" />
+          <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(0 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(15 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(30 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(45 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(60 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(75 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(90 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(105 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(120 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(135 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(150 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(165 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(180 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(195 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(210 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(225 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(240 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(255 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(270 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(285 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(300 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(315 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(330 50 50)" />
+            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(345 50 50)" />
+          </g>
+        </svg>
+      </div>
+
+      <div>
+        <div class="flex items-center space-x-2 flex-wrap">
+          <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-[#000080] dark:text-white flex items-center gap-1.5">
+            IDShield AI
+            <span class="text-[10px] font-mono text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.2 rounded-full bg-amber-500/10 font-bold">
+              Govt. of India
+            </span>
+            <span class="hidden sm:inline-block text-[10px] uppercase font-semibold bg-indigo-500/10 dark:bg-indigo-500/20 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full">
+              SIH26188
+            </span>
+          </h1>
+        </div>
+        <div class="text-[11px] text-slate-600 dark:text-slate-400 font-medium hidden sm:block">
+          राष्ट्रीय पहचान सत्यापन एवं जालसाजी रोधी पोर्टल (National Identity Anti-Fraud Screening Portal)
+        </div>
+        <div class="flex items-center space-x-2 text-[11px]">
+          <span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-slate-500 dark:text-slate-400 hidden sm:inline">Port 8080:</span>
+          <span class="text-emerald-600 dark:text-emerald-400 font-medium">Gateway Online</span>
+          <span class="text-slate-300 dark:text-slate-600 hidden md:inline">•</span>
+          <span class="text-emerald-600/90 dark:text-emerald-400/90 text-[10px] font-mono hidden md:inline">ArcFace 512-d + RapidOCR Active</span>
+        </div>
+      </div>
+
+      <!-- ARTISTIC TEXTURED TRICOLOR FLAG BADGE -->
+      <div class="hidden xl:flex items-center pl-3 border-l border-slate-200 dark:border-slate-800">
+        <img 
+          src="/assets/tricolor_flag.png" 
+          onerror="this.onerror=null; this.src='file:///C:/Users/Sayak Dutta/.gemini/antigravity/brain/454c86f4-a240-4f74-8761-d1f374d310f8/.user_uploaded/media_1788766316934.png';"
+          alt="India Tricolor" 
+          class="h-10 w-auto object-contain rounded-xl shadow-md border border-slate-200 dark:border-slate-700/60 hover:scale-105 transition"
+        />
+      </div>
+
+    </div>
+
+    <!-- Right Controls: Theme Selector + Officer Badge -->
+    <div class="flex items-center gap-3">
+
+      <!-- THEME SWITCHER (Light, Dark, System Auto) -->
+      <div class="flex items-center bg-slate-100 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-1 rounded-2xl text-xs font-semibold shadow-inner">
+        <button onclick="setTheme('light')" id="btn-theme-light" title="Switch to Light Theme" class="flex items-center gap-1 px-2.5 py-1 rounded-xl transition">
+          <span>☀️</span>
+          <span class="hidden md:inline">Light</span>
+        </button>
+        <button onclick="setTheme('dark')" id="btn-theme-dark" title="Switch to Dark Theme" class="flex items-center gap-1 px-2.5 py-1 rounded-xl transition">
+          <span>🌙</span>
+          <span class="hidden md:inline">Dark</span>
+        </button>
+        <button onclick="setTheme('system')" id="btn-theme-system" title="Follow OS Default Theme" class="flex items-center gap-1 px-2.5 py-1 rounded-xl transition">
+          <span>💻</span>
+          <span class="hidden sm:inline">Auto</span>
+        </button>
+      </div>
+
+      <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs">
+        <span class="text-slate-500 dark:text-slate-400">Clearance:</span>
+        <span class="font-bold text-amber-600 dark:text-amber-400 font-mono">LEVEL-3</span>
+      </div>
+
+      <div class="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-50 dark:bg-gradient-to-r dark:from-slate-900 dark:to-indigo-950 border border-slate-200 dark:border-indigo-500/30 shadow-sm">
+        <div class="w-7 h-7 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow">
+          S
+        </div>
+        <div class="text-left text-xs hidden sm:block">
+          <div class="font-bold text-slate-800 dark:text-slate-200">Sayak Dutta</div>
+          <div class="text-[10px] text-indigo-600 dark:text-indigo-300">Cyber Forensic Officer</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN APPLICATION CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- ROLE BANNER NOTIFICATION -->
+    <div class="p-3.5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm bg-blue-50/80 border-blue-200 text-blue-900 dark:bg-blue-950/20 dark:border-blue-800/40 dark:text-blue-300 transition-colors duration-300">
+      <div class="flex items-center space-x-2.5">
+        <div class="p-2 rounded-xl text-white bg-blue-600 shadow">
+          🛡️
+        </div>
+        <div>
+          <div class="font-semibold text-xs text-slate-900 dark:text-white">
+            Signed in as Cyber Forensic Officer (investigator@idshield.com)
+          </div>
+          <div class="text-[11px] text-slate-600 dark:text-blue-300/80">Full Document Forensics, Anomaly Inspection, and Fraud Review Clearance</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="theme-status-pill" class="text-[10px] font-mono font-medium px-2 py-0.5 rounded-lg bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+          OS Default Theme: Detecting...
+        </span>
+        <span class="text-xs font-mono font-bold text-amber-700 dark:text-amber-400 border border-amber-500/40 px-3 py-1 rounded-xl bg-amber-500/10">
+          IMMUTABLE AUDIT ACTIVE
+        </span>
+      </div>
+    </div>
+
+    <!-- 3-STEP VISUAL WORKFLOW PROGRESSION STEPPER -->
+    <div class="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 p-5 shadow-lg transition-colors duration-300">
+      <!-- Ambient Textured Tricolor Backdrop -->
+      <div 
+        class="absolute right-4 top-1/2 -translate-y-1/2 w-80 h-44 opacity-15 dark:opacity-20 pointer-events-none bg-no-repeat bg-contain bg-right filter drop-shadow" 
+        style="background-image: url('file:///C:/Users/Sayak Dutta/.gemini/antigravity/brain/454c86f4-a240-4f74-8761-d1f374d310f8/.user_uploaded/media_1788766316934.png');"
+      ></div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
+        <div class="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-gradient-to-br dark:from-indigo-950/60 dark:to-slate-900/80 border border-indigo-200 dark:border-indigo-500/40 relative">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow">1</div>
+            <div>
+              <div class="text-xs font-bold text-indigo-900 dark:text-white uppercase tracking-wider">Step 1: Document Category</div>
+              <div class="text-[11px] text-slate-600 dark:text-slate-400">Select declared statutory identity format</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 relative">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs">2</div>
+            <div>
+              <div class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Step 2: Upload & Selfie</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">PDF/JPG ID + Optional live reference selfie</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800 relative">
+          <div class="flex items-center gap-2.5">
+            <div class="w-7 h-7 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs">3</div>
+            <div>
+              <div class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Step 3: Forensic Verdict</div>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400">Real-time tampering & biometric verification</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- EXACT MATCH OF MEDIA_1788767254462.PNG (REQUESTED USER WORKSPACE)          -->
+    <!-- SUPPORTING BOTH CRISP WHITE LIGHT THEME & CYBER DARK THEME                 -->
+    <!-- ========================================================================= -->
+    <div class="space-y-6">
+
+      <!-- 1. FULL WIDTH RECOGNIZED INDIAN IDENTITY STANDARDS (ROW OF 6 CARDS) -->
+      <div>
+        <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+          <label class="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300 flex items-center gap-2">
+            <span>🏛️ RECOGNIZED INDIAN IDENTITY STANDARDS (SELECT FORMAT)</span>
+          </label>
+          <div class="flex items-center gap-2">
+            <span class="text-[11px] text-amber-600 dark:text-amber-400 font-medium hidden sm:inline">Auto-cross checked with OCR pattern matching</span>
+            <button onclick="toggleMoreDocs()" id="btn-more-docs" class="flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-bold bg-indigo-50 dark:bg-indigo-950/50 border border-indigo-200 dark:border-indigo-500/40 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition shadow-sm cursor-pointer">
+              <span>📂 More Documents (Ration Card, Birth Cert, ABHA...)</span>
+              <span id="more-docs-icon" class="transition-transform duration-200">▼</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          
+          <!-- Aadhaar Card (Selected) -->
+          <div onclick="selectDoc(this, 'aadhaar')" class="doc-card p-3.5 rounded-2xl border-2 border-orange-500 bg-orange-50/80 dark:bg-gradient-to-b dark:from-orange-500/20 dark:to-slate-900 shadow-md shadow-orange-500/10 cursor-pointer relative transition hover:-translate-y-0.5">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-wider bg-orange-600 text-white px-2 py-0.5 rounded-full shadow">
+                UIDAI
+              </span>
+              <span class="text-xs">🇮🇳</span>
+            </div>
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-slate-900 dark:text-white">Aadhaar Card</div>
+              <div class="text-[10px] text-orange-700 dark:text-orange-300 font-mono mt-0.5">12-Digit UID</div>
+            </div>
+            <div class="text-[9px] text-slate-600 dark:text-slate-400 mt-2 flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span>Verhoeff Check</span>
+            </div>
+          </div>
+
+          <!-- PAN Card -->
+          <div onclick="selectDoc(this, 'pan')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-blue-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-wider bg-blue-500/10 dark:bg-blue-500/20 border border-blue-500/30 dark:border-blue-500/40 text-blue-700 dark:text-blue-400 px-2 py-0.5 rounded-full">
+                IT DEPT
+              </span>
+              <span class="text-xs">💳</span>
+            </div>
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">PAN Card</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">ABCDE1234F</div>
+            </div>
+            <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">Alphanumeric 10-Char</div>
+          </div>
+
+          <!-- Voter ID (EPIC) -->
+          <div onclick="selectDoc(this, 'voter')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-emerald-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-full">
+                ECI
+              </span>
+              <span class="text-xs">🗳️</span>
+            </div>
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Voter ID (EPIC)</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">WBF2938172</div>
+            </div>
+            <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">Assembly Constituency</div>
+          </div>
+
+          <!-- Driving Licence -->
+          <div onclick="selectDoc(this, 'dl')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-purple-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-wider bg-purple-500/10 dark:bg-purple-500/20 border border-purple-500/30 dark:border-purple-500/40 text-purple-700 dark:text-purple-400 px-2 py-0.5 rounded-full">
+                SARATHI
+              </span>
+              <span class="text-xs">🚗</span>
+            </div>
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Driving Licence</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">WB-0420180...</div>
+            </div>
+            <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">MoRTH Verified</div>
+          </div>
+
+          <!-- Indian Passport -->
+          <div onclick="selectDoc(this, 'passport')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-sky-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-wider bg-sky-500/10 dark:bg-sky-500/20 border border-sky-500/30 dark:border-sky-500/40 text-sky-700 dark:text-sky-400 px-2 py-0.5 rounded-full">
+                MEA MRZ
+              </span>
+              <span class="text-xs">✈️</span>
+            </div>
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Indian Passport</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">P8291048</div>
+            </div>
+            <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">ICAO 9303 Compliant</div>
+          </div>
+
+          <!-- Student ID -->
+          <div onclick="selectDoc(this, 'student')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-pink-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-bold uppercase tracking-wider bg-pink-500/10 dark:bg-pink-500/20 border border-pink-500/30 dark:border-pink-500/40 text-pink-700 dark:text-pink-400 px-2 py-0.5 rounded-full">
+                INSTITUTE
+              </span>
+              <span class="text-xs">🎓</span>
+            </div>
+            <div class="mt-2.5">
+              <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Student ID</div>
+              <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">STU/2024/001</div>
+            </div>
+            <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">University / College</div>
+          </div>
+
+        </div>
+
+        <!-- EXPANDABLE "MORE DOCUMENTS" SECTION (RATION CARD, BIRTH CERT, CASTE/DOMICILE, ABHA, E-SHRAM, UDID) -->
+        <div id="more-docs-container" class="mt-4 pt-4 border-t border-slate-200 dark:border-slate-800/80 transition-all duration-300">
+          <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold uppercase tracking-wider text-indigo-700 dark:text-indigo-400 flex items-center gap-1.5">
+                <span>🌾 MORE STANDARDS: STATE, SOCIAL WELFARE & NON-PHOTO DOCUMENTS</span>
+              </span>
+              <span class="text-[10px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-semibold">
+                Face Biometrics Optional
+              </span>
+            </div>
+            <span class="text-[11px] text-slate-500 dark:text-slate-400">Validated via Barcode, Seal, Stamp & Hierarchy OCR</span>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+
+            <!-- 1. Ration Card (NFSA / State PDS) -->
+            <div onclick="selectDoc(this, 'ration')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-amber-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 dark:border-amber-500/40 text-amber-700 dark:text-amber-400 px-2 py-0.5 rounded-full font-bold">
+                  FOOD & PDS
+                </span>
+                <span class="text-xs">🌾</span>
+              </div>
+              <div class="mt-2.5">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Ration Card</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">NFSA/RC-99214</div>
+              </div>
+              <div class="text-[9px] text-emerald-600 dark:text-emerald-400 mt-2 font-medium flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                <span>Barcode + Family OCR</span>
+              </div>
+            </div>
+
+            <!-- 2. Birth Certificate (CRS) -->
+            <div onclick="selectDoc(this, 'birth')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-teal-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-teal-500/10 dark:bg-teal-500/20 border border-teal-500/30 dark:border-teal-500/40 text-teal-700 dark:text-teal-400 px-2 py-0.5 rounded-full">
+                  REGISTRAR
+                </span>
+                <span class="text-xs">📜</span>
+              </div>
+              <div class="mt-2.5">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Birth Certificate</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">CRS-B-2024-91</div>
+              </div>
+              <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">QR Code & Reg No.</div>
+            </div>
+
+            <!-- 3. Caste / Domicile Certificate -->
+            <div onclick="selectDoc(this, 'caste')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-rose-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-rose-500/10 dark:bg-rose-500/20 border border-rose-500/30 dark:border-rose-500/40 text-rose-700 dark:text-rose-400 px-2 py-0.5 rounded-full">
+                  E-DISTRICT
+                </span>
+                <span class="text-xs">🏛️</span>
+              </div>
+              <div class="mt-2.5">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">Caste / Domicile</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">ED/WB/2023/10</div>
+              </div>
+              <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">Digital Signature Seal</div>
+            </div>
+
+            <!-- 4. Ayushman Bharat (ABHA) Card -->
+            <div onclick="selectDoc(this, 'abha')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-cyan-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-cyan-500/10 dark:bg-cyan-500/20 border border-cyan-500/30 dark:border-cyan-500/40 text-cyan-700 dark:text-cyan-400 px-2 py-0.5 rounded-full">
+                  NHA / PM-JAY
+                </span>
+                <span class="text-xs">🏥</span>
+              </div>
+              <div class="mt-2.5">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">ABHA Health Card</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">91-2849-1829</div>
+              </div>
+              <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">14-Digit Health ID</div>
+            </div>
+
+            <!-- 5. e-Shram / Labour Card -->
+            <div onclick="selectDoc(this, 'eshram')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-yellow-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-yellow-500/10 dark:bg-yellow-500/20 border border-yellow-500/30 dark:border-yellow-500/40 text-yellow-700 dark:text-yellow-400 px-2 py-0.5 rounded-full">
+                  LABOUR MIN
+                </span>
+                <span class="text-xs">👷</span>
+              </div>
+              <div class="mt-2.5">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">e-Shram Card</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">UAN 12-Digit</div>
+              </div>
+              <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">Social Security UAN</div>
+            </div>
+
+            <!-- 6. Disability Certificate (UDID) -->
+            <div onclick="selectDoc(this, 'udid')" class="doc-card p-3.5 rounded-2xl border border-slate-200 dark:border-slate-800 hover:border-violet-500/60 bg-white dark:bg-slate-900/80 cursor-pointer transition hover:-translate-y-0.5 shadow-sm">
+              <div class="flex items-center justify-between">
+                <span class="text-[9px] font-bold uppercase tracking-wider bg-violet-500/10 dark:bg-violet-500/20 border border-violet-500/30 dark:border-violet-500/40 text-violet-700 dark:text-violet-400 px-2 py-0.5 rounded-full">
+                  DEPwD / UDID
+                </span>
+                <span class="text-xs">♿</span>
+              </div>
+              <div class="mt-2.5">
+                <div class="text-xs font-bold text-slate-800 dark:text-slate-200">UDID Certificate</div>
+                <div class="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">18-Digit UDID</div>
+              </div>
+              <div class="text-[9px] text-slate-500 dark:text-slate-500 mt-2">Hospital Board Seal</div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- 2. DUAL UPLOAD DOCK (EXACT 2-COLUMN MATCH FROM SCREENSHOT) -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- Left: Upload Document Image or PDF -->
+        <div id="dropzone-doc" class="relative overflow-hidden rounded-3xl border-2 border-dashed border-indigo-400 dark:border-indigo-500/50 bg-white dark:bg-gradient-to-b dark:from-indigo-950/20 dark:to-slate-900/80 p-8 text-center transition group hover:border-indigo-600 dark:hover:border-indigo-400 cursor-pointer shadow-md dark:shadow-xl">
+          <div class="scan-laser"></div>
+          
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 to-blue-500 text-white flex items-center justify-center mx-auto mb-3 shadow-lg shadow-indigo-500/30 text-2xl group-hover:scale-105 transition">
+            📄
+          </div>
+
+          <div class="text-sm font-bold text-slate-900 dark:text-white">
+            Upload Document Image or PDF
+          </div>
+          <p class="text-xs text-slate-600 dark:text-slate-400 mt-1 max-w-sm mx-auto">
+            Drag & drop file here, or click to browse. Magic bytes, ELA tampering & OCR text are analyzed instantly.
+          </p>
+
+          <div class="mt-4 flex flex-wrap items-center justify-center gap-2">
+            <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-transparent">JPEG</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-transparent">PNG</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-transparent">PDF (Auto-Raster)</span>
+            <span class="px-2.5 py-1 rounded-md bg-slate-100 dark:bg-slate-800 text-[10px] font-mono text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-transparent">Max 10MB</span>
+          </div>
+
+          <button class="mt-5 px-6 py-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 transition active:scale-95">
+            Choose Document File
+          </button>
+        </div>
+
+        <!-- Right: Optional Live Reference Selfie -->
+        <div id="dropzone-selfie" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/60 p-6 flex flex-col justify-between shadow-md dark:shadow-xl transition-colors duration-300">
+          <div>
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-bold text-sm">
+                  👤
+                </div>
+                <div>
+                  <div class="text-xs font-bold text-slate-900 dark:text-white">Optional Live Reference Selfie</div>
+                  <div class="text-[10px] text-slate-500 dark:text-slate-400">Enables InsightFace ArcFace 1:1 Biometric Comparison</div>
+                </div>
+              </div>
+              <span class="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700 font-mono">
+                OPTIONAL
+              </span>
+            </div>
+
+            <div class="mt-4 p-5 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50 dark:bg-slate-950/50 text-center">
+              <div class="text-3xl mb-1">📸</div>
+              <div class="text-xs font-semibold text-slate-800 dark:text-slate-300">No live selfie uploaded yet</div>
+              <p class="text-[10px] text-slate-500 dark:text-slate-500 mt-1 max-w-md mx-auto">
+                If skipped, verification completes based on tampering forensics and OCR formatting without penalizing the applicant.
+              </p>
+              <div class="mt-4 flex items-center justify-center gap-2.5">
+                <button class="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white text-[11px] font-semibold transition shadow-sm cursor-pointer">
+                  Upload Selfie Photo
+                </button>
+                <button class="px-4 py-2 rounded-xl bg-emerald-50 dark:bg-emerald-600/20 border border-emerald-300 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 text-[11px] font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-600/30 transition shadow-sm cursor-pointer">
+                  Use Live Camera
+                </button>
+              </div>
+            </div>
+
+            <!-- DYNAMIC DOCUMENT GUIDANCE ALERT (RATION CARD / NON-PHOTO DOCS) -->
+            <div id="selfie-doc-alert" class="hidden mt-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2 shadow-sm transition-all duration-300">
+              <span class="text-base leading-none mt-0.5">🌾</span>
+              <div>
+                <span class="font-bold">Non-Photo Document Selected (Ration Card):</span>
+                <span class="text-[11px] opacity-90 block mt-0.5">
+                  Live selfie is <strong>completely optional & non-penalizing</strong>. The AI engine automatically switches to NFSA Barcode validation, State Food & Supplies seal inspection, and Family Hierarchy OCR cross-checks.
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/60 flex items-center justify-between text-[11px] text-slate-600 dark:text-slate-400">
+            <span>Anti-Spoofing & Liveness: Active</span>
+            <span class="text-emerald-600 dark:text-emerald-400 font-mono font-semibold">Ready</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. CENTERED RUN SCREENING BUTTON (WIDE EMERALD GLOWING) -->
+      <div class="text-center pt-2">
+        <button onclick="toggleResults()" class="px-10 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-500 to-emerald-600 hover:from-emerald-500 hover:to-teal-400 text-white font-extrabold text-sm shadow-xl shadow-emerald-500/25 transition active:scale-95 flex items-center gap-2.5 mx-auto cursor-pointer">
+          <span>🛡️ Run AI Forensic Screening</span>
+          <span class="text-xs opacity-90 font-mono">(Sub-500ms Real-Time)</span>
+        </button>
+      </div>
+
+      <!-- 4. EXPANDABLE FORENSIC VERDICT PANEL (DEMO PREVIEW) -->
+      <div id="results-panel" class="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950/90 p-6 md:p-8 space-y-6 shadow-xl transition-all duration-300">
+        <div class="flex items-center justify-between flex-wrap gap-3 border-b border-slate-200 dark:border-slate-800 pb-4">
+          <div class="flex items-center gap-2.5">
+            <span class="text-xl">📊</span>
+            <div>
+              <h3 class="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider">AI Inspection & Forensic Verdict</h3>
+              <div class="text-[11px] text-slate-500 dark:text-slate-400 font-mono">DOCUMENT ID: DOC-2026-9921 • VERDICT TIMESTAMP: JUST NOW</div>
+            </div>
+          </div>
+
+          <span class="px-3 py-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/20 border border-emerald-500/30 dark:border-emerald-500/40 text-emerald-700 dark:text-emerald-400 text-xs font-bold flex items-center gap-1.5 shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            AUTHENTIC & VERIFIED (LOW RISK 6/100)
+          </span>
+        </div>
+
+        <!-- METRICS ROW (4 GAUGES) -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center">
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Face Biometrics</div>
+            <div class="text-2xl font-black font-mono text-slate-400 mt-1">N/A</div>
+            <div class="text-[10px] font-bold text-slate-500 dark:text-slate-400 mt-0.5">No Selfie Provided</div>
+            <div class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">1:1 Comparison Skipped</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center">
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">ELA Tamper Risk</div>
+            <div class="text-2xl font-black font-mono text-emerald-600 dark:text-emerald-400 mt-1">0.0%</div>
+            <div class="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-0.5">Clean Artifacts</div>
+            <div class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">No Photoshop Splicing</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center">
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">OCR Consistency</div>
+            <div class="text-2xl font-black font-mono text-blue-600 dark:text-blue-400 mt-1">98.4%</div>
+            <div class="text-[10px] font-bold text-blue-600 dark:text-blue-400 mt-0.5">Format Matched</div>
+            <div class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">Declared UID Validated</div>
+          </div>
+
+          <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 text-center">
+            <div class="text-[10px] text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold">Pipeline Latency</div>
+            <div class="text-2xl font-black font-mono text-amber-600 dark:text-amber-400 mt-1">382ms</div>
+            <div class="text-[10px] font-bold text-amber-600 dark:text-amber-400 mt-0.5">Real-Time</div>
+            <div class="text-[9px] text-slate-400 dark:text-slate-500 mt-1">ONNX Acceleration</div>
+          </div>
+        </div>
+
+        <!-- EXTRACTED CITIZEN IDENTITY ACCORDION -->
+        <div class="p-4 rounded-2xl bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 space-y-2">
+          <div class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+            Structured Identity Extraction (PaddleOCR Rapid Engine):
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1 text-xs">
+            <div class="p-2.5 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-slate-400 dark:text-slate-500 block text-[10px]">CITIZEN NAME</span>
+              <span class="font-bold text-slate-900 dark:text-white">Sayak Dutta</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-slate-400 dark:text-slate-500 block text-[10px]">DOCUMENT NUMBER</span>
+              <span class="font-mono font-bold text-amber-600 dark:text-amber-400">4920 8192 3841</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 shadow-sm">
+              <span class="text-slate-400 dark:text-slate-500 block text-[10px]">DATE OF BIRTH</span>
+              <span class="font-bold text-slate-900 dark:text-white">14/08/2002</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- PORTAL FOOTER -->
+  <footer class="border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/80 dark:bg-slate-950/80 text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center justify-between gap-4 transition-colors duration-300">
+    <div class="flex items-center gap-3">
+      <span class="font-bold text-amber-600 dark:text-amber-400">🇮🇳 Digital India Initiative</span>
+      <span>•</span>
+      <span>Zero-Trust Architecture</span>
+      <span>•</span>
+      <span>All Rights Reserved</span>
+    </div>
+    <div class="font-mono text-[11px] text-slate-500">
+      SIH26188 • Deep Biometric & Tampering Inspection System
+    </div>
+  </footer>
+
+  <!-- SCRIPT FOR THEME MANAGEMENT & INTERACTIVITY -->
+  <script>
+    let currentThemeMode = 'system'; // 'light', 'dark', 'system'
+
+    function updateThemePill(mode, resolvedIsDark) {
+      const pill = document.getElementById('theme-status-pill');
+      if (pill) {
+        if (mode === 'system') {
+          pill.innerText = `OS Theme: ${resolvedIsDark ? 'Dark Mode 🌙' : 'Light Mode ☀️'}`;
+        } else {
+          pill.innerText = `Active Mode: ${mode === 'dark' ? 'Dark 🌙' : 'Light ☀️'} (Manual)`;
+        }
+      }
+    }
+
+    function updateButtonStyles(mode) {
+      const btnLight = document.getElementById('btn-theme-light');
+      const btnDark = document.getElementById('btn-theme-dark');
+      const btnSystem = document.getElementById('btn-theme-system');
+
+      const activeClass = "bg-indigo-600 text-white shadow";
+      const inactiveClass = "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white";
+
+      [btnLight, btnDark, btnSystem].forEach(b => {
+        if (b) b.className = "flex items-center gap-1 px-2.5 py-1 rounded-xl transition " + inactiveClass;
+      });
+
+      if (mode === 'light' && btnLight) btnLight.className = "flex items-center gap-1 px-2.5 py-1 rounded-xl transition " + activeClass;
+      if (mode === 'dark' && btnDark) btnDark.className = "flex items-center gap-1 px-2.5 py-1 rounded-xl transition " + activeClass;
+      if (mode === 'system' && btnSystem) btnSystem.className = "flex items-center gap-1 px-2.5 py-1 rounded-xl transition " + activeClass;
+    }
+
+    function applyTheme() {
+      const html = document.documentElement;
+      let isDark = false;
+
+      if (currentThemeMode === 'system') {
+        isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } else {
+        isDark = currentThemeMode === 'dark';
+      }
+
+      if (isDark) {
+        html.classList.add('dark');
+      } else {
+        html.classList.remove('dark');
+      }
+
+      updateThemePill(currentThemeMode, isDark);
+      updateButtonStyles(currentThemeMode);
+    }
+
+    function setTheme(mode) {
+      currentThemeMode = mode;
+      localStorage.setItem('idshield_theme_mode', mode);
+      applyTheme();
+    }
+
+    // Initialize Theme on Page Load: Defaults to OS/User System Theme unless user previously saved a manual preference
+    function initTheme() {
+      const saved = localStorage.getItem('idshield_theme_mode');
+      if (saved && (saved === 'light' || saved === 'dark' || saved === 'system')) {
+        currentThemeMode = saved;
+      } else {
+        currentThemeMode = 'system'; // Auto-detects user OS default theme
+      }
+      applyTheme();
+    }
+
+    // Real-time listener for OS preference change (e.g. system switches day/night)
+    if (window.matchMedia) {
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+        if (currentThemeMode === 'system') {
+          applyTheme();
+        }
+      });
+    }
+
+    initTheme();
+
+    // Toggle More Documents Section
+    function toggleMoreDocs() {
+      const container = document.getElementById('more-docs-container');
+      const icon = document.getElementById('more-docs-icon');
+      if (!container) return;
+      container.classList.toggle('hidden');
+      if (container.classList.contains('hidden')) {
+        icon.innerText = '▼';
+      } else {
+        icon.innerText = '▲';
+      }
+    }
+
+    // Document Card Selection Interaction
+    function selectDoc(el, docType) {
+      document.querySelectorAll('.doc-card').forEach(card => {
+        card.classList.remove('border-2', 'border-orange-500', 'bg-orange-50/80', 'dark:bg-gradient-to-b', 'dark:from-orange-500/20', 'dark:to-slate-900', 'shadow-md');
+        card.classList.add('border', 'border-slate-200', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-900/80');
+      });
+      el.classList.remove('border', 'border-slate-200', 'dark:border-slate-800', 'bg-white', 'dark:bg-slate-900/80');
+      el.classList.add('border-2', 'border-orange-500', 'bg-orange-50/80', 'dark:bg-gradient-to-b', 'dark:from-orange-500/20', 'dark:to-slate-900', 'shadow-md');
+
+      const alertBox = document.getElementById('selfie-doc-alert');
+      if (alertBox) {
+        if (docType === 'ration') {
+          alertBox.className = "mt-3 p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs flex items-start gap-2 shadow-sm transition-all duration-300";
+          alertBox.innerHTML = `
+            <span class="text-base leading-none mt-0.5">🌾</span>
+            <div>
+              <span class="font-bold">Non-Photo Document Selected (Ration Card):</span>
+              <span class="text-[11px] opacity-90 block mt-0.5">
+                Live selfie is <strong>completely optional & non-penalizing</strong>. The AI engine automatically switches to NFSA Barcode validation, State Food & Supplies seal inspection, and Family Hierarchy OCR cross-checks.
+              </span>
+            </div>
+          `;
+        } else if (docType === 'birth') {
+          alertBox.className = "mt-3 p-3 rounded-2xl bg-teal-500/10 border border-teal-500/30 text-teal-800 dark:text-teal-300 text-xs flex items-start gap-2 shadow-sm transition-all duration-300";
+          alertBox.innerHTML = `
+            <span class="text-base leading-none mt-0.5">📜</span>
+            <div>
+              <span class="font-bold">Non-Photo Document Selected (Birth Certificate):</span>
+              <span class="text-[11px] opacity-90 block mt-0.5">
+                Live selfie is optional. Screening evaluates Civil Registration System QR code, Registrar Seal, and Child/Parent Name OCR.
+              </span>
+            </div>
+          `;
+        } else if (docType === 'caste' || docType === 'eshram' || docType === 'udid') {
+          alertBox.className = "mt-3 p-3 rounded-2xl bg-indigo-500/10 border border-indigo-500/30 text-indigo-800 dark:text-indigo-300 text-xs flex items-start gap-2 shadow-sm transition-all duration-300";
+          alertBox.innerHTML = `
+            <span class="text-base leading-none mt-0.5">🏛️</span>
+            <div>
+              <span class="font-bold">State / Welfare Standard Selected:</span>
+              <span class="text-[11px] opacity-90 block mt-0.5">
+                If the document lacks a photo, applicant verification proceeds seamlessly using institutional seals, digital stamps, and ID number format regex.
+              </span>
+            </div>
+          `;
+        } else {
+          alertBox.className = "hidden";
+        }
+      }
+    }
+
+    // Toggle Results Panel
+    function toggleResults() {
+      const panel = document.getElementById('results-panel');
+      panel.classList.toggle('hidden');
+    }
+  </script>
+</body>
+</html>

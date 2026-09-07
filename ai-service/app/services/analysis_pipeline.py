@@ -68,6 +68,14 @@ def run_full_analysis(
     inconsistencies: List[str] = []
     risk_indicators: List[RiskIndicatorDto] = []
 
+    # Define non-photo identity document formats (e.g. Ration Cards, Birth Certificates, Domicile/Caste Certs)
+    NON_PHOTO_DOC_TYPES = {
+        "RATION_CARD", "BIRTH_CERTIFICATE", "CASTE_CERTIFICATE", "DOMICILE_CERTIFICATE",
+        "ESHRAM_CARD", "INCOME_CERTIFICATE", "DEATH_CERTIFICATE"
+    }
+    normalized_doc_type = (doc_type or "").upper().replace(" ", "_")
+    is_non_photo_doc = normalized_doc_type in NON_PHOTO_DOC_TYPES
+
     # Face verification signals
     if face_res.status == "MISMATCH":
         inconsistencies.append("Face does not match submitted reference identity")
@@ -77,12 +85,15 @@ def run_full_analysis(
             message=f"Document portrait and selfie failed biometric verification (Cosine Similarity: {face_res.similarity:.2f} < {face_res.threshold:.2f})"
         ))
     elif face_res.status == "FACE_NOT_FOUND_DOCUMENT":
-        inconsistencies.append("No face portrait located on identity document")
-        risk_indicators.append(RiskIndicatorDto(
-            type="FACE_NOT_FOUND_DOCUMENT",
-            severity="HIGH",
-            message="No valid human portrait detected on the identity document"
-        ))
+        if is_non_photo_doc:
+            logger.info(f"Document type {doc_type} is recognized as a non-photo format; omitting missing portrait penalty.")
+        else:
+            inconsistencies.append("No face portrait located on identity document")
+            risk_indicators.append(RiskIndicatorDto(
+                type="FACE_NOT_FOUND_DOCUMENT",
+                severity="HIGH",
+                message="No valid human portrait detected on the identity document"
+            ))
     elif face_res.status == "FACE_NOT_FOUND_SELFIE":
         inconsistencies.append("Selfie image did not contain a detectable human face")
         risk_indicators.append(RiskIndicatorDto(

@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 import re
 from typing import Optional, Dict, Any, List
 import numpy as np
@@ -13,7 +13,11 @@ AADHAAR_REGEX = re.compile(r"\b(\d{4}\s\d{4}\s\d{4})\b")
 PAN_REGEX = re.compile(r"\b([A-Z]{5}[0-9]{4}[A-Z])\b")
 VOTER_REGEX = re.compile(r"\b([A-Z]{3}[0-9]{7})\b")
 DRIVING_LICENCE_REGEX = re.compile(r"\b([A-Z]{2}[0-9]{2}\s?[0-9]{11})\b")
-STUDENT_ID_REGEX = re.compile(r"\b([A-Z]{2,6}/[A-Z0-9/_-]{5,20})\b")
+PASSPORT_REGEX = re.compile(r"\b([A-Z][0-9]{7})\b")
+STUDENT_ID_REGEX = re.compile(r"\b([A-Z]{2,6}/[A-Z0-9/_-]{4,20})\b")
+RATION_CARD_REGEX = re.compile(r"\b((?:NFSA|PDS|RC)[/-]?[0-9A-Z]{5,16}|\d{10,12})\b", re.IGNORECASE)
+ABHA_REGEX = re.compile(r"\b(\d{2}-\d{4}-\d{4}-\d{4}|\d{14})\b")
+BIRTH_CERT_REGEX = re.compile(r"\b((?:CRS|B|D|REG)[/-]?[0-9A-Z/_-]{5,20})\b", re.IGNORECASE)
 DOB_REGEX = re.compile(r"(?:DOB|Date of Birth|Birth)[:\s]*([0-9]{2}[/-][0-9]{2}[/-][0-9]{4}|[0-9]{4})", re.IGNORECASE)
 
 
@@ -64,6 +68,10 @@ def extract_ocr_from_image(img: Optional[np.ndarray], doc_type: Optional[str] = 
     aadhaar_match = AADHAAR_REGEX.search(full_text)
     voter_match = VOTER_REGEX.search(full_text)
     dl_match = DRIVING_LICENCE_REGEX.search(full_text)
+    passport_match = PASSPORT_REGEX.search(full_text)
+    ration_match = RATION_CARD_REGEX.search(full_text)
+    abha_match = ABHA_REGEX.search(full_text)
+    birth_match = BIRTH_CERT_REGEX.search(full_text)
     student_match = STUDENT_ID_REGEX.search(full_text)
 
     if pan_match:
@@ -78,6 +86,18 @@ def extract_ocr_from_image(img: Optional[np.ndarray], doc_type: Optional[str] = 
     elif dl_match:
         doc_number = dl_match.group(1)
         additional_fields["matchedDocFormat"] = "DRIVING_LICENCE"
+    elif passport_match:
+        doc_number = passport_match.group(1)
+        additional_fields["matchedDocFormat"] = "PASSPORT"
+    elif ration_match:
+        doc_number = ration_match.group(1)
+        additional_fields["matchedDocFormat"] = "RATION_CARD"
+    elif abha_match:
+        doc_number = abha_match.group(1)
+        additional_fields["matchedDocFormat"] = "ABHA_CARD"
+    elif birth_match:
+        doc_number = birth_match.group(1)
+        additional_fields["matchedDocFormat"] = "BIRTH_CERTIFICATE"
     elif student_match:
         doc_number = student_match.group(1)
         additional_fields["matchedDocFormat"] = "STUDENT_ID"
