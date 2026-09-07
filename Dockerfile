@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # Stage 1: Build stage
-FROM maven:3.9.8-eclipse-temurin-21-alpine AS build
+FROM maven:3.9.16-eclipse-temurin-25-alpine AS build
 WORKDIR /app
 COPY pom.xml .
 # Cache dependencies
@@ -12,7 +12,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # Stage 2: Runtime stage
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:25-jre-alpine
 WORKDIR /app
 
 # Run as non-root user for container security

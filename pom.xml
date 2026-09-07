@@ -18,7 +18,8 @@
     <description>SIH26188 - AI-Based Fake Identity and Document Screening System Backend</description>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>25</java.version>
+        <lombok.version>1.18.48</lombok.version>
         <jjwt.version>0.12.6</jjwt.version>
         <springdoc.version>2.6.0</springdoc.version>
     </properties>

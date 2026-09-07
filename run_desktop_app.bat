@@ -7,7 +7,7 @@ echo ===================================================
 if defined JAVA_HOME (
     set "JAVA_EXE=%JAVA_HOME%\bin\java.exe"
 ) else (
-    set "JAVA_EXE=%USERPROFILE%\.jdks\temurin-21\bin\java.exe"
+    set "JAVA_EXE=%USERPROFILE%\.jdks\jdk-25.0.2\bin\java.exe"
 )
 
 if not exist "%JAVA_EXE%" (

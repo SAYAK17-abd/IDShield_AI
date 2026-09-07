@@ -3,11 +3,11 @@ echo ==========================================================
 echo   IDShield AI - Spring Boot Security Gateway (Port 8080)
 echo ==========================================================
 
-set "JAVA_HOME=%USERPROFILE%\.jdks\temurin-21"
+set "JAVA_HOME=%USERPROFILE%\.jdks\jdk-25.0.2"
 if not exist "%JAVA_HOME%\bin\java.exe" (
     where java >nul 2>nul
     if errorlevel 1 (
-        echo [ERROR] Java 21 runtime not found!
+        echo [ERROR] Java 25 runtime not found!
         pause
         exit /b 1
     )
@@ -21,7 +21,7 @@ if exist "target\idshield-backend-1.0.0-SNAPSHOT.jar" (
     "%JAVA_CMD%" -jar target\idshield-backend-1.0.0-SNAPSHOT.jar --spring.profiles.active=dev
 ) else (
     echo Pre-built JAR not found. Launching via Maven...
-    call "%USERPROFILE%\.maven\apache-maven-3.9.9\bin\mvn.cmd" spring-boot:run -Dspring-boot.run.profiles=dev
+    call "%USERPROFILE%\.maven\maven-3.9.16\bin\mvn.cmd" spring-boot:run -Dspring-boot.run.profiles=dev
 )
 
 pause

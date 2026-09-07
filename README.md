@@ -1,7 +1,7 @@
 # SIH26188 — AI-Based Fake Identity & Document Screening System
 ## Central Backend API Gateway & Security Layer
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://openjdk.org/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Spring Security](https://img.shields.io/badge/Spring%20Security-6-blue.svg)](https://spring.io/projects/spring-security)
 [![Swagger](https://img.shields.io/badge/OpenAPI-Swagger%203-green.svg)](https://swagger.io/)

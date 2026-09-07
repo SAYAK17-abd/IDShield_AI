@@ -1,5 +1,5 @@
 # IDShield AI - Desktop Client Launcher (PowerShell)
-$javaHome = if ($env:JAVA_HOME) { $env:JAVA_HOME } else { "$env:USERPROFILE\.jdks\temurin-21" }
+$javaHome = if ($env:JAVA_HOME) { $env:JAVA_HOME } else { "$env:USERPROFILE\.jdks\jdk-25.0.2" }
 $javaExe = "$javaHome\bin\java.exe"
 
 if (-not (Test-Path $javaExe)) {

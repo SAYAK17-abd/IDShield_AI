@@ -9,7 +9,7 @@ This guide contains complete instructions for running the **IDShield AI - Fake I
 | Component | Technology | Default URL / Port |
 |---|---|---|
 | **AI Microservice** | Python 3.11 + FastAPI + InsightFace + RapidOCR | `http://127.0.0.1:8000` |
-| **Security Gateway** | Java 21 + Spring Boot 3.3.x + Spring Security 6 | `http://127.0.0.1:8080` |
+| **Security Gateway** | Java 25 + Spring Boot 3.3.x + Spring Security 6 | `http://127.0.0.1:8080` |
 | **Web Frontend** | React + Tailwind CSS (Responsive Mobile & PC) | `http://localhost:8080/` or `frontend/standalone.html` |
 | **Desktop Client** | Java Swing Forensic UI | Native Window (`run_desktop_app.bat`) |
 
@@ -46,14 +46,14 @@ From the project root directory (`d:\CODES\project.all\own\AI_projects\IDShild A
 
 **Option A (Using Pre-Built JAR — Fastest)**:
 ```powershell
-$env:JAVA_HOME = "$env:USERPROFILE\.jdks\temurin-21"
+$env:JAVA_HOME = "$env:USERPROFILE\.jdks\jdk-25.0.2"
 & "$env:JAVA_HOME\bin\java.exe" -jar target\idshield-backend-1.0.0-SNAPSHOT.jar --spring.profiles.active=dev
 ```
 
 **Option B (Using Maven)**:
 ```powershell
-$env:JAVA_HOME = "$env:USERPROFILE\.jdks\temurin-21"
-& "$env:USERPROFILE\.maven\apache-maven-3.9.9\bin\mvn.cmd" spring-boot:run -Dspring-boot.run.profiles=dev
+$env:JAVA_HOME = "$env:USERPROFILE\.jdks\jdk-25.0.2"
+& "$env:USERPROFILE\.maven\maven-3.9.16\bin\mvn.cmd" spring-boot:run -Dspring-boot.run.profiles=dev
 ```
 - **Expected Console Output**:
   ```text
@@ -95,7 +95,7 @@ If you do not want to run commands manually in terminals, use the pre-configured
 |---|---|
 | [`start_all.bat`](start_all.bat) | **1-Click Master Launch**: Starts AI Service (8000), Spring Boot (8080), and opens the web app in your default browser. |
 | [`run_ai_service.bat`](run_ai_service.bat) | Starts Python AI service on port 8000 (auto-clears any occupied port conflicts). |
-| [`run_backend.bat`](run_backend.bat) | Starts Spring Boot on port 8080 with Java 21 environment. |
+| [`run_backend.bat`](run_backend.bat) | Starts Spring Boot on port 8080 with Java 25 environment. |
 | [`run_frontend.bat`](run_frontend.bat) | Launches the React web interface in your default browser. |
 | [`run_desktop_app.bat`](run_desktop_app.bat) | Launches the Java Swing Desktop Client. |
 
@@ -132,7 +132,7 @@ python tests\test_end_to_end_faces.py
 
 ### Spring Boot Security & Unit Tests:
 ```powershell
-$env:JAVA_HOME = "$env:USERPROFILE\.jdks\temurin-21"
-& "$env:USERPROFILE\.maven\apache-maven-3.9.9\bin\mvn.cmd" test
+$env:JAVA_HOME = "$env:USERPROFILE\.jdks\jdk-25.0.2"
+& "$env:USERPROFILE\.maven\maven-3.9.16\bin\mvn.cmd" test
 ```
 - Runs 15 unit/security tests (Surefire BUILD SUCCESS).
