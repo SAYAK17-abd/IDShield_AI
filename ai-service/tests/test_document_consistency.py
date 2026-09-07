@@ -52,3 +52,4 @@ if __name__ == "__main__":
     test_no_selfie_provided()
     test_aadhaar_with_student_id_triggers_mismatch()
     print("\nALL CONSISTENCY TESTS COMPLETED SUCCESSFULLY!")
+
