@@ -39,6 +39,12 @@ public class VerificationResponseDto {
     private Double faceMatchConfidence;
 
     private OcrDataDto ocrData;
+
+    @com.fasterxml.jackson.annotation.JsonProperty("extractedData")
+    public OcrDataDto getExtractedData() {
+        return this.ocrData;
+    }
+
     private List<String> inconsistencies;
     private List<String> reasons;
 

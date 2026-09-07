@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 from typing import Optional
 from rapidocr_onnxruntime import RapidOCR
 
@@ -16,8 +16,8 @@ def get_ocr_engine() -> RapidOCR:
 
 
 def init_ocr_engine():
-    """Initializes the ONNX-based PaddleOCR engine."""
+    """Initializes the ONNX-based PaddleOCR engine with orientation classification."""
     global _ocr_engine
-    logger.info("Initializing RapidOCR (PaddleOCR ONNX) engine...")
-    _ocr_engine = RapidOCR()
+    logger.info("Initializing RapidOCR (PaddleOCR ONNX) engine with orientation classification...")
+    _ocr_engine = RapidOCR(use_cls=True)
     logger.info("RapidOCR engine successfully loaded and ready.")

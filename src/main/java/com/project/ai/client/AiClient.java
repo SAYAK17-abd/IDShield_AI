@@ -34,6 +34,7 @@ public class AiClient {
 
     public AiClient(
             @Value("${application.ai-service.url:http://localhost:8000}") String aiServiceUrl,
+            @Value("${application.ai-service.api-key:dev-internal-ai-key-sih26188}") String apiKey,
             @Value("${application.ai-service.connect-timeout-ms:15000}") int connectTimeoutMs,
             @Value("${application.ai-service.read-timeout-ms:45000}") int readTimeoutMs,
             @Value("${application.ai-service.mock-fallback-enabled:false}") boolean mockFallbackEnabled
@@ -56,6 +57,7 @@ public class AiClient {
                 .requestFactory(requestFactory)
                 .defaultHeader("Accept", MediaType.APPLICATION_JSON_VALUE)
                 .defaultHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader("X-AI-Service-Key", apiKey)
                 .build();
     }
 

@@ -228,7 +228,10 @@ public class AuthService {
 
         Long userId = null;
         if (email != null) {
-            userRepository.findByEmail(email).ifPresent(u -> {
+            var userOpt = userRepository.findByEmail(email);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                userId = user.getId();
                 if (request != null && request.getRefreshToken() != null) {
                     String tokenHash = hashToken(request.getRefreshToken());
                     refreshTokenRepository.findByTokenHash(tokenHash).ifPresent(rt -> {
@@ -236,7 +239,7 @@ public class AuthService {
                         refreshTokenRepository.save(rt);
                     });
                 }
-            });
+            }
         }
 
         auditService.logEvent(

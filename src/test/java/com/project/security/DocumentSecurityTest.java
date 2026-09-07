@@ -5,6 +5,7 @@ import com.project.document.repository.DocumentRepository;
 import com.project.user.entity.Role;
 import com.project.user.entity.User;
 import com.project.user.repository.UserRepository;
+import com.project.verification.entity.VerificationResult;
 import com.project.verification.repository.VerificationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +42,7 @@ class DocumentSecurityTest {
     private User investigatorUser;
     private User adminUser;
     private Document document;
+    private VerificationResult verification;
 
     @BeforeEach
     void setUp() {
@@ -50,6 +52,7 @@ class DocumentSecurityTest {
         adminUser = User.builder().id(301L).email("admin@example.com").role(Role.ROLE_ADMIN).build();
 
         document = Document.builder().id(501L).owner(ownerUser).build();
+        verification = VerificationResult.builder().id(701L).document(document).build();
     }
 
     @Test
@@ -92,5 +95,47 @@ class DocumentSecurityTest {
         when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.of(adminUser));
 
         assertTrue(documentSecurity.canAccessDocument(501L, auth));
+    }
+
+    @Test
+    void canAccessVerification_Owner_ShouldReturnTrue() {
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "owner@example.com", "password", ownerUser.getAuthorities()
+        );
+        when(userRepository.findByEmail("owner@example.com")).thenReturn(Optional.of(ownerUser));
+        when(verificationRepository.findById(701L)).thenReturn(Optional.of(verification));
+
+        assertTrue(documentSecurity.canAccessVerification(701L, auth));
+    }
+
+    @Test
+    void canAccessVerification_OtherUser_ShouldReturnFalse_IdorDefense() {
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "other@example.com", "password", otherUser.getAuthorities()
+        );
+        when(userRepository.findByEmail("other@example.com")).thenReturn(Optional.of(otherUser));
+        when(verificationRepository.findById(701L)).thenReturn(Optional.of(verification));
+
+        assertFalse(documentSecurity.canAccessVerification(701L, auth));
+    }
+
+    @Test
+    void canAccessVerification_Investigator_ShouldReturnTrue() {
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "investigator@example.com", "password", investigatorUser.getAuthorities()
+        );
+        when(userRepository.findByEmail("investigator@example.com")).thenReturn(Optional.of(investigatorUser));
+
+        assertTrue(documentSecurity.canAccessVerification(701L, auth));
+    }
+
+    @Test
+    void canAccessVerification_Admin_ShouldReturnTrue() {
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                "admin@example.com", "password", adminUser.getAuthorities()
+        );
+        when(userRepository.findByEmail("admin@example.com")).thenReturn(Optional.of(adminUser));
+
+        assertTrue(documentSecurity.canAccessVerification(701L, auth));
     }
 }

@@ -42,7 +42,8 @@ public class RateLimitingFilter extends OncePerRequestFilter {
     private int authRequestsPerMinute;
 
     private final Map<String, RequestCounter> requestCounts = new ConcurrentHashMap<>();
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
 
     private static class RequestCounter {
         private final AtomicInteger count = new AtomicInteger(0);
@@ -60,6 +61,10 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             }
             return count.incrementAndGet();
         }
+
+        public boolean isExpired(long maxAgeMs) {
+            return (System.currentTimeMillis() - windowStartTime) > maxAgeMs;
+        }
     }
 
     @Override
@@ -69,11 +74,16 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        // Periodic eviction to safeguard against memory exhaustion from unrepeated client IPs
+        if (requestCounts.size() > 500) {
+            requestCounts.entrySet().removeIf(entry -> entry.getValue().isExpired(120_000L));
+        }
+
         String path = request.getRequestURI();
         String clientIp = getClientIp(request);
 
         int maxAllowed = generalRequestsPerMinute;
-        if (path.startsWith("/api/auth/login") || path.startsWith("/api/auth/register")) {
+        if (path.startsWith("/api/auth/")) {
             maxAllowed = authRequestsPerMinute;
         }
 
@@ -108,6 +118,14 @@ public class RateLimitingFilter extends OncePerRequestFilter {
             return request.getRemoteAddr();
         }
         return xfHeader.split(",")[0].trim();
+    }
+
+    public void evictExpiredEntries(long maxAgeMs) {
+        requestCounts.entrySet().removeIf(entry -> entry.getValue().isExpired(maxAgeMs));
+    }
+
+    public int getActiveCounterCount() {
+        return requestCounts.size();
     }
 }
 

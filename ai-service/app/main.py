@@ -1,4 +1,4 @@
-﻿import logging
+import logging
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -44,12 +44,19 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Enable CORS for localhost and frontend origins
+import os
+# Restrict CORS to internal Spring Boot backend and authorized origins (no wildcard in production)
+allowed_origins_raw = os.getenv(
+    "AI_CORS_ALLOWED_ORIGINS",
+    "http://localhost:8080,http://127.0.0.1:8080,http://localhost:3000,http://localhost:5173"
+)
+allowed_origins = [orig.strip() for orig in allowed_origins_raw.split(",") if orig.strip() and orig.strip() != "*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "OPTIONS"],
     allow_headers=["*"],
 )
 

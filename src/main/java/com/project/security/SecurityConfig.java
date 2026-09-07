@@ -48,6 +48,9 @@ public class SecurityConfig {
     @Value("${application.security.cors.allowed-origins:http://localhost:3000,http://localhost:5173}")
     private String allowedOrigins;
 
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -165,18 +168,34 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        List<String> origins = new ArrayList<>(Arrays.stream(allowedOrigins.split(","))
+        List<String> origins = Arrays.stream(allowedOrigins.split(","))
                 .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .toList());
+                .filter(s -> !s.isEmpty() && !"*".equals(s) && !"null".equalsIgnoreCase(s))
+                .distinct()
+                .toList();
 
-        // Permit direct local file executions where browser sends Origin: null
-        if (!origins.contains("null")) {
-            origins.add("null");
+        List<String> finalOrigins = new ArrayList<>(origins);
+
+        boolean isDev = activeProfile != null && activeProfile.contains("dev");
+        if (isDev) {
+            // Include local development origins for frontend dev servers
+            List<String> devOrigins = List.of(
+                    "http://localhost:3000",
+                    "http://localhost:5173",
+                    "http://localhost:8080",
+                    "http://127.0.0.1:3000",
+                    "http://127.0.0.1:5173",
+                    "http://127.0.0.1:8080"
+            );
+            for (String devOrigin : devOrigins) {
+                if (!finalOrigins.contains(devOrigin)) {
+                    finalOrigins.add(devOrigin);
+                }
+            }
         }
 
-        configuration.setAllowedOrigins(origins);
-        configuration.addAllowedOriginPattern("*");
+        configuration.setAllowedOrigins(finalOrigins);
+        // Do NOT use wildcard origin patterns (* or null) in production
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin"));
         configuration.setExposedHeaders(List.of("Authorization"));

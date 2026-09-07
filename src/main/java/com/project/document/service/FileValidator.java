@@ -50,8 +50,8 @@ public class FileValidator {
             throw new InvalidFileException("Filename is required");
         }
 
-        if (originalFilename.contains("..") || originalFilename.contains("/") || originalFilename.contains("\\")) {
-            throw new InvalidFileException("Filename contains illegal path traversal characters");
+        if (originalFilename.contains("..") || originalFilename.contains("/") || originalFilename.contains("\\") || originalFilename.contains("\0")) {
+            throw new InvalidFileException("Filename contains illegal path traversal or null characters");
         }
 
         String extension = getFileExtension(originalFilename);

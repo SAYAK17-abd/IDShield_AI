@@ -1,8 +1,10 @@
 package com.project.auth;
 
+import com.project.audit.entity.AuditEventType;
 import com.project.audit.service.AuditService;
 import com.project.auth.dto.AuthResponse;
 import com.project.auth.dto.LoginRequest;
+import com.project.auth.dto.LogoutRequest;
 import com.project.auth.dto.RefreshTokenRequest;
 import com.project.auth.dto.RegisterRequest;
 import com.project.auth.entity.RefreshToken;
@@ -126,6 +128,92 @@ class AuthServiceTest {
 
         // Verify token family revocation occurred
         verify(refreshTokenRepository).revokeAllUserTokens(user);
+    }
+
+    @Test
+    void login_Success_ShouldGenerateTokens_AndLogAuditSuccess() {
+        User user = User.builder()
+                .id(42L)
+                .email("test@example.com")
+                .password("encodedPass")
+                .role(Role.ROLE_USER)
+                .build();
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .email("test@example.com")
+                .password("Password123")
+                .build();
+
+        when(userRepository.findByEmail("test@example.com")).thenReturn(Optional.of(user));
+        when(jwtService.generateAccessToken(user, 42L, "ROLE_USER")).thenReturn("mockAccessToken");
+
+        AuthResponse authResponse = authService.login(loginRequest, request);
+
+        assertNotNull(authResponse);
+        assertEquals("mockAccessToken", authResponse.getAccessToken());
+        assertNotNull(authResponse.getRefreshToken());
+        verify(auditService).logEvent(
+                eq(AuditEventType.LOGIN_SUCCESS),
+                eq(42L),
+                eq("test@example.com"),
+                eq("AUTH"),
+                eq("42"),
+                eq("User successfully logged in"),
+                eq(request)
+        );
+    }
+
+    @Test
+    void login_BadCredentials_ShouldAuditFailure_AndThrowException() {
+        LoginRequest loginRequest = LoginRequest.builder()
+                .email("attacker@example.com")
+                .password("WrongPassword")
+                .build();
+
+        doThrow(new org.springframework.security.authentication.BadCredentialsException("Bad credentials"))
+                .when(authenticationManager)
+                .authenticate(any(org.springframework.security.authentication.UsernamePasswordAuthenticationToken.class));
+
+        assertThrows(org.springframework.security.authentication.BadCredentialsException.class,
+                () -> authService.login(loginRequest, request));
+
+        verify(auditService).logEvent(
+                eq(AuditEventType.LOGIN_FAILURE),
+                isNull(),
+                eq("attacker@example.com"),
+                eq("AUTH"),
+                isNull(),
+                eq("Invalid password or user not found"),
+                eq(request)
+        );
+    }
+
+    @Test
+    void logout_WithAuthenticatedUser_ShouldAssignCorrectUserIdToAuditLog() {
+        User user = User.builder().id(99L).email("logoutuser@example.com").build();
+
+        org.springframework.security.core.Authentication auth =
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken("logoutuser@example.com", "pass");
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+
+        when(userRepository.findByEmail("logoutuser@example.com")).thenReturn(Optional.of(user));
+
+        LogoutRequest logoutRequest = LogoutRequest.builder().refreshToken("someRefreshToken").build();
+
+        authService.logout(logoutRequest, request);
+
+        // Verify that audit log received 99L (NOT null!)
+        verify(auditService).logEvent(
+                eq(AuditEventType.LOGOUT),
+                eq(99L),
+                eq("logoutuser@example.com"),
+                eq("AUTH"),
+                eq("99"),
+                eq("User logged out"),
+                eq(request)
+        );
+
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
     }
 }
 

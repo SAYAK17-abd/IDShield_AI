@@ -1313,19 +1313,19 @@
                           <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 shadow-sm">
                             <span className="text-slate-400 dark:text-slate-500 block text-[10px]">CITIZEN NAME</span>
                             <span className="font-bold text-slate-900 dark:text-white">
-                              {verificationResult.extractedData?.name || 'Verified Citizen'}
+                              {(verificationResult.extractedData?.name || verificationResult.ocrData?.name) || 'Not Detected'}
                             </span>
                           </div>
                           <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 shadow-sm">
                             <span className="text-slate-400 dark:text-slate-500 block text-[10px]">DOCUMENT NUMBER</span>
                             <span className="font-mono font-bold text-amber-600 dark:text-amber-400">
-                              {verificationResult.extractedData?.documentNumber || '4920 8192 3841'}
+                              {(verificationResult.extractedData?.documentNumber || verificationResult.ocrData?.documentNumber) || 'Not Detected'}
                             </span>
                           </div>
                           <div className="p-2.5 rounded-xl bg-white dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 shadow-sm">
                             <span className="text-slate-400 dark:text-slate-500 block text-[10px]">DATE OF BIRTH</span>
                             <span className="font-bold text-slate-900 dark:text-white">
-                              {verificationResult.extractedData?.dateOfBirth || '14/08/2002'}
+                              {(verificationResult.extractedData?.dateOfBirth || verificationResult.ocrData?.dateOfBirth) || 'Not Detected'}
                             </span>
                           </div>
                         </div>

@@ -37,6 +37,7 @@ public class VerificationController {
     private final VerificationService verificationService;
 
     @PostMapping("/documents/{documentId}")
+    @PreAuthorize("@documentSecurity.canAccessDocument(#documentId, authentication)")
     @Operation(summary = "Trigger document verification", description = "Initiates FastAPI AI inspection and calculates transparent risk scores.")
     public ResponseEntity<ApiResponse<VerificationResponseDto>> triggerVerification(
             @PathVariable Long documentId,
@@ -55,6 +56,7 @@ public class VerificationController {
     }
 
     @GetMapping("/documents/{documentId}")
+    @PreAuthorize("@documentSecurity.canAccessDocument(#documentId, authentication)")
     @Operation(summary = "Get verification by document ID", description = "IDOR protected retrieval of verification findings using document ID.")
     public ResponseEntity<ApiResponse<VerificationResponseDto>> getVerificationByDocumentId(@PathVariable Long documentId) {
         VerificationResponseDto result = verificationService.getVerificationByDocumentId(documentId);

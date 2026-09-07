@@ -1,6 +1,8 @@
-﻿import logging
+import os
+import secrets
+import logging
 from typing import Optional
-from fastapi import APIRouter, UploadFile, File, Form, Request, HTTPException, status
+from fastapi import APIRouter, UploadFile, File, Form, Request, HTTPException, status, Header, Security
 from fastapi.responses import JSONResponse
 
 from app.schemas.requests import AiAnalysisRequest
@@ -10,6 +12,27 @@ from app.utils.file_utils import validate_file_size
 
 logger = logging.getLogger("ai_service.routes")
 router = APIRouter()
+
+AI_SERVICE_KEY_ENV = "AI_SERVICE_KEY"
+DEFAULT_DEV_KEY = "dev-internal-ai-key-sih26188"
+
+
+def verify_ai_service_key(
+    x_ai_service_key: Optional[str] = Header(None, alias="X-AI-Service-Key")
+) -> bool:
+    """
+    Validates internal service-to-service authentication header.
+    Guarantees only Spring Boot Gateway can initiate heavy AI model inference.
+    Defends against timing attacks using secrets.compare_digest.
+    """
+    configured_key = os.getenv(AI_SERVICE_KEY_ENV, DEFAULT_DEV_KEY)
+    if not x_ai_service_key or not secrets.compare_digest(x_ai_service_key, configured_key):
+        logger.warning("Rejected unauthorized access to /ai/analyze: Missing or invalid X-AI-Service-Key")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Unauthorized: Missing or invalid X-AI-Service-Key header"
+        )
+    return True
 
 
 @router.get("/health")
@@ -27,10 +50,12 @@ async def analyze_document(
     request: Request,
     document: Optional[UploadFile] = File(None),
     selfie: Optional[UploadFile] = File(None),
-    documentType: Optional[str] = Form("IDENTITY_CARD")
+    documentType: Optional[str] = Form("IDENTITY_CARD"),
+    _authenticated: bool = Security(verify_ai_service_key)
 ):
     """
     Unified AI Document Screening Endpoint.
+    Requires internal service-to-service key (X-AI-Service-Key).
     Accepts EITHER:
     1. multipart/form-data with `document` and optional `selfie` files
     2. application/json with `AiAnalysisRequest` (base64 encoded payloads)

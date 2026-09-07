@@ -1,5 +1,6 @@
 package com.project.security;
 
+import jakarta.annotation.PostConstruct;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -28,11 +29,37 @@ import java.util.function.Function;
 @Service
 public class JwtService {
 
-    @Value("${application.security.jwt.secret-key}")
+    @Value("${application.security.jwt.secret-key:}")
     private String secretKey;
 
     @Value("${application.security.jwt.access-token-expiration:900000}")
     private long jwtExpirationMs; // 15 minutes default
+
+    @Value("${spring.profiles.active:dev}")
+    private String activeProfile;
+
+    @PostConstruct
+    public void validateConfiguration() {
+        if (secretKey == null || secretKey.trim().isEmpty()) {
+            throw new IllegalStateException(
+                    "JWT_SECRET configuration is missing! A 256-bit secret key must be provided via the JWT_SECRET environment variable."
+            );
+        }
+
+        boolean isDevOrTest = activeProfile != null && (
+                activeProfile.contains("dev") || activeProfile.contains("test")
+        );
+
+        if (!isDevOrTest) {
+            if (secretKey.equals("404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970")
+                    || secretKey.toLowerCase().contains("secret")
+                    || secretKey.trim().length() < 32) {
+                throw new IllegalStateException(
+                        "Insecure JWT_SECRET detected in production environment! Please set a strong, unique 256-bit secret key via JWT_SECRET."
+                );
+            }
+        }
+    }
 
     private SecretKey getSigningKey() {
         byte[] keyBytes = secretKey.getBytes(StandardCharsets.UTF_8);

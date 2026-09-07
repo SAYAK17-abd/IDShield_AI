@@ -66,5 +66,59 @@ class FileValidatorTest {
 
         assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
     }
+
+    @Test
+    void validate_EmptyFile_ShouldFail() {
+        MockMultipartFile file = new MockMultipartFile("file", "empty.pdf", "application/pdf", new byte[0]);
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
+    }
+
+    @Test
+    void validate_NullFile_ShouldFail() {
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(null));
+    }
+
+    @Test
+    void validate_OversizedFile_ShouldFail() {
+        // 10MB + 1 byte
+        byte[] largeBytes = new byte[10 * 1024 * 1024 + 1];
+        largeBytes[0] = 0x25; largeBytes[1] = 0x50; largeBytes[2] = 0x44; largeBytes[3] = 0x46; largeBytes[4] = 0x2D;
+        MockMultipartFile file = new MockMultipartFile("file", "large.pdf", "application/pdf", largeBytes);
+
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
+    }
+
+    @Test
+    void validate_MimeTypeMismatch_ShouldFail() {
+        byte[] pdfContent = new byte[]{0x25, 0x50, 0x44, 0x46, 0x2D, 0x31};
+        // Extension says .pdf, but Content-Type claims text/plain
+        MockMultipartFile file = new MockMultipartFile("file", "document.pdf", "text/plain", pdfContent);
+
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
+    }
+
+    @Test
+    void validate_NullByteInFilename_ShouldFail() {
+        byte[] pdfContent = new byte[]{0x25, 0x50, 0x44, 0x46, 0x2D, 0x31};
+        MockMultipartFile file = new MockMultipartFile("file", "test\0.pdf", "application/pdf", pdfContent);
+
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
+    }
+
+    @Test
+    void validate_CorruptPngMagicBytes_ShouldFail() {
+        byte[] badPng = new byte[]{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+        MockMultipartFile file = new MockMultipartFile("file", "photo.png", "image/png", badPng);
+
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
+    }
+
+    @Test
+    void validate_CorruptJpegMagicBytes_ShouldFail() {
+        byte[] badJpeg = new byte[]{0x00, 0x00, 0x00};
+        MockMultipartFile file = new MockMultipartFile("file", "photo.jpg", "image/jpeg", badJpeg);
+
+        assertThrows(InvalidFileException.class, () -> fileValidator.validate(file));
+    }
 }
 
