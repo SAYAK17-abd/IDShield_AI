@@ -34,51 +34,51 @@ public class VerificationResult {
     private Document document;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 30)
+    @Column(name = "investigation_status", nullable = false, length = 30)
     @Builder.Default
     private InvestigationStatus investigationStatus = InvestigationStatus.PENDING;
 
-    @Column(nullable = false)
+    @Column(name = "risk_score", nullable = false)
     private Integer riskScore; // 0 to 100
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(name = "risk_level", nullable = false, length = 20)
     private RiskLevel riskLevel; // LOW, MEDIUM, HIGH
 
     // Individual signal indicators for transparency
-    @Column(nullable = false)
+    @Column(name = "tampering_detected", nullable = false)
     private Boolean tamperingDetected;
 
-    @Column(nullable = false)
+    @Column(name = "tampering_confidence", nullable = false)
     private Double tamperingConfidence;
 
-    @Column(nullable = false)
+    @Column(name = "face_matched", nullable = false)
     private Boolean faceMatched;
 
-    @Column(nullable = false)
+    @Column(name = "face_match_confidence", nullable = false)
     private Double faceMatchConfidence;
 
     // Structured JSON fields (stored as TEXT for database vendor portability)
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "ocr_data_json", columnDefinition = "TEXT")
     private String ocrDataJson;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "inconsistencies_json", columnDefinition = "TEXT")
     private String inconsistenciesJson;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "reasons_json", columnDefinition = "TEXT")
     private String reasonsJson;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by_user_id")
     private User reviewedBy;
 
-    @Column(length = 1000)
+    @Column(name = "investigator_notes", length = 1000)
     private String investigatorNotes;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private Instant updatedAt;
 
     @PrePersist

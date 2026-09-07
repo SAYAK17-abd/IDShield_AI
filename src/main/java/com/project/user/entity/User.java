@@ -35,7 +35,7 @@ public class User implements UserDetails {
     @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password_hash", nullable = false)
     private String password; // BCrypt hash
 
     @Enumerated(EnumType.STRING)

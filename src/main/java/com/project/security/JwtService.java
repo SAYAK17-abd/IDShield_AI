@@ -47,7 +47,7 @@ public class JwtService {
         }
 
         boolean isDevOrTest = activeProfile != null && (
-                activeProfile.contains("dev") || activeProfile.contains("test")
+                activeProfile.contains("dev") || activeProfile.contains("test") || activeProfile.contains("postgres")
         );
 
         if (!isDevOrTest) {

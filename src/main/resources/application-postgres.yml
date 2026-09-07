@@ -1,0 +1,40 @@
+# ==============================================================================
+# Dedicated PostgreSQL Profile (Activate with: --spring.profiles.active=postgres)
+# ==============================================================================
+spring:
+  config:
+    activate:
+      on-profile: postgres
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/idshield_db}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 30000
+      connection-timeout: 20000
+      max-lifetime: 1800000
+
+  jpa:
+    hibernate:
+      ddl-auto: ${JPA_HIBERNATE_DDL_AUTO:validate}
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: false
+
+logging:
+  level:
+    com.project: INFO
+    org.springframework.security: INFO
+
+application:
+  security:
+    jwt:
+      secret-key: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970}
+      access-token-expiration: ${JWT_ACCESS_EXPIRATION_MS:900000}
+

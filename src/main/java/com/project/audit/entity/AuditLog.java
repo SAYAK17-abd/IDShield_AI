@@ -27,28 +27,28 @@ public class AuditLog {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 40)
+    @Column(name = "event_type", nullable = false, length = 40)
     private AuditEventType eventType;
 
-    @Column(length = 100)
+    @Column(name = "user_id", length = 100)
     private Long userId;
 
-    @Column(length = 150)
+    @Column(name = "user_email", length = 150)
     private String userEmail;
 
-    @Column(length = 100)
+    @Column(name = "resource_type", length = 100)
     private String resourceType; // e.g., "DOCUMENT", "VERIFICATION", "USER"
 
-    @Column(length = 100)
+    @Column(name = "resource_id", length = 100)
     private String resourceId;
 
-    @Column(length = 50)
+    @Column(name = "ip_address", length = 50)
     private String ipAddress;
 
     @Column(length = 1000)
     private String details;
 
-    @Column(nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
     @PrePersist

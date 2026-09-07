@@ -30,28 +30,28 @@ public class Document {
     @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "document_type", nullable = false, length = 50)
     private String documentType; // e.g., PASSPORT, NATIONAL_ID, DRIVING_LICENSE
 
-    @Column(nullable = false, length = 255)
+    @Column(name = "original_filename", nullable = false, length = 255)
     private String originalFilename;
 
-    @Column(nullable = false, unique = true, length = 100)
+    @Column(name = "stored_filename", nullable = false, unique = true, length = 100)
     private String storedFilename; // Random UUID + safe extension
 
-    @Column(nullable = false, length = 500)
+    @Column(name = "storage_path", nullable = false, length = 500)
     private String storagePath;
 
-    @Column(length = 500)
+    @Column(name = "selfie_storage_path", length = 500)
     private String selfieStoragePath;
 
-    @Column(nullable = false)
+    @Column(name = "file_size_bytes", nullable = false)
     private Long fileSizeBytes;
 
-    @Column(nullable = false, length = 100)
+    @Column(name = "mime_type", nullable = false, length = 100)
     private String mimeType;
 
-    @Column(nullable = false, length = 64)
+    @Column(name = "sha256_checksum", nullable = false, length = 64)
     private String sha256Checksum;
 
     @Enumerated(EnumType.STRING)
