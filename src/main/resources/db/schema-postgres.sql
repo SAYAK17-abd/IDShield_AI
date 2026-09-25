@@ -19,12 +19,31 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL DEFAULT 'ROLE_USER'
         CHECK (role IN ('ROLE_USER', 'ROLE_ADMIN', 'ROLE_INVESTIGATOR')),
+    mobile_number VARCHAR(20) UNIQUE,
+    employee_id VARCHAR(50) UNIQUE,
+    dob VARCHAR(20),
+    govt_id_type VARCHAR(50),
+    govt_id_number VARCHAR(100),
+    is_mobile_verified BOOLEAN NOT NULL DEFAULT FALSE,
+    status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE'
+        CHECK (status IN ('ACTIVE', 'PENDING_APPROVAL', 'SUSPENDED')),
     enabled BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_mobile ON users(mobile_number);
+CREATE INDEX IF NOT EXISTS idx_users_emp_id ON users(employee_id);
+
+-- Safe migration alters for existing databases
+ALTER TABLE users ADD COLUMN IF NOT EXISTS mobile_number VARCHAR(20);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS employee_id VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS dob VARCHAR(20);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS govt_id_type VARCHAR(50);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS govt_id_number VARCHAR(100);
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_mobile_verified BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(50) NOT NULL DEFAULT 'ACTIVE';
 
 -- ==============================================================================
 -- 2. CRYPTOGRAPHIC REFRESH TOKENS (Family Rotation & Reuse Protection)

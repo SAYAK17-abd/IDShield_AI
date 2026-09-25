@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Custom UserDetailsService loading authenticated user profiles from PostgreSQL.
+ * Supports identifier resolution by email, mobile number, or employee ID.
  */
 @Service
 @RequiredArgsConstructor
@@ -19,9 +20,10 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     @Transactional(readOnly = true)
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+    public UserDetails loadUserByUsername(String identifier) throws UsernameNotFoundException {
+        return userRepository.findByEmail(identifier)
+                .or(() -> userRepository.findByMobileNumber(identifier))
+                .or(() -> userRepository.findByEmployeeId(identifier.toUpperCase()))
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with identifier: " + identifier));
     }
 }
-

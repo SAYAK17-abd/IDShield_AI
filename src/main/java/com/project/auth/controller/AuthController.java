@@ -15,15 +15,67 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * Authentication Controller exposing registration, login, token rotation, and logout.
+ * Authentication Controller exposing registration, login, token rotation, logout,
+ * and the Multi-Portal Government Authentication Gateway (Citizen, Officer, Admin).
  */
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Endpoints for user registration, authentication, token refresh, and profile inspection")
+@Tag(name = "Authentication", description = "Endpoints for user registration, multi-portal authentication, OTP, token refresh, and profile inspection")
 public class AuthController {
 
     private final AuthService authService;
+
+    @GetMapping("/captcha")
+    @Operation(summary = "Generate anti-bot Captcha challenge", description = "Returns a fresh math challenge puzzle and captcha ID (valid for 3 minutes).")
+    public ResponseEntity<ApiResponse<CaptchaResponseDto>> getCaptcha() {
+        CaptchaResponseDto captcha = authService.generateCaptcha();
+        return ResponseEntity.ok(ApiResponse.success(captcha, "Captcha challenge generated"));
+    }
+
+    @PostMapping("/otp/send")
+    @Operation(summary = "Dispatch verification OTP", description = "Validates captcha challenge and dispatches 6-digit OTP code to mobile number.")
+    public ResponseEntity<ApiResponse<OtpSendResponseDto>> sendOtp(@Valid @RequestBody OtpSendRequest request) {
+        OtpSendResponseDto response = authService.sendOtp(request);
+        return ResponseEntity.ok(ApiResponse.success(response, response.getMessage()));
+    }
+
+    @PostMapping("/citizen/register")
+    @Operation(summary = "Citizen Registration", description = "Registers citizen account via verified Mobile OTP and Government ID.")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerCitizen(@Valid @RequestBody CitizenRegisterRequest request, HttpServletRequest httpRequest) {
+        AuthResponse response = authService.registerCitizen(request, httpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(response, "Citizen registration successful"));
+    }
+
+    @PostMapping("/citizen/login")
+    @Operation(summary = "Citizen Passwordless Sign-In", description = "Authenticates citizen via verified Mobile OTP.")
+    public ResponseEntity<ApiResponse<AuthResponse>> loginCitizen(@Valid @RequestBody CitizenLoginRequest request, HttpServletRequest httpRequest) {
+        AuthResponse response = authService.loginCitizen(request, httpRequest);
+        return ResponseEntity.ok(ApiResponse.success(response, "Citizen sign-in successful"));
+    }
+
+    @PostMapping("/officer/register")
+    @Operation(summary = "Verification Officer Registration", description = "Registers officer with Employee ID and 2FA OTP.")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerOfficer(@Valid @RequestBody OfficerRegisterRequest request, HttpServletRequest httpRequest) {
+        AuthResponse response = authService.registerOfficer(request, httpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(response, "Officer registered successfully"));
+    }
+
+    @PostMapping("/officer/login")
+    @Operation(summary = "Verification Officer 2FA Login", description = "Authenticates officer with Employee ID, Password, and 2FA OTP.")
+    public ResponseEntity<ApiResponse<AuthResponse>> loginOfficer(@Valid @RequestBody OfficerLoginRequest request, HttpServletRequest httpRequest) {
+        AuthResponse response = authService.loginOfficer(request, httpRequest);
+        return ResponseEntity.ok(ApiResponse.success(response, "Officer authentication successful"));
+    }
+
+    @PostMapping("/admin/login")
+    @Operation(summary = "System Administrator 2FA Login", description = "Authenticates administrator with credentials and 2FA OTP.")
+    public ResponseEntity<ApiResponse<AuthResponse>> loginAdmin(@Valid @RequestBody AdminLoginRequest request, HttpServletRequest httpRequest) {
+        AuthResponse response = authService.loginAdmin(request, httpRequest);
+        return ResponseEntity.ok(ApiResponse.success(response, "Administrator authentication successful"));
+    }
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user account", description = "Creates a standard USER account. Cannot escalate privileges.")
@@ -63,4 +115,3 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success(currentUser));
     }
 }
-
