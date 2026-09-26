@@ -692,28 +692,6 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
 
       const isHi = language === 'hi';
 
-      // App Language State (Persistent English / Hindi)
-      const [language, setLanguage] = useState(() => {
-        return localStorage.getItem('idshield_language') || 'en';
-      });
-
-      useEffect(() => {
-        localStorage.setItem('idshield_language', language);
-      }, [language]);
-
-      const isHi = language === 'hi';
-
-      // App Language State (Persistent English / Hindi)
-      const [language, setLanguage] = useState(() => {
-        return localStorage.getItem('idshield_language') || 'en';
-      });
-
-      useEffect(() => {
-        localStorage.setItem('idshield_language', language);
-      }, [language]);
-
-      const isHi = language === 'hi';
-
       const [themeMode, setThemeMode] = useState(() => {
         const saved = localStorage.getItem('idshield_theme_mode');
         return (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : 'system';
