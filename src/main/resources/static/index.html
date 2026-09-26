@@ -391,7 +391,7 @@
     }
 const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://127.0.0.1:8080' 
-      : `${window.location.origin}`;
+      : `${window.location.protocol}//${window.location.hostname}:8080`;
 
     // 1. Primary Recognized Indian Identity Standards (6 Cards)
     const PRIMARY_DOCUMENTS = [
@@ -692,28 +692,6 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
 
       const isHi = language === 'hi';
 
-      // App Language State (Persistent English / Hindi)
-      const [language, setLanguage] = useState(() => {
-        return localStorage.getItem('idshield_language') || 'en';
-      });
-
-      useEffect(() => {
-        localStorage.setItem('idshield_language', language);
-      }, [language]);
-
-      const isHi = language === 'hi';
-
-      // App Language State (Persistent English / Hindi)
-      const [language, setLanguage] = useState(() => {
-        return localStorage.getItem('idshield_language') || 'en';
-      });
-
-      useEffect(() => {
-        localStorage.setItem('idshield_language', language);
-      }, [language]);
-
-      const isHi = language === 'hi';
-
       const [themeMode, setThemeMode] = useState(() => {
         const saved = localStorage.getItem('idshield_theme_mode');
         return (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : 'system';
@@ -751,26 +729,67 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
       const [authError, setAuthError] = useState(null);
       const [authNotice, setAuthNotice] = useState(null);
       const [gatewayStatus, setGatewayStatus] = useState('connected');
+      // Timed OTP Notification (Shows ONLY ONCE on page with 20s countdown, then auto-vanishes)
+      const [timedOtpNotification, setTimedOtpNotification] = useState(null);
 
-      // Citizen Form
-      const [mobileNumber, setMobileNumber] = useState('9876543210');
+      // Countdown effect for timed OTP notification
+      useEffect(() => {
+        if (!timedOtpNotification) return;
+        if (timedOtpNotification.secondsLeft <= 0) {
+          setTimedOtpNotification(null);
+          return;
+        }
+        const timer = setInterval(() => {
+          setTimedOtpNotification(prev => {
+            if (!prev) return null;
+            if (prev.secondsLeft <= 1) return null;
+            return { ...prev, secondsLeft: prev.secondsLeft - 1 };
+          });
+        }, 1000);
+        return () => clearInterval(timer);
+      }, [timedOtpNotification]);
+
+      // Citizen Sign In (Zero hardcoded numbers)
+      const [mobileNumber, setMobileNumber] = useState('');
       const [captchaChallenge, setCaptchaChallenge] = useState({ id: 'local_1', question: '14 + 7 = ?', answer: 21 });
       const [captchaAnswer, setCaptchaAnswer] = useState('');
       const [otpSent, setOtpSent] = useState(false);
-      const [otpCode, setOtpCode] = useState('123456');
-      const [otpTimer, setOtpTimer] = useState(180);
+      const [otpCode, setOtpCode] = useState('');
 
-      // Officer Form
-      const [officerEmpId, setOfficerEmpId] = useState('OFF-8821');
-      const [officerPassword, setOfficerPassword] = useState('Investigator@123456!');
-      const [officerOtp, setOfficerOtp] = useState('123456');
+      // Citizen Registration State (Name, DOB, 12-digit Indian Aadhaar, Mobile, OTP)
+      const [citizenName, setCitizenName] = useState('');
+      const [citizenDob, setCitizenDob] = useState('');
+      const [citizenAadhaar, setCitizenAadhaar] = useState('');
+      const [citizenRegMobile, setCitizenRegMobile] = useState('');
+      const [citizenRegOtp, setCitizenRegOtp] = useState('');
+      const [citizenRegOtpSent, setCitizenRegOtpSent] = useState(false);
 
-      // Admin Form
-      const [adminEmail, setAdminEmail] = useState('admin@idshield.com');
-      const [adminPassword, setAdminPassword] = useState('Admin@123456!');
-      const [adminOtp, setAdminOtp] = useState('123456');
+      // Authorized Aadhaar Test Pool (10 Mock Identities)
+      const [aadhaarPool, setAadhaarPool] = useState([]);
+      const [showAadhaarPool, setShowAadhaarPool] = useState(false);
 
-      // 3. Navigation View (When Authenticated)
+      // Officer Form State (ID Format: OFF-XXXXXX)
+      const [officerMode, setOfficerMode] = useState('LOGIN'); // 'LOGIN' | 'REGISTER'
+      const [officerEmpId, setOfficerEmpId] = useState('');
+      const [officerPassword, setOfficerPassword] = useState('');
+      const [officerRegName, setOfficerRegName] = useState('');
+      const [officerRegEmpId, setOfficerRegEmpId] = useState('');
+      const [officerRegEmail, setOfficerRegEmail] = useState('');
+      const [officerRegMobile, setOfficerRegMobile] = useState('');
+      const [officerRegPassword, setOfficerRegPassword] = useState('');
+      const [officerRegDepartment, setOfficerRegDepartment] = useState('Cyber Forensic Division');
+
+      // Admin Form State (ID Format: ADM-XXXXXX)
+      const [adminMode, setAdminMode] = useState('LOGIN'); // 'LOGIN' | 'REGISTER'
+      const [adminId, setAdminId] = useState('');
+      const [adminPassword, setAdminPassword] = useState('');
+      const [adminRegName, setAdminRegName] = useState('');
+      const [adminRegId, setAdminRegId] = useState('');
+      const [adminRegEmail, setAdminRegEmail] = useState('');
+      const [adminRegMobile, setAdminRegMobile] = useState('');
+      const [adminRegPassword, setAdminRegPassword] = useState('');
+
+      // 3. Navigation View (Strictly Role-Based)
       const [activeView, setActiveView] = useState(() => {
         if (!currentUser) return 'citizen';
         if (currentUser.role === 'ROLE_ADMIN') return 'admin';
@@ -778,14 +797,16 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
         return 'citizen';
       });
 
-      // Synchronize active view with role on login
+      // Synchronize and STRICTLY GUARD active view against citizen privilege escalation
       useEffect(() => {
         if (currentUser) {
-          if (currentUser.role === 'ROLE_ADMIN') setActiveView('admin');
-          else if (currentUser.role === 'ROLE_INVESTIGATOR') setActiveView('officer');
-          else setActiveView('citizen');
+          if (currentUser.role === 'ROLE_USER') {
+            setActiveView('citizen'); // Citizens can NEVER view officer or admin panels
+          } else if (currentUser.role === 'ROLE_INVESTIGATOR') {
+            if (activeView === 'admin') setActiveView('officer');
+          }
         }
-      }, [currentUser]);
+      }, [currentUser, activeView]);
 
       // 4. Citizen Document Screening State
       const [selectedDocType, setSelectedDocType] = useState(PRIMARY_DOCUMENTS[0].id);
@@ -936,10 +957,42 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
         }
       };
 
-      // OTP Send Handler
+      // Fetch Authorized Mock Aadhaar Pool for evaluation helper
+      const fetchAadhaarPool = async () => {
+        try {
+          const res = await fetch(`${GATEWAY_BASE_URL}/api/auth/aadhaar/pool`);
+          if (res.ok) {
+            const json = await res.json();
+            setAadhaarPool(json.data || []);
+            setShowAadhaarPool(true);
+          }
+        } catch (e) {
+          // Local fallback test records if offline
+          setAadhaarPool([
+            { aadhaarNumber: '234567890124', fullName: 'Aarav Sharma', dob: '1992-05-14', gender: 'MALE', phoneNumber: '9876543210' },
+            { aadhaarNumber: '345678901238', fullName: 'Priya Patel', dob: '1995-11-20', gender: 'FEMALE', phoneNumber: '9812345678' },
+            { aadhaarNumber: '456789012341', fullName: 'Rohan Verma', dob: '1988-08-05', gender: 'MALE', phoneNumber: '9823456789' },
+            { aadhaarNumber: '567890123458', fullName: 'Ananya Sen', dob: '1998-02-17', gender: 'FEMALE', phoneNumber: '9834567890' },
+            { aadhaarNumber: '678901234560', fullName: 'Vikramaditya Rao', dob: '1985-09-30', gender: 'MALE', phoneNumber: '9845678901' },
+            { aadhaarNumber: '789012345674', fullName: 'Meera Deshmukh', dob: '1993-04-12', gender: 'FEMALE', phoneNumber: '9856789012' },
+            { aadhaarNumber: '890123456784', fullName: 'Kabir Malhotra', dob: '1990-12-25', gender: 'MALE', phoneNumber: '9867890123' },
+            { aadhaarNumber: '901234567892', fullName: 'Deepika Nair', dob: '1996-07-08', gender: 'FEMALE', phoneNumber: '9878901234' },
+            { aadhaarNumber: '219876543210', fullName: 'Rajesh Sengupta', dob: '1982-01-19', gender: 'MALE', phoneNumber: '9889012345' },
+            { aadhaarNumber: '321987654325', fullName: 'Sunita Sundaram', dob: '1991-10-03', gender: 'FEMALE', phoneNumber: '9890123456' }
+          ]);
+          setShowAadhaarPool(true);
+        }
+      };
+
+      // Citizen Sign-In OTP Dispatcher (Triggers Timed Single-Use OTP Preview)
       const handleSendOtp = async () => {
-        if (!mobileNumber || mobileNumber.trim().length !== 10) {
-          setAuthError('Please enter a valid 10-digit Indian mobile number (+91).');
+        const clean = mobileNumber.replace(/\D/g, '');
+        if (!clean || (clean.length !== 10 && clean.length !== 12)) {
+          setAuthError('Please enter a valid 10-digit Indian mobile number or 12-digit Aadhaar number.');
+          return;
+        }
+        if (!captchaAnswer.trim()) {
+          setAuthError('Please solve the anti-bot security challenge first.');
           return;
         }
         setAuthLoading(true);
@@ -949,27 +1002,97 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              mobileNumber: mobileNumber,
-              captchaId: captchaChallenge.id,
-              captchaAnswer: captchaAnswer || '21'
+              mobileNumber: clean,
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim(),
+              purpose: 'CITIZEN_LOGIN'
             })
           });
-          setOtpSent(true);
-          setOtpCode('123456');
-          setAuthNotice('OTP sent to +91-' + mobileNumber + ' (Demo OTP: 123456)');
+          const json = await res.json().catch(() => null);
+          if (res.ok) {
+            setOtpSent(true);
+            setOtpCode(''); // Clean input, never pre-fill
+            const masked = clean.length === 12 
+              ? 'XXXX-XXXX-' + clean.slice(-4) 
+              : '+91-******' + clean.slice(-4);
+            setAuthNotice(`One-time password dispatched successfully to ${masked}.`);
+            
+            // TIMED ONE-TIME OTP PREVIEW (Shows on page only once for 20 seconds, then vanishes)
+            if (json?.data?.debugOtp) {
+              setTimedOtpNotification({
+                otp: json.data.debugOtp,
+                target: masked,
+                secondsLeft: 20
+              });
+            }
+          } else {
+            setAuthError(json?.message || 'Failed to dispatch OTP. Please check your anti-bot answer.');
+            fetchCaptcha();
+          }
         } catch (e) {
-          setOtpSent(true);
-          setOtpCode('123456');
-          setAuthNotice('OTP simulated to +91-' + mobileNumber + ' (Demo OTP: 123456)');
+          setAuthError('SMS Gateway service is temporarily unreachable.');
+          fetchCaptcha();
         } finally {
           setAuthLoading(false);
         }
       };
 
-      // Citizen Sign In
+      // Citizen Registration OTP Dispatcher
+      const handleSendRegOtp = async () => {
+        const cleanMobile = citizenRegMobile.replace(/\D/g, '');
+        if (cleanMobile.length !== 10) {
+          setAuthError('Please enter a valid 10-digit Indian mobile number.');
+          return;
+        }
+        if (!captchaAnswer.trim()) {
+          setAuthError('Please solve the anti-bot security challenge first.');
+          return;
+        }
+        setAuthLoading(true);
+        setAuthError(null);
+        try {
+          const res = await fetch(`${GATEWAY_BASE_URL}/api/auth/otp/send`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              mobileNumber: cleanMobile,
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim(),
+              purpose: 'CITIZEN_REGISTRATION'
+            })
+          });
+          const json = await res.json().catch(() => null);
+          if (res.ok) {
+            setCitizenRegOtpSent(true);
+            setCitizenRegOtp('');
+            const masked = '+91-******' + cleanMobile.slice(-4);
+            setAuthNotice(`Verification OTP dispatched successfully to ${masked}.`);
+
+            // TIMED ONE-TIME OTP PREVIEW (Shows on page only once for 20 seconds, then vanishes)
+            if (json?.data?.debugOtp) {
+              setTimedOtpNotification({
+                otp: json.data.debugOtp,
+                target: masked,
+                secondsLeft: 20
+              });
+            }
+          } else {
+            setAuthError(json?.message || 'Failed to dispatch OTP. Please check your anti-bot answer.');
+            fetchCaptcha();
+          }
+        } catch (e) {
+          setAuthError('SMS Gateway service unreachable.');
+          fetchCaptcha();
+        } finally {
+          setAuthLoading(false);
+        }
+      };
+
+      // Citizen Sign In Handler
       const handleCitizenLogin = async () => {
-        if (!otpCode || otpCode.length < 4) {
-          setAuthError('Please enter the 6-digit OTP code.');
+        const cleanOtp = otpCode.trim();
+        if (!cleanOtp || cleanOtp.length !== 6) {
+          setAuthError('Please enter the 6-digit OTP code received via SMS.');
           return;
         }
         setAuthLoading(true);
@@ -978,33 +1101,115 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
           const res = await fetch(`${GATEWAY_BASE_URL}/api/auth/citizen/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mobileNumber: mobileNumber, otpCode: otpCode })
+            body: JSON.stringify({
+              mobileNumber: mobileNumber.replace(/\D/g, ''),
+              identifier: mobileNumber.replace(/\D/g, ''),
+              otpCode: cleanOtp
+            })
           });
-          if (res.ok) {
-            const json = await res.json();
-            const token = json.data?.accessToken || 'token_' + Date.now();
-            saveSession(token, {
+          const json = await res.json().catch(() => null);
+          if (res.ok && json.data) {
+            setTimedOtpNotification(null); // Clear timed notice upon successful login
+            saveSession(json.data.accessToken, {
               role: 'ROLE_USER',
-              name: 'Citizen ' + mobileNumber,
-              email: 'user@idshield.com',
-              mobileNumber: mobileNumber,
-              title: 'Citizen',
+              name: json.data.user?.name || ('Citizen ' + mobileNumber),
+              email: json.data.user?.email || (mobileNumber + '@citizen.idshield.gov.in'),
+              mobileNumber: json.data.user?.mobileNumber || mobileNumber,
+              title: 'Verified Citizen',
               avatarBg: 'bg-emerald-600',
               icon: 'user'
             });
           } else {
-            // Fallback to demo user
-            await quickDemoLogin('CITIZEN');
+            setAuthError(json?.message || 'Invalid or expired OTP code. Please request a new OTP.');
           }
         } catch (e) {
-          await quickDemoLogin('CITIZEN');
+          setAuthError('Citizen authentication authority unreachable.');
         } finally {
           setAuthLoading(false);
         }
       };
 
-      // Officer Sign In
+      // Citizen Registration Handler
+      const handleCitizenRegister = async () => {
+        if (!citizenName.trim() || citizenName.trim().length < 3) {
+          setAuthError('Full legal name is required (minimum 3 characters).');
+          return;
+        }
+        if (!citizenDob) {
+          setAuthError('Please select your official Date of Birth (DOB).');
+          return;
+        }
+        const cleanAadhaar = citizenAadhaar.replace(/\D/g, '');
+        if (cleanAadhaar.length !== 12) {
+          setAuthError('Valid 12-digit Indian Aadhaar number is required.');
+          return;
+        }
+        const cleanMobile = citizenRegMobile.replace(/\D/g, '');
+        if (cleanMobile.length !== 10) {
+          setAuthError('Valid 10-digit mobile number is required.');
+          return;
+        }
+        if (!citizenRegOtp || citizenRegOtp.trim().length !== 6) {
+          setAuthError('Please enter the 6-digit OTP code received via SMS.');
+          return;
+        }
+
+        setAuthLoading(true);
+        setAuthError(null);
+        try {
+          const res = await fetch(`${GATEWAY_BASE_URL}/api/auth/citizen/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fullName: citizenName.trim(),
+              dob: citizenDob,
+              govtIdType: 'AADHAAR',
+              govtIdNumber: cleanAadhaar,
+              mobileNumber: cleanMobile,
+              otpCode: citizenRegOtp.trim(),
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim()
+            })
+          });
+          const json = await res.json().catch(() => null);
+          if (res.ok && json.data) {
+            setTimedOtpNotification(null); // Clear timed notice upon success
+            saveSession(json.data.accessToken, {
+              role: 'ROLE_USER',
+              name: json.data.user?.name || citizenName.trim(),
+              email: json.data.user?.email || (cleanMobile + '@citizen.idshield.gov.in'),
+              mobileNumber: cleanMobile,
+              dob: citizenDob,
+              govtIdNumber: cleanAadhaar,
+              title: 'Verified Citizen',
+              avatarBg: 'bg-emerald-600',
+              icon: 'user'
+            });
+          } else {
+            setAuthError(json?.message || 'Registration failed. Please check your details.');
+          }
+        } catch (e) {
+          setAuthError('Unable to connect to registration authority.');
+        } finally {
+          setAuthLoading(false);
+        }
+      };
+
+      // Officer Sign In Handler (Officer ID + Password + Captcha)
       const handleOfficerLogin = async () => {
+        const cleanEmpId = officerEmpId.trim().toUpperCase();
+        if (!cleanEmpId) {
+          setAuthError('Officer ID is required.');
+          return;
+        }
+        if (!officerPassword) {
+          setAuthError('Officer password is required.');
+          return;
+        }
+        if (!captchaAnswer.trim()) {
+          setAuthError('Please solve the anti-bot security challenge.');
+          return;
+        }
         setAuthLoading(true);
         setAuthError(null);
         try {
@@ -1012,35 +1217,114 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              employeeId: officerEmpId,
+              employeeIdOrMobile: cleanEmpId,
               password: officerPassword,
-              otpCode: officerOtp
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim()
             })
           });
-          if (res.ok) {
-            const json = await res.json();
-            const token = json.data?.accessToken || 'token_' + Date.now();
-            saveSession(token, {
+          const json = await res.json().catch(() => null);
+          if (res.ok && json.data) {
+            saveSession(json.data.accessToken, {
               role: 'ROLE_INVESTIGATOR',
-              name: 'Officer Rajesh Sen (' + officerEmpId + ')',
-              email: 'investigator@idshield.com',
-              employeeId: officerEmpId,
+              name: json.data.user?.name || ('Officer ' + cleanEmpId),
+              email: json.data.user?.email || 'investigator@idshield.gov.in',
+              employeeId: cleanEmpId,
               title: 'Cyber Forensic Officer',
               avatarBg: 'bg-blue-600',
               icon: 'shield-alert'
             });
           } else {
-            await quickDemoLogin('OFFICER');
+            setAuthError(json?.message || 'Invalid Officer ID, Password, or Captcha.');
+            fetchCaptcha();
           }
         } catch (e) {
-          await quickDemoLogin('OFFICER');
+          setAuthError('Officer authentication service unreachable.');
+          fetchCaptcha();
         } finally {
           setAuthLoading(false);
         }
       };
 
-      // Admin Sign In
+      // Officer Registration Handler (Format: OFF-XXXXXX)
+      const handleOfficerRegister = async () => {
+        const cleanEmpId = officerRegEmpId.trim().toUpperCase();
+        if (!cleanEmpId.match(/^OFF-\d{6}$/)) {
+          setAuthError('Officer ID must follow the official format OFF-XXXXXX (e.g. OFF-100234).');
+          return;
+        }
+        if (!officerRegName.trim() || officerRegName.trim().length < 3) {
+          setAuthError('Officer Full Name is required.');
+          return;
+        }
+        if (!officerRegPassword || officerRegPassword.length < 8) {
+          setAuthError('Password must be at least 8 characters long.');
+          return;
+        }
+        const cleanMobile = officerRegMobile.replace(/\D/g, '');
+        if (cleanMobile.length !== 10) {
+          setAuthError('Valid 10-digit mobile number is required.');
+          return;
+        }
+        if (!captchaAnswer.trim()) {
+          setAuthError('Please solve the anti-bot security challenge.');
+          return;
+        }
+
+        setAuthLoading(true);
+        setAuthError(null);
+        try {
+          const res = await fetch(`${GATEWAY_BASE_URL}/api/auth/officer/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              fullName: officerRegName.trim(),
+              employeeId: cleanEmpId,
+              email: officerRegEmail.trim() || (cleanEmpId.toLowerCase() + '@investigator.idshield.gov.in'),
+              mobileNumber: cleanMobile,
+              password: officerRegPassword,
+              department: officerRegDepartment.trim(),
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim()
+            })
+          });
+          const json = await res.json().catch(() => null);
+          if (res.ok && json.data) {
+            saveSession(json.data.accessToken, {
+              role: 'ROLE_INVESTIGATOR',
+              name: json.data.user?.name || officerRegName.trim(),
+              email: json.data.user?.email || (cleanEmpId.toLowerCase() + '@investigator.idshield.gov.in'),
+              employeeId: cleanEmpId,
+              title: 'Cyber Forensic Officer',
+              avatarBg: 'bg-blue-600',
+              icon: 'shield-alert'
+            });
+          } else {
+            setAuthError(json?.message || 'Officer registration failed.');
+            fetchCaptcha();
+          }
+        } catch (e) {
+          setAuthError('Registration service error.');
+        } finally {
+          setAuthLoading(false);
+        }
+      };
+
+      // Admin Sign In Handler (Admin ID + Password + Captcha)
       const handleAdminLogin = async () => {
+        const cleanId = adminId.trim().toUpperCase();
+        if (!cleanId) {
+          setAuthError('Administrator ID is required.');
+          return;
+        }
+        if (!adminPassword) {
+          setAuthError('Administrator password is required.');
+          return;
+        }
+        if (!captchaAnswer.trim()) {
+          setAuthError('Please solve the anti-bot security challenge.');
+          return;
+        }
         setAuthLoading(true);
         setAuthError(null);
         try {
@@ -1048,20 +1332,93 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: adminEmail,
+              adminIdentifier: cleanId,
               password: adminPassword,
-              otpCode: adminOtp
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim()
             })
           });
-          if (res.ok) {
-            const json = await res.json();
-            const token = json.data?.accessToken || 'token_' + Date.now();
-            saveSession(token, DEMO_USERS.ADMIN);
+          const json = await res.json().catch(() => null);
+          if (res.ok && json.data) {
+            saveSession(json.data.accessToken, {
+              role: 'ROLE_ADMIN',
+              name: json.data.user?.name || ('Admin ' + cleanId),
+              email: json.data.user?.email || 'admin@idshield.gov.in',
+              employeeId: cleanId,
+              title: 'System Administrator',
+              avatarBg: 'bg-purple-600',
+              icon: 'shield-check'
+            });
           } else {
-            await quickDemoLogin('ADMIN');
+            setAuthError(json?.message || 'Invalid Administrator ID, Password, or Captcha.');
+            fetchCaptcha();
           }
         } catch (e) {
-          await quickDemoLogin('ADMIN');
+          setAuthError('Administrator authentication service unreachable.');
+          fetchCaptcha();
+        } finally {
+          setAuthLoading(false);
+        }
+      };
+
+      // Admin Registration Handler (Format: ADM-XXXXXX)
+      const handleAdminRegister = async () => {
+        const cleanId = adminRegId.trim().toUpperCase();
+        if (!cleanId.match(/^ADM-[A-Z0-9]{4,10}$/)) {
+          setAuthError('Admin ID must follow official format ADM-XXXXXX (e.g. ADM-902144).');
+          return;
+        }
+        if (!adminRegName.trim() || adminRegName.trim().length < 3) {
+          setAuthError('Full Name is required.');
+          return;
+        }
+        if (!adminRegPassword || adminRegPassword.length < 8) {
+          setAuthError('Master Password must be at least 8 characters long.');
+          return;
+        }
+        const cleanMobile = adminRegMobile.replace(/\D/g, '');
+        if (cleanMobile.length !== 10) {
+          setAuthError('Valid 10-digit official mobile number is required.');
+          return;
+        }
+        if (!captchaAnswer.trim()) {
+          setAuthError('Please solve the anti-bot challenge.');
+          return;
+        }
+
+        setAuthLoading(true);
+        setAuthError(null);
+        try {
+          const res = await fetch(`${GATEWAY_BASE_URL}/api/auth/admin/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              adminIdentifier: cleanId,
+              fullName: adminRegName.trim(),
+              email: adminRegEmail.trim() || (cleanId.toLowerCase() + '@admin.idshield.gov.in'),
+              mobileNumber: cleanMobile,
+              password: adminRegPassword,
+              captchaId: captchaChallenge ? captchaChallenge.id : null,
+              captchaAnswer: captchaAnswer.trim()
+            })
+          });
+          const json = await res.json().catch(() => null);
+          if (res.ok && json.data) {
+            saveSession(json.data.accessToken, {
+              role: 'ROLE_ADMIN',
+              name: json.data.user?.name || adminRegName.trim(),
+              email: json.data.user?.email || (cleanId.toLowerCase() + '@admin.idshield.gov.in'),
+              employeeId: cleanId,
+              title: 'Master Administrator',
+              avatarBg: 'bg-purple-600',
+              icon: 'shield-check'
+            });
+          } else {
+            setAuthError(json?.message || 'Admin registration failed.');
+            fetchCaptcha();
+          }
+        } catch (e) {
+          setAuthError('Admin registration endpoint unreachable.');
         } finally {
           setAuthLoading(false);
         }
@@ -1672,7 +2029,7 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
                     </div>
 
                     {/* Alerts */}
-                    <div className="relative z-10">
+                    <div className="relative z-10 space-y-2">
                       {authNotice && (
                         <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-xs flex items-center gap-2 animate-in fade-in">
                           <span>ℹ️</span>
@@ -1685,164 +2042,814 @@ const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol 
                           <span>{authError}</span>
                         </div>
                       )}
+
+                      {/* TIMED ONE-TIME OTP PREVIEW (Shows on page ONLY ONCE for 20s, then auto-destructs) */}
+                      {timedOtpNotification && (
+                        <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/15 to-orange-500/10 border-2 border-amber-500 dark:border-amber-400 text-slate-900 dark:text-amber-100 animate-in fade-in slide-in-from-top-2 shadow-xl">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex items-start gap-3">
+                              <span className="text-2xl animate-bounce mt-0.5">📱</span>
+                              <div>
+                                <div className="text-[10px] uppercase font-extrabold tracking-wider text-amber-800 dark:text-amber-300 flex items-center gap-2">
+                                  <span>{isHi ? 'सिम्युलेटेड एसएमएस गेटवे डिस्पैच' : 'Simulated SMS Gateway Dispatch'}</span>
+                                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-900 dark:text-amber-300 font-mono text-[9px] font-bold">
+                                    {isHi ? 'एक-बार दृश्य' : 'One-Time Preview'}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2.5 mt-2">
+                                  <span className="text-xs text-slate-700 dark:text-slate-300 font-semibold">{isHi ? 'आपका 6-अंकीय पासकोड:' : 'Your 6-Digit Passcode:'}</span>
+                                  <span className="font-mono text-2xl font-black bg-white dark:bg-slate-900 px-3.5 py-1 rounded-xl border border-amber-400 text-[#000080] dark:text-emerald-400 tracking-[0.25em] shadow select-all">
+                                    {timedOtpNotification.otp}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-amber-900/90 dark:text-amber-200/90 mt-1.5 font-medium">
+                                  {isHi ? 'प्रेषित:' : 'Dispatched to'} <span className="font-mono font-bold">{timedOtpNotification.target}</span>. {isHi ? 'स्क्रीन पर केवल एक बार प्रदर्शित — समाप्त होने में:' : 'Displayed on screen only once — disappearing in'} <span className="font-mono font-bold text-rose-600 dark:text-rose-400 text-xs">{timedOtpNotification.secondsLeft}s</span>.
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => setTimedOtpNotification(null)}
+                              title="Dismiss notification"
+                              className="text-amber-700 dark:text-amber-400 hover:text-amber-900 dark:hover:text-white p-1 text-sm font-bold cursor-pointer"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                          {/* Shrinking progress bar */}
+                          <div className="mt-3 w-full bg-amber-200/70 dark:bg-amber-950/60 rounded-full h-1.5 overflow-hidden">
+                            <div
+                              className="bg-amber-500 h-1.5 transition-all duration-1000 ease-linear rounded-full"
+                              style={{ width: `${(timedOtpNotification.secondsLeft / 20) * 100}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* TAB 1: CITIZEN FORM */}
                     {authPortalTab === 'CITIZEN' && (
                       <div className="space-y-4 relative z-10">
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                              {isHi ? 'भारतीय मोबाइल नंबर (+91)' : 'Indian Mobile Number (+91)'}
-                            </label>
-                            <div className="relative">
-                              <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold font-mono">+91</span>
-                              <input
-                                type="text"
-                                maxLength="10"
-                                value={mobileNumber}
-                                onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
-                                placeholder="9876543210"
-                                className="w-full pl-12 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-emerald-500 transition shadow-inner"
-                              />
-                            </div>
-                          </div>
+                        {/* Citizen Sub-Tab Selector */}
+                        <div className="flex border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-1 rounded-2xl">
+                          <button
+                            type="button"
+                            onClick={() => { setCitizenMode('LOGIN'); setAuthError(null); setAuthNotice(null); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              citizenMode === 'LOGIN'
+                                ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <span>📱</span>
+                            <span>{isHi ? 'नागरिक लॉगिन' : 'Citizen Sign In'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setCitizenMode('REGISTER'); setAuthError(null); setAuthNotice(null); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              citizenMode === 'REGISTER'
+                                ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <span>📝</span>
+                            <span>{isHi ? 'नया नागरिक पंजीकरण' : 'New Citizen Registration'}</span>
+                          </button>
+                        </div>
 
-                          {!otpSent ? (
-                            <button
-                              type="button"
-                              disabled={authLoading}
-                              onClick={handleSendOtp}
-                              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-                            >
-                              <span>📩</span>
-                              <span>{authLoading ? (isHi ? 'OTP भेजा जा रहा है...' : 'Sending OTP...') : (isHi ? 'सुरक्षित OTP प्राप्त करें' : 'Get Secure OTP')}</span>
-                            </button>
-                          ) : (
-                            <div className="space-y-3 animate-in fade-in">
-                              <div className="flex items-center justify-between">
-                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                                  {isHi ? '6-अंकीय OTP कोड दर्ज करें' : 'Enter 6-Digit OTP Code'}
-                                </label>
-                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
-                                  {isHi ? 'डेमो OTP: 123456' : 'Demo OTP: 123456'}
+                        {/* SUB-TAB 1A: CITIZEN SIGN IN */}
+                        {citizenMode === 'LOGIN' && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'पंजीकृत मोबाइल या 12-अंकीय आधार संख्या' : 'Registered Mobile or 12-Digit Aadhaar Number'}
+                              </label>
+                              <div className="flex rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus-within:border-emerald-500 shadow-sm">
+                                <span className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs flex items-center border-r border-slate-200 dark:border-slate-700">
+                                  🇮🇳 +91
                                 </span>
+                                <input
+                                  type="text"
+                                  maxLength="12"
+                                  value={mobileNumber}
+                                  onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
+                                  placeholder={isHi ? '10-अंकीय मोबाइल या 12-अंकीय आधार दर्ज करें' : 'Enter 10-digit mobile or 12-digit Aadhaar'}
+                                  className="flex-1 px-3 py-2 text-xs bg-transparent outline-none text-slate-900 dark:text-white font-mono"
+                                />
                               </div>
-                              <input
-                                type="text"
-                                maxLength="6"
-                                value={otpCode}
-                                onChange={(e) => setOtpCode(e.target.value)}
-                                placeholder="123456"
-                                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-center text-sm font-mono tracking-widest text-slate-900 dark:text-white outline-none focus:border-emerald-500 transition shadow-inner font-bold"
-                              />
-                              <button
-                                type="button"
-                                disabled={authLoading}
-                                onClick={handleCitizenLogin}
-                                className="w-full py-3 rounded-xl bg-[#0B2545] hover:bg-[#133E6E] text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 border border-[#C59B27]/40"
-                              >
-                                <span>🇮🇳</span>
-                                <span>{authLoading ? (isHi ? 'प्रमाणीकरण हो रहा है...' : 'Authenticating...') : (isHi ? 'सत्यापित कर लॉगिन करें' : 'Verify & Sign In')}</span>
-                              </button>
-                              <div className="text-center pt-1">
+                            </div>
+
+                            {/* Anti-Bot Security Challenge */}
+                            <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                  <span>🤖 {isHi ? 'एंटी-बॉट सुरक्षा चुनौती' : 'Anti-Bot Security Challenge'}</span>
+                                </label>
                                 <button
                                   type="button"
-                                  onClick={() => { setOtpSent(false); setAuthNotice(null); }}
-                                  className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline cursor-pointer"
+                                  onClick={fetchCaptcha}
+                                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
                                 >
-                                  {isHi ? 'नंबर बदलें या पुनः OTP भेजें' : 'Change Number / Resend OTP'}
+                                  <Icon name="refresh-cw" className="w-3 h-3" />
+                                  <span>{isHi ? 'रिफ्रेश' : 'Refresh'}</span>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
+                                  {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={captchaAnswer}
+                                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                  placeholder={isHi ? 'उत्तर' : 'Answer'}
+                                  className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={authLoading}
+                                  onClick={handleSendOtp}
+                                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
+                                >
+                                  {otpSent ? (isHi ? 'पुनः OTP भेजें' : 'Resend OTP') : (isHi ? 'OTP का अनुरोध करें' : 'Request OTP')}
                                 </button>
                               </div>
                             </div>
-                          )}
-                        </div>
+
+                            {/* 6-Digit OTP Input */}
+                            {otpSent && (
+                              <div className="space-y-2 animate-in fade-in">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                    {isHi ? '6-अंकीय SMS OTP सत्यापन' : '6-Digit SMS OTP Verification'}
+                                  </span>
+                                  <span className="text-slate-500 dark:text-slate-400 font-mono text-[10px]">
+                                    {isHi ? 'सुरक्षित एसएमएस गेटवे प्रेषित' : 'Secure SMS Gateway Dispatched'}
+                                  </span>
+                                </div>
+                                <input
+                                  type="password"
+                                  maxLength="6"
+                                  value={otpCode}
+                                  onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                                  placeholder="••••••"
+                                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-center font-mono text-xl tracking-[0.5em] text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={authLoading || otpCode.length < 6}
+                                  onClick={handleCitizenLogin}
+                                  className="w-full mt-2 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer"
+                                >
+                                  {authLoading ? (isHi ? 'पहचान सत्यापित हो रही है...' : 'Verifying Identity Credentials...') : (isHi ? 'सत्यापित कर पोर्टल में प्रवेश करें' : 'Verify OTP & Enter Citizen Portal')}
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* SUB-TAB 1B: NEW CITIZEN REGISTRATION */}
+                        {citizenMode === 'REGISTER' && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'पूर्ण कानूनी नाम (पहचान पत्र अनुसार)' : 'Full Legal Name (as per statutory ID)'}
+                              </label>
+                              <input
+                                type="text"
+                                value={citizenName}
+                                onChange={(e) => setCitizenName(e.target.value)}
+                                placeholder="e.g. Aarav Sharma"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                              />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'जन्म तिथि (DOB)' : 'Date of Birth (DOB)'}
+                                </label>
+                                <input
+                                  type="date"
+                                  max={new Date().toISOString().split('T')[0]}
+                                  value={citizenDob}
+                                  onChange={(e) => setCitizenDob(e.target.value)}
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                                />
+                              </div>
+
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? '12-अंकीय भारतीय आधार संख्या' : '12-Digit Indian Aadhaar Number'}
+                                </label>
+                                <input
+                                  type="text"
+                                  maxLength="12"
+                                  value={citizenAadhaar}
+                                  onChange={(e) => setCitizenAadhaar(e.target.value.replace(/\D/g, ''))}
+                                  placeholder="e.g. 234567890124"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'पंजीकृत भारतीय मोबाइल नंबर' : 'Registered Indian Mobile Number'}
+                              </label>
+                              <div className="flex rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus-within:border-emerald-500 shadow-sm">
+                                <span className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs flex items-center border-r border-slate-200 dark:border-slate-700">
+                                  🇮🇳 +91
+                                </span>
+                                <input
+                                  type="tel"
+                                  maxLength="10"
+                                  value={citizenRegMobile}
+                                  onChange={(e) => setCitizenRegMobile(e.target.value.replace(/\D/g, ''))}
+                                  placeholder={isHi ? '10-अंकीय मोबाइल दर्ज करें' : 'Enter 10-digit mobile'}
+                                  className="flex-1 px-3 py-2 text-xs bg-transparent outline-none text-slate-900 dark:text-white font-mono"
+                                />
+                              </div>
+                            </div>
+
+                            {/* Anti-Bot Security Challenge */}
+                            <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                  <span>🤖 {isHi ? 'एंटी-बॉट सुरक्षा चुनौती' : 'Anti-Bot Security Challenge'}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={fetchCaptcha}
+                                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Icon name="refresh-cw" className="w-3 h-3" />
+                                  <span>{isHi ? 'रिफ्रेश' : 'Refresh'}</span>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
+                                  {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={captchaAnswer}
+                                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                  placeholder={isHi ? 'उत्तर' : 'Answer'}
+                                  className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={authLoading}
+                                  onClick={handleSendRegOtp}
+                                  className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm active:scale-95 cursor-pointer disabled:opacity-50"
+                                >
+                                  {citizenRegOtpSent ? (isHi ? 'पुनः OTP भेजें' : 'Resend OTP') : (isHi ? 'OTP का अनुरोध करें' : 'Request OTP')}
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* 6-Digit Registration OTP Input */}
+                            {citizenRegOtpSent && (
+                              <div className="space-y-2 animate-in fade-in">
+                                <div className="flex items-center justify-between text-[11px]">
+                                  <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                    {isHi ? '6-अंकीय सत्यापन OTP कोड' : '6-Digit Verification OTP Code'}
+                                  </span>
+                                  <span className="text-slate-500 dark:text-slate-400 font-mono text-[10px]">
+                                    {isHi ? 'सुरक्षित एसएमएस गेटवे प्रेषित' : 'Secure SMS Gateway Dispatched'}
+                                  </span>
+                                </div>
+                                <input
+                                  type="password"
+                                  maxLength="6"
+                                  value={citizenRegOtp}
+                                  onChange={(e) => setCitizenRegOtp(e.target.value.replace(/\D/g, ''))}
+                                  placeholder="••••••"
+                                  className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-center font-mono text-xl tracking-[0.5em] text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
+                                />
+                                <button
+                                  type="button"
+                                  disabled={authLoading || citizenRegOtp.length < 6}
+                                  onClick={handleCitizenRegister}
+                                  className="w-full mt-2 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer"
+                                >
+                                  {authLoading ? (isHi ? 'नागरिक प्रोफ़ाइल पंजीकृत हो रहा है...' : 'Registering Citizen Profile...') : (isHi ? 'पंजीकरण पूर्ण करें व पोर्टल में प्रवेश करें' : 'Complete Registration & Access Citizen Portal')}
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Pre-Loaded Sandbox Aadhaar Pool Drawer (UIDAI Test Records) */}
+                            <div className="pt-3 border-t border-slate-200 dark:border-slate-800">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (!showAadhaarPool) fetchAadhaarPool();
+                                  setShowAadhaarPool(!showAadhaarPool);
+                                }}
+                                className="w-full py-2 px-3 rounded-xl border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950/70 hover:bg-slate-100 dark:hover:bg-slate-900 text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between transition cursor-pointer"
+                              >
+                                <span className="flex items-center gap-2">
+                                  <span>📋</span>
+                                  <span>{isHi ? 'पूर्व-लोडित सैंडबॉक्स आधार पूल (10 मान्य यूआईडीएआई रिकॉर्ड)' : 'Pre-Loaded Sandbox Aadhaar Pool (10 Valid UIDAI Records)'}</span>
+                                </span>
+                                <span>{showAadhaarPool ? '▲ ' + (isHi ? 'छिपाएं' : 'Hide') : '▼ ' + (isHi ? 'रिकॉर्ड देखें' : 'View Records')}</span>
+                              </button>
+
+                              {showAadhaarPool && (
+                                <div className="mt-2 p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 max-h-48 overflow-y-auto custom-scrollbar text-[11px] space-y-1.5 animate-in fade-in">
+                                  <p className="text-[10px] text-slate-500 dark:text-slate-400">
+                                    {isHi ? 'पंजीकरण फ़ॉर्म को स्वतः भरने के लिए किसी भी रिकॉर्ड पर क्लिक करें:' : 'Click any sandbox record below to auto-populate the registration form:'}
+                                  </p>
+                                  {aadhaarPool.map((item, idx) => (
+                                    <div
+                                      key={idx}
+                                      onClick={() => {
+                                        setCitizenName(item.fullName);
+                                        setCitizenDob(item.dob);
+                                        setCitizenAadhaar(item.aadhaarNumber);
+                                        setCitizenRegMobile(item.phoneNumber);
+                                        setAuthNotice(`${isHi ? 'चयनित आधार रिकॉर्ड:' : 'Loaded Aadhaar record for'} ${item.fullName}`);
+                                      }}
+                                      className="p-2 rounded-lg bg-slate-50 dark:bg-slate-900/60 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 border border-slate-200 dark:border-slate-800 hover:border-emerald-500/40 cursor-pointer flex items-center justify-between transition"
+                                    >
+                                      <div>
+                                        <div className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+                                          <span>{item.fullName}</span>
+                                          <span className="text-[9px] px-1.5 py-0.2 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 rounded font-mono">
+                                            {item.gender}
+                                          </span>
+                                        </div>
+                                        <div className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
+                                          UID: {item.aadhaarNumber} • DOB: {item.dob}
+                                        </div>
+                                      </div>
+                                      <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50 dark:bg-emerald-950 px-2 py-0.5 rounded border border-emerald-500/20">
+                                        +91-{item.phoneNumber}
+                                      </span>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {/* TAB 2: OFFICER FORM */}
                     {authPortalTab === 'OFFICER' && (
                       <div className="space-y-4 relative z-10">
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                              {isHi ? 'अधिकारी कर्मचारी कोड (Officer ID / Badge)' : 'Officer ID / Badge Number'}
-                            </label>
-                            <input
-                              type="text"
-                              value={officerEmpId}
-                              onChange={(e) => setOfficerEmpId(e.target.value)}
-                              placeholder="OFF-8821"
-                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-inner"
-                            />
-                          </div>
+                        <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2">
+                          <Icon name="shield-alert" className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                          <span>{isHi ? 'प्रतिबंधित: केवल कानून प्रवर्तन एवं साइबर फोरेंसिक अधिकारियों के लिए।' : 'Restricted: Requires Law Enforcement or Cyber Forensic Clearance.'}</span>
+                        </div>
 
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                              {isHi ? 'विभागीय सुरक्षा पासवर्ड (Password)' : 'Departmental Security Password'}
-                            </label>
-                            <input
-                              type="password"
-                              value={officerPassword}
-                              onChange={(e) => setOfficerPassword(e.target.value)}
-                              placeholder="••••••••••••"
-                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-inner"
-                            />
-                          </div>
-
+                        {/* Officer Mode Selector */}
+                        <div className="flex border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-1 rounded-2xl">
                           <button
                             type="button"
-                            disabled={authLoading}
-                            onClick={handleOfficerLogin}
-                            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                            onClick={() => { setOfficerMode('LOGIN'); setAuthError(null); setAuthNotice(null); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              officerMode === 'LOGIN'
+                                ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
                           >
                             <span>👮</span>
-                            <span>{authLoading ? (isHi ? 'सत्यापित हो रहा है...' : 'Authenticating...') : (isHi ? 'अधिकारी लॉगिन (जांच कतार)' : 'Sign In as Officer')}</span>
+                            <span>{isHi ? 'अधिकारी लॉगिन' : 'Officer Sign In'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setOfficerMode('REGISTER'); setAuthError(null); setAuthNotice(null); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              officerMode === 'REGISTER'
+                                ? 'bg-white dark:bg-slate-900 text-blue-600 dark:text-blue-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <span>📋</span>
+                            <span>{isHi ? 'अधिकारी पंजीकरण' : 'Officer Registration'}</span>
                           </button>
                         </div>
+
+                        {/* SUB-TAB 2A: OFFICER SIGN IN */}
+                        {officerMode === 'LOGIN' && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'अधिकारी कर्मचारी कोड (Format: OFF-XXXXXX)' : 'Officer Badge / Employee ID (Format: OFF-XXXXXX)'}
+                              </label>
+                              <input
+                                type="text"
+                                value={officerEmpId}
+                                onChange={(e) => setOfficerEmpId(e.target.value.toUpperCase())}
+                                placeholder="e.g. OFF-100234"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'विभागीय सुरक्षा पासवर्ड' : 'Department Security Password'}
+                              </label>
+                              <input
+                                type="password"
+                                value={officerPassword}
+                                onChange={(e) => setOfficerPassword(e.target.value)}
+                                placeholder="••••••••••••"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                              />
+                            </div>
+
+                            {/* Anti-Bot Captcha Challenge */}
+                            <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                  <span>🤖 {isHi ? 'एंटी-बॉट सुरक्षा चुनौती' : 'Anti-Bot Security Challenge'}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={fetchCaptcha}
+                                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Icon name="refresh-cw" className="w-3 h-3" />
+                                  <span>{isHi ? 'रिफ्रेश' : 'Refresh'}</span>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
+                                  {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={captchaAnswer}
+                                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                  placeholder={isHi ? 'उत्तर' : 'Answer'}
+                                  className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={authLoading}
+                              onClick={handleOfficerLogin}
+                              className="w-full py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
+                            >
+                              {authLoading ? (isHi ? 'सत्यापित हो रहा है...' : 'Authorizing Badge...') : (isHi ? 'अधिकारी लॉगिन व समीक्षा कतार खोलें' : 'Authorize Officer Badge & Open Review Queue')}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* SUB-TAB 2B: OFFICER REGISTRATION */}
+                        {officerMode === 'REGISTER' && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'अधिकारी आईडी (Format: OFF-XXXXXX)' : 'Officer Badge ID (Format: OFF-XXXXXX)'}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={officerRegEmpId}
+                                  onChange={(e) => setOfficerRegEmpId(e.target.value.toUpperCase())}
+                                  placeholder="e.g. OFF-100234"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'पूरा नाम एवं पद' : 'Full Name & Rank'}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={officerRegName}
+                                  onChange={(e) => setOfficerRegName(e.target.value)}
+                                  placeholder="e.g. Insp. Rajesh Sen"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'विभाग / प्रभाग' : 'Department / Wing'}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={officerRegDepartment}
+                                  onChange={(e) => setOfficerRegDepartment(e.target.value)}
+                                  placeholder="Cyber Forensic Division"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'सरकारी मोबाइल नंबर' : 'Official Mobile Number'}
+                                </label>
+                                <input
+                                  type="tel"
+                                  maxLength="10"
+                                  value={officerRegMobile}
+                                  onChange={(e) => setOfficerRegMobile(e.target.value.replace(/\D/g, ''))}
+                                  placeholder="10-digit official mobile"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'सरकारी ईमेल आईडी' : 'Official Gov Email Address'}
+                              </label>
+                              <input
+                                type="email"
+                                value={officerRegEmail}
+                                onChange={(e) => setOfficerRegEmail(e.target.value)}
+                                placeholder="e.g. rajesh.sen@police.gov.in"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'पासवर्ड (कम से कम 8 अक्षर)' : 'Department Password (Min. 8 chars)'}
+                              </label>
+                              <input
+                                type="password"
+                                value={officerRegPassword}
+                                onChange={(e) => setOfficerRegPassword(e.target.value)}
+                                placeholder="••••••••••••"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                              />
+                            </div>
+
+                            {/* Anti-Bot Captcha Challenge */}
+                            <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                  <span>🤖 {isHi ? 'एंटी-बॉट सुरक्षा चुनौती' : 'Anti-Bot Security Challenge'}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={fetchCaptcha}
+                                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Icon name="refresh-cw" className="w-3 h-3" />
+                                  <span>{isHi ? 'रिफ्रेश' : 'Refresh'}</span>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
+                                  {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={captchaAnswer}
+                                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                  placeholder={isHi ? 'उत्तर' : 'Answer'}
+                                  className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={authLoading}
+                              onClick={handleOfficerRegister}
+                              className="w-full py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
+                            >
+                              {authLoading ? (isHi ? 'पंजीकरण हो रहा है...' : 'Registering Officer...') : (isHi ? 'अधिकारी बैज पंजीकृत कर कतार में प्रवेश करें' : 'Register Official Badge & Enter Review Queue')}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
                     {/* TAB 3: ADMIN FORM */}
                     {authPortalTab === 'ADMIN' && (
                       <div className="space-y-4 relative z-10">
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                              {isHi ? 'प्रशासक ईमेल आईडी (Admin Email)' : 'Administrator Email'}
-                            </label>
-                            <input
-                              type="text"
-                              value={adminEmail}
-                              onChange={(e) => setAdminEmail(e.target.value)}
-                              placeholder="admin@idshield.com"
-                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-inner"
-                            />
-                          </div>
+                        <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/50 text-purple-900 dark:text-purple-300 text-xs flex items-center gap-2">
+                          <Icon name="shield-check" className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                          <span>{isHi ? 'स्तर-4 व्यवस्थापक: ऑडिट ट्रेल, सिस्टम नीतियां एवं मास्टर नियंत्रण।' : 'Level-4 Administrator: Audit trail inspection, policy changes, and master oversight.'}</span>
+                        </div>
 
-                          <div>
-                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
-                              {isHi ? 'मास्टर पासवर्ड (Password)' : 'Master Password'}
-                            </label>
-                            <input
-                              type="password"
-                              value={adminPassword}
-                              onChange={(e) => setAdminPassword(e.target.value)}
-                              placeholder="••••••••••••"
-                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-inner"
-                            />
-                          </div>
-
+                        {/* Admin Mode Selector */}
+                        <div className="flex border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/60 p-1 rounded-2xl">
                           <button
                             type="button"
-                            disabled={authLoading}
-                            onClick={handleAdminLogin}
-                            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-800 hover:from-purple-600 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                            onClick={() => { setAdminMode('LOGIN'); setAuthError(null); setAuthNotice(null); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              adminMode === 'LOGIN'
+                                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
                           >
                             <span>🛡️</span>
-                            <span>{authLoading ? (isHi ? 'सत्यापित हो रहा है...' : 'Authenticating...') : (isHi ? 'प्रशासक लॉगिन (कंसोल)' : 'Sign In as Admin')}</span>
+                            <span>{isHi ? 'प्रशासक लॉगिन' : 'Admin Sign In'}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => { setAdminMode('REGISTER'); setAuthError(null); setAuthNotice(null); }}
+                            className={`flex-1 py-2 text-xs font-bold rounded-xl transition cursor-pointer flex items-center justify-center gap-1.5 ${
+                              adminMode === 'REGISTER'
+                                ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-sm'
+                                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                            }`}
+                          >
+                            <span>📋</span>
+                            <span>{isHi ? 'प्रशासक पंजीकरण' : 'Admin Registration'}</span>
                           </button>
                         </div>
+
+                        {/* SUB-TAB 3A: ADMIN SIGN IN */}
+                        {adminMode === 'LOGIN' && (
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'प्रशासक आईडी (Format: ADM-XXXXXX)' : 'Master Admin ID (Format: ADM-XXXXXX)'}
+                              </label>
+                              <input
+                                type="text"
+                                value={adminId}
+                                onChange={(e) => setAdminId(e.target.value.toUpperCase())}
+                                placeholder="e.g. ADM-902144"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'मास्टर पासवर्ड' : 'Master Password'}
+                              </label>
+                              <input
+                                type="password"
+                                value={adminPassword}
+                                onChange={(e) => setAdminPassword(e.target.value)}
+                                placeholder="••••••••••••"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                              />
+                            </div>
+
+                            {/* Anti-Bot Captcha Challenge */}
+                            <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                  <span>🤖 {isHi ? 'एंटी-बॉट सुरक्षा चुनौती' : 'Anti-Bot Security Challenge'}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={fetchCaptcha}
+                                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Icon name="refresh-cw" className="w-3 h-3" />
+                                  <span>{isHi ? 'रिफ्रेश' : 'Refresh'}</span>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
+                                  {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={captchaAnswer}
+                                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                  placeholder={isHi ? 'उत्तर' : 'Answer'}
+                                  className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={authLoading}
+                              onClick={handleAdminLogin}
+                              className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
+                            >
+                              {authLoading ? (isHi ? 'सत्यापित हो रहा है...' : 'Authorizing Admin...') : (isHi ? 'प्रशासक लॉगिन व सुरक्षा कंसोल खोलें' : 'Authorize Admin Credentials & Open Console')}
+                            </button>
+                          </div>
+                        )}
+
+                        {/* SUB-TAB 3B: ADMIN REGISTRATION */}
+                        {adminMode === 'REGISTER' && (
+                          <div className="space-y-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'प्रशासक कोड (Format: ADM-XXXXXX)' : 'Master Admin ID (Format: ADM-XXXXXX)'}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={adminRegId}
+                                  onChange={(e) => setAdminRegId(e.target.value.toUpperCase())}
+                                  placeholder="e.g. ADM-902144"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'पूरा नाम एवं पद' : 'Full Name & Designation'}
+                                </label>
+                                <input
+                                  type="text"
+                                  value={adminRegName}
+                                  onChange={(e) => setAdminRegName(e.target.value)}
+                                  placeholder="e.g. Senior Director"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'आधिकारिक मोबाइल नंबर' : 'Official Mobile Number'}
+                                </label>
+                                <input
+                                  type="tel"
+                                  maxLength="10"
+                                  value={adminRegMobile}
+                                  onChange={(e) => setAdminRegMobile(e.target.value.replace(/\D/g, ''))}
+                                  placeholder="10-digit mobile"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                  {isHi ? 'आधिकारिक ईमेल' : 'Official Gov Email'}
+                                </label>
+                                <input
+                                  type="email"
+                                  value={adminRegEmail}
+                                  onChange={(e) => setAdminRegEmail(e.target.value)}
+                                  placeholder="admin@idshield.gov.in"
+                                  className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
+                                {isHi ? 'मास्टर पासवर्ड (कम से कम 8 अक्षर)' : 'Master Password (Min. 8 chars)'}
+                              </label>
+                              <input
+                                type="password"
+                                value={adminRegPassword}
+                                onChange={(e) => setAdminRegPassword(e.target.value)}
+                                placeholder="••••••••••••"
+                                className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                              />
+                            </div>
+
+                            {/* Anti-Bot Captcha Challenge */}
+                            <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
+                                  <span>🤖 {isHi ? 'एंटी-बॉट सुरक्षा चुनौती' : 'Anti-Bot Security Challenge'}</span>
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={fetchCaptcha}
+                                  className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
+                                >
+                                  <Icon name="refresh-cw" className="w-3 h-3" />
+                                  <span>{isHi ? 'रिफ्रेश' : 'Refresh'}</span>
+                                </button>
+                              </div>
+
+                              <div className="flex items-center gap-3">
+                                <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
+                                  {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
+                                </div>
+                                <input
+                                  type="text"
+                                  value={captchaAnswer}
+                                  onChange={(e) => setCaptchaAnswer(e.target.value)}
+                                  placeholder={isHi ? 'उत्तर' : 'Answer'}
+                                  className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-sm"
+                                />
+                              </div>
+                            </div>
+
+                            <button
+                              type="button"
+                              disabled={authLoading}
+                              onClick={handleAdminRegister}
+                              className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 transition active:scale-95 cursor-pointer disabled:opacity-50"
+                            >
+                              {authLoading ? (isHi ? 'पंजीकरण हो रहा है...' : 'Registering Admin...') : (isHi ? 'प्रशासक क्रेडेंशियल पंजीकृत करें' : 'Register Master Administrator Credentials')}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     )}
 
