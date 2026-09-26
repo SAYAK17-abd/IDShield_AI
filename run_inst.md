@@ -1,4 +1,4 @@
-﻿# IDShield AI (SIH26188) — Execution & Manual Run Guide (`run.md`)
+# IDShield AI (SIH26188) — Execution & Manual Run Guide (`run.md`)
 
 This guide contains complete instructions for running the **IDShield AI - Fake Identity & Document Screening System** manually step-by-step or via 1-click launchers.
 

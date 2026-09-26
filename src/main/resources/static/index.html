@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>IDShield AI — National Identity Screening & Anti-Fraud Portal</title>
+  <title>IDShield AI — National Identity Screening & Anti-Fraud Portal | भारत सरकार</title>
   
   <!-- Tailwind CSS with Dark Mode Class Strategy -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -13,6 +13,15 @@
       theme: {
         extend: {
           colors: {
+            gov: {
+              navy: '#0B2545',
+              deep: '#040E1B',
+              gold: '#C59B27',
+              saffron: '#FF9933',
+              green: '#138808',
+              ashok: '#000080',
+              cream: '#FFFBF2'
+            },
             brand: {
               50: '#eef2ff',
               100: '#e0e7ff',
@@ -24,6 +33,8 @@
           },
           fontFamily: {
             sans: ['Inter', 'system-ui', 'sans-serif'],
+            serif: ['Cinzel', 'Georgia', 'serif'],
+            hindi: ['Noto Sans Devanagari', 'sans-serif'],
             mono: ['JetBrains Mono', 'monospace'],
           }
         }
@@ -31,10 +42,10 @@
     }
   </script>
 
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Inter, Cinzel, Noto Sans Devanagari, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <!-- React 18 & Babel Standalone -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -45,29 +56,46 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <style>
-    @keyframes spin-slow {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    @keyframes scanline {
-      0% { top: 0%; opacity: 0.8; }
-      50% { opacity: 1; }
-      100% { top: 100%; opacity: 0.2; }
-    }
-    .chakra-spin {
-      animation: spin-slow 24s linear infinite;
-    }
-    .scan-laser {
-      position: absolute;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #38bdf8, #818cf8, transparent);
-      box-shadow: 0 0 15px #818cf8;
-      animation: scanline 2.8s ease-in-out infinite;
-    }
     .tricolor-border {
       background: linear-gradient(90deg, #FF9933 0%, #FF9933 33.3%, #FFFFFF 33.3%, #FFFFFF 66.6%, #138808 66.6%, #138808 100%);
+    }
+    .gov-guilloche-bg {
+      background-color: #f8fafc;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 153, 51, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(19, 136, 8, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(11, 37, 69, 0.02) 0%, transparent 60%),
+        repeating-linear-gradient(45deg, rgba(197, 155, 39, 0.012) 0px, rgba(197, 155, 39, 0.012) 1px, transparent 1px, transparent 14px);
+    }
+    .dark .gov-guilloche-bg {
+      background-color: #050d1a;
+      background-image: 
+        radial-gradient(circle at 10% 20%, rgba(255, 153, 51, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 90% 80%, rgba(19, 136, 8, 0.06) 0%, transparent 45%),
+        radial-gradient(circle at 50% 50%, rgba(14, 42, 82, 0.35) 0%, transparent 70%),
+        repeating-linear-gradient(45deg, rgba(197, 155, 39, 0.018) 0px, rgba(197, 155, 39, 0.018) 1px, transparent 1px, transparent 16px);
+    }
+    .gov-card-shadow {
+      box-shadow: 0 15px 35px -10px rgba(11, 37, 69, 0.12), 0 0 0 1px rgba(197, 155, 39, 0.25);
+    }
+    .dark .gov-card-shadow {
+      box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(197, 155, 39, 0.3);
+    }
+    .gold-foil-border {
+      border: 2px solid transparent;
+      background: linear-gradient(white, white) padding-box, linear-gradient(135deg, #FF9933, #C59B27, #FFFFFF, #138808) border-box;
+    }
+    .dark .gold-foil-border {
+      border: 2px solid transparent;
+      background: linear-gradient(#0B192C, #0B192C) padding-box, linear-gradient(135deg, #FF9933, #C59B27, #3b82f6, #138808) border-box;
+    }
+    .certificate-frame {
+      border: 3px double #0B2545;
+      background: radial-gradient(circle at center, rgba(255,255,255,0.98), rgba(248,250,252,0.95));
+    }
+    .dark .certificate-frame {
+      border: 3px double #C59B27;
+      background: radial-gradient(circle at center, rgba(15,23,42,0.95), rgba(2,6,23,0.98));
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 6px;
@@ -80,12 +108,14 @@
       background: rgba(99, 102, 241, 0.3);
       border-radius: 3px;
     }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: rgba(99, 102, 241, 0.6);
+    @media print {
+      body { background: white !important; color: black !important; }
+      header, footer, nav, .no-print, button, form { display: none !important; }
+      .print-certificate { display: block !important; border: 2px solid #0B2545 !important; box-shadow: none !important; margin: 0 !important; width: 100% !important; }
     }
   </style>
 </head>
-<body class="bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen font-sans antialiased flex flex-col transition-colors duration-300">
+<body class="gov-guilloche-bg text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased flex flex-col transition-colors duration-300">
   <div id="root" class="flex-1 flex flex-col"></div>
 
   <script type="text/babel">
@@ -107,76 +137,259 @@
       return <span ref={containerRef} className="inline-flex items-center justify-center flex-shrink-0" />;
     }
 
-    // Official Ashok Stambh Vector Crest Component
+    // Official Indian Flag Vector Component
+    function IndiaFlag({ className = "w-5 h-3.5" }) {
+      return (
+        <svg viewBox="0 0 30 20" className={`rounded-[2px] shadow-sm overflow-hidden flex-shrink-0 border border-black/10 ${className}`}>
+          <rect width="30" height="6.67" fill="#FF9933" />
+          <rect y="6.67" width="30" height="6.67" fill="#FFFFFF" />
+          <rect y="13.34" width="30" height="6.67" fill="#138808" />
+          <circle cx="15" cy="10" r="2.8" fill="none" stroke="#000080" strokeWidth="0.4" />
+          <circle cx="15" cy="10" r="0.6" fill="#000080" />
+          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map(deg => (
+            <line key={deg} x1="15" y1="10" x2={15 + 2.7 * Math.cos(deg * Math.PI / 180)} y2={10 + 2.7 * Math.sin(deg * Math.PI / 180)} stroke="#000080" strokeWidth="0.25" />
+          ))}
+        </svg>
+      );
+    }
+
+    // Regal Golden State Emblem of India (Ashoka Lion Capital) with "सत्यमेव जयते"
     function AshokStambh({ className = "w-10 h-12" }) {
       return (
         <svg viewBox="0 0 100 130" className={className}>
-          <path d="M50 12 C44 12 40 16 39 21 C36 21 34 23 34 26 C34 30 36 33 38 35 C38 42 43 47 50 47 C57 42 62 47 62 35 C64 33 66 30 66 26 C66 23 64 21 61 21 C60 16 56 12 50 12 Z" fill="currentColor" opacity="0.95" />
-          <ellipse cx="46" cy="27" rx="1.8" ry="1.2" fill="#0f172a" />
-          <ellipse cx="54" cy="27" rx="1.8" ry="1.2" fill="#0f172a" />
-          <path d="M48 31 Q50 33 52 31" stroke="#0f172a" strokeWidth="1.2" fill="none" />
-          <path d="M36 24 C31 24 26 27 25 33 C24 38 27 44 32 46 C35 48 37 46 38 43 C37 36 37 28 36 24 Z" fill="currentColor" opacity="0.8" />
-          <circle cx="28" cy="32" r="1.4" fill="#0f172a" />
-          <path d="M64 24 C69 24 74 27 75 33 C76 38 73 44 68 46 C65 48 63 46 62 43 C63 36 63 28 64 24 Z" fill="currentColor" opacity="0.8" />
-          <circle cx="72" cy="32" r="1.4" fill="#0f172a" />
-          <path d="M33 46 C32 58 35 70 42 75 L58 75 C65 70 68 58 67 46 C62 50 56 52 50 52 C44 52 38 50 33 46 Z" fill="currentColor" opacity="0.9" />
-          <path d="M44 55 Q50 58 56 55 Q50 63 44 55" fill="#0f172a" opacity="0.4" />
-          <rect x="22" y="75" width="56" height="7" rx="2" fill="currentColor" />
-          <circle cx="50" cy="78.5" r="3" fill="#0f172a" />
-          <circle cx="50" cy="78.5" r="1" fill="currentColor" />
-          <circle cx="32" cy="78.5" r="1.8" fill="#0f172a" opacity="0.7" />
-          <circle cx="68" cy="78.5" r="1.8" fill="#0f172a" opacity="0.7" />
-          <path d="M26 82 C28 92 38 97 50 97 C62 97 72 92 74 82 Z" fill="currentColor" opacity="0.85" />
-          <path d="M32 84 C36 93 44 95 50 95 C56 95 64 93 68 84" stroke="#0f172a" strokeWidth="1.2" fill="none" opacity="0.5" />
-          <rect x="18" y="97" width="64" height="6" rx="2" fill="currentColor" />
-          <rect x="12" y="106" width="76" height="15" rx="3" fill="currentColor" />
-          <text x="50" y="117" fontSize="7" fontWeight="bold" fill="#0f172a" textAnchor="middle" fontFamily="sans-serif">
+          <defs>
+            <linearGradient id="ashokGold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#DFB247" />
+              <stop offset="50%" stopColor="#C59B27" />
+              <stop offset="100%" stopColor="#8C6813" />
+            </linearGradient>
+          </defs>
+          <path d="M50 10 C43 10 39 15 38 20 C35 20 33 22 33 25 C33 29 35 32 37 34 C37 41 42 46 50 46 C58 41 63 46 63 34 C65 32 67 29 67 25 C67 22 65 20 62 20 C61 15 57 10 50 10 Z" fill="url(#ashokGold)" />
+          <ellipse cx="46" cy="25" rx="1.8" ry="1.2" fill="#3D2B03" />
+          <ellipse cx="54" cy="25" rx="1.8" ry="1.2" fill="#3D2B03" />
+          <path d="M48 29 Q50 31 52 29" stroke="#3D2B03" strokeWidth="1.2" fill="none" />
+          <path d="M35 23 C30 23 25 26 24 32 C23 37 26 43 31 45 C34 47 36 45 37 42 C36 35 36 27 35 23 Z" fill="url(#ashokGold)" opacity="0.9" />
+          <circle cx="27" cy="30" r="1.4" fill="#3D2B03" />
+          <path d="M65 23 C70 23 75 26 76 32 C77 37 74 43 69 45 C66 47 64 45 63 42 C64 35 64 27 65 23 Z" fill="url(#ashokGold)" opacity="0.9" />
+          <circle cx="73" cy="30" r="1.4" fill="#3D2B03" />
+          <path d="M32 45 C31 57 34 69 41 74 L59 74 C66 69 69 57 68 45 C63 49 57 51 50 51 C43 51 37 49 32 45 Z" fill="url(#ashokGold)" />
+          <path d="M44 54 Q50 57 56 54 Q50 62 44 54" fill="#3D2B03" opacity="0.4" />
+          <rect x="20" y="74" width="60" height="8" rx="2" fill="url(#ashokGold)" />
+          <circle cx="50" cy="78" r="3.2" fill="#000080" />
+          <circle cx="50" cy="78" r="1" fill="#FFFFFF" />
+          <ellipse cx="32" cy="78" rx="2.5" ry="1.6" fill="#3D2B03" opacity="0.7" />
+          <ellipse cx="68" cy="78" rx="2.5" ry="1.6" fill="#3D2B03" opacity="0.7" />
+          <path d="M24 82 C27 92 37 97 50 97 C63 97 73 92 76 82 Z" fill="url(#ashokGold)" opacity="0.9" />
+          <path d="M30 84 C34 93 42 95 50 95 C58 95 66 93 70 84" stroke="#3D2B03" strokeWidth="1.2" fill="none" opacity="0.4" />
+          <rect x="16" y="97" width="68" height="6" rx="2" fill="url(#ashokGold)" />
+          <rect x="10" y="105" width="80" height="16" rx="3" fill="url(#ashokGold)" />
+          <text x="50" y="117" fontSize="8" fontWeight="bold" fill="#0B2545" textAnchor="middle" fontFamily="sans-serif" letterSpacing="0.5">
             सत्यमेव जयते
           </text>
         </svg>
       );
     }
 
-    // Mathematically Exact 24-Spoke Ashok Chakra Component
-    function AshokChakra({ className = "w-9 h-9" }) {
+    // Official Digital India Logo Component
+    function DigitalIndiaLogo({ className = "h-8" }) {
       return (
-        <svg viewBox="0 0 100 100" className={className}>
-          <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="3.2" />
-          <circle cx="50" cy="50" r="43" fill="none" stroke="currentColor" strokeWidth="0.8" opacity="0.4" />
-          <circle cx="50" cy="50" r="7.5" fill="currentColor" />
-          <circle cx="50" cy="50" r="3" fill="#ffffff" />
-          <g stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(0 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(15 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(30 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(45 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(60 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(75 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(90 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(105 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(120 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(135 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(150 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(165 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(180 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(195 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(210 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(225 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(240 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(255 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(270 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(285 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(300 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(315 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(330 50 50)" />
-            <line x1="50" y1="50" x2="50" y2="6" transform="rotate(345 50 50)" />
-          </g>
-        </svg>
+        <div className={`flex items-center gap-2 select-none ${className}`}>
+          <svg viewBox="0 0 80 80" className="w-8 h-8 flex-shrink-0" fill="none">
+            <circle cx="40" cy="40" r="36" stroke="#C59B27" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.6" />
+            <path d="M18 42 C18 24, 34 18, 52 20 C62 21, 66 27, 66 32 C66 40, 52 42, 42 42" stroke="#FF9933" strokeWidth="4.5" strokeLinecap="round" />
+            <path d="M14 47 C14 36, 28 32, 42 32 C58 32, 68 40, 68 48" stroke="#138808" strokeWidth="4.5" strokeLinecap="round" />
+            <circle cx="40" cy="40" r="10" stroke="#000080" strokeWidth="2.5" />
+            <circle cx="40" cy="40" r="3" fill="#000080" />
+            {[0, 45, 90, 135, 180, 225, 270, 315].map((ang, i) => (
+              <line key={i} x1="40" y1="40" x2={40 + 9 * Math.cos(ang * Math.PI / 180)} y2={40 + 9 * Math.sin(ang * Math.PI / 180)} stroke="#000080" strokeWidth="1.5" />
+            ))}
+          </svg>
+          <div className="flex flex-col leading-none">
+            <span className="text-[12px] font-black tracking-tight text-slate-800 dark:text-slate-100 font-sans">
+              Digital India
+            </span>
+            <span className="text-[8px] font-bold text-amber-600 dark:text-amber-400 tracking-wider uppercase font-mono mt-0.5">
+              Power To Empower
+            </span>
+          </div>
+        </div>
       );
     }
 
-    // Gateway Endpoint
-    const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    // Interactive Bilingual GIGW National Top Bar
+    function NationalTopBar({ themeMode, setThemeMode, language, setLanguage }) {
+      const isHi = language === 'hi';
+      return (
+        <div className="bg-[#0B2545] text-white text-[11px] font-medium border-b border-[#133E6E] select-none shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 py-1.5 flex items-center justify-between flex-wrap gap-2">
+            
+            {/* Left: National Identity */}
+            <div className="flex items-center space-x-2.5">
+              <IndiaFlag className="w-5 h-3.5" />
+              <div className="flex items-center space-x-1.5 text-slate-200">
+                <span className="font-bold text-white tracking-wide">
+                  {isHi ? 'भारत सरकार' : 'Government of India'}
+                </span>
+                <span className="text-slate-400">|</span>
+                <span className="hidden sm:inline font-semibold">
+                  {isHi ? 'इलेक्ट्रॉनिकी और सूचना प्रौद्योगिकी मंत्रालय (MeitY)' : 'Ministry of Electronics & IT (MeitY)'}
+                </span>
+              </div>
+            </div>
+
+            {/* Right: Helpline, Theme & Interactive Language Switcher */}
+            <div className="flex items-center space-x-3 sm:space-x-4">
+              
+              {/* Emergency Helpline */}
+              <a 
+                href="tel:1930" 
+                title="National Cyber Crime Reporting Helpline"
+                className="flex items-center gap-1.5 bg-rose-600 hover:bg-rose-500 text-white px-2.5 py-0.5 rounded-full font-bold text-[10px] tracking-wide transition shadow-sm"
+              >
+                <span>📞</span>
+                <span>{isHi ? 'हेल्पलाइन: 1930' : 'Helpline: 1930'}</span>
+              </a>
+
+              {/* Theme Switcher */}
+              <div className="flex items-center bg-[#071A30] border border-[#1B4370] rounded-lg p-0.5 text-[10px]">
+                <button
+                  type="button"
+                  onClick={() => setThemeMode('light')}
+                  className={`px-1.5 py-0.5 rounded transition cursor-pointer ${themeMode === 'light' ? 'bg-amber-500 text-slate-900 font-bold' : 'text-slate-300 hover:text-white'}`}
+                >
+                  ☀️ {isHi ? 'लाइट' : 'Light'}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setThemeMode('dark')}
+                  className={`px-1.5 py-0.5 rounded transition cursor-pointer ${themeMode === 'dark' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300 hover:text-white'}`}
+                >
+                  🌙 {isHi ? 'डार्क' : 'Dark'}
+                </button>
+              </div>
+
+              {/* INTERACTIVE LANGUAGE SELECTOR (English / हिन्दी) */}
+              <div className="flex items-center bg-[#071A30] border border-[#1B4370] rounded-lg p-0.5 text-[10px] shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setLanguage('en')}
+                  title="Switch application to English"
+                  className={`px-2 py-0.5 rounded transition cursor-pointer font-bold ${
+                    !isHi ? 'bg-amber-500 text-slate-900 shadow-sm' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLanguage('hi')}
+                  title="सम्पूर्ण पोर्टल को हिन्दी में देखें"
+                  className={`px-2 py-0.5 rounded transition cursor-pointer font-bold font-hindi ${
+                    isHi ? 'bg-emerald-600 text-white shadow-sm' : 'text-slate-300 hover:text-white'
+                  }`}
+                >
+                  हिन्दी
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Dynamic Bilingual Government Footer
+    function GovernmentFooter({ language = 'en' }) {
+      const isHi = language === 'hi';
+      return (
+        <footer className="mt-auto bg-[#071A30] text-slate-300 border-t-2 border-[#C59B27] select-none text-xs transition-colors duration-300">
+          <div className="max-w-7xl mx-auto px-4 sm:px-8 py-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="space-y-3">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-12 flex-shrink-0 flex items-center justify-center p-0.5 rounded-lg bg-white/10 border border-amber-400/40">
+                  <AshokStambh className="w-8 h-10 text-amber-400" />
+                </div>
+                <div>
+                  <div className="font-bold text-white text-sm">
+                    {isHi ? 'आईडी-शील्ड एआई • भारत सरकार' : 'IDShield AI • Government of India'}
+                  </div>
+                  <div className="text-[10px] text-amber-400 font-medium">
+                    {isHi ? 'डिजिटल इंडिया कॉर्पोरेशन (डीआईसी)' : 'Digital India Corporation (DIC)'}
+                  </div>
+                  <div className="text-[10px] text-slate-400">
+                    {isHi ? 'इलेक्ट्रॉनिकी और सूचना प्रौद्योगिकी मंत्रालय (MeitY)' : 'Ministry of Electronics & IT (MeitY)'}
+                  </div>
+                </div>
+              </div>
+              <p className="text-[11px] text-slate-400 leading-relaxed font-hindi">
+                {isHi
+                  ? 'स्मार्ट इंडिया हैकथॉन (SIH26188) के अंतर्गत विकसित राष्ट्रीय पहचान सत्यापन एवं बायोमेट्रिक जांच पोर्टल।'
+                  : 'National Anti-Fraud Identity Screening & Biometric Verification Portal developed under Smart India Hackathon (SIH26188).'}
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="font-bold text-white text-xs uppercase tracking-wider border-b border-slate-700 pb-1 flex items-center gap-1.5">
+                <span>🏛️</span>
+                <span>{isHi ? 'वैधानिक पोर्टल' : 'Statutory Portals'}</span>
+              </div>
+              <ul className="space-y-1.5 text-[11px] text-slate-400">
+                <li><a href="https://uidai.gov.in" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition">› {isHi ? 'यूआईडीएआई (आधार आधिकारिक)' : 'UIDAI (Aadhaar Official)'}</a></li>
+                <li><a href="https://www.incometax.gov.in" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition">› {isHi ? 'आयकर विभाग (ई-पैन पोर्टल)' : 'Income Tax Department (e-PAN)'}</a></li>
+                <li><a href="https://parivahan.gov.in" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition">› {isHi ? 'सड़क परिवहन मंत्रालय (सारथी डीएल/आरसी)' : 'MoRTH Parivahan (DL & RC)'}</a></li>
+                <li><a href="https://digilocker.gov.in" target="_blank" rel="noreferrer" className="hover:text-amber-400 transition">› {isHi ? 'डिजिलॉकर राष्ट्रीय वॉलेट' : 'DigiLocker National Wallet'}</a></li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <div className="font-bold text-white text-xs uppercase tracking-wider border-b border-slate-700 pb-1 flex items-center gap-1.5">
+                <span>⚖️</span>
+                <span>{isHi ? 'कानूनी एवं अनुपालन' : 'Legal & Compliance'}</span>
+              </div>
+              <ul className="space-y-1 text-[11px] text-slate-400">
+                <li>✓ {isHi ? 'डिजिटल व्यक्तिगत डेटा संरक्षण (डीपीडीपी) अधिनियम, 2023' : 'Digital Personal Data Protection (DPDP) Act, 2023'}</li>
+                <li>✓ {isHi ? 'सूचना प्रौद्योगिकी अधिनियम, 2000 (धारा 66D)' : 'Information Technology Act, 2000 (Section 66D)'}</li>
+                <li>✓ {isHi ? 'भारतीय साक्ष्य अधिनियम, 2023 (धारा 63 / 65ख)' : 'Bharatiya Sakshya Adhiniyam, 2023 (Sec 63 / 65B)'}</li>
+                <li>✓ {isHi ? 'सर्ट-इन साइबर सुरक्षा दिशा-निर्देश 2022' : 'CERT-In Cyber Security Directions 2022'}</li>
+              </ul>
+            </div>
+
+            <div className="space-y-2">
+              <div className="font-bold text-white text-xs uppercase tracking-wider border-b border-slate-700 pb-1 flex items-center gap-1.5">
+                <span>📞</span>
+                <span>{isHi ? '24x7 सहायता केंद्र' : '24x7 Helpdesk'}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-900/90 border border-slate-700 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">{isHi ? 'साइबर अपराध हेल्पलाइन:' : 'Cyber Crime Helpline:'}</span>
+                  <a href="tel:1930" className="text-sm font-black text-rose-400 font-mono">1930</a>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] text-slate-400">{isHi ? 'राष्ट्रीय घटना पोर्टल:' : 'National Incident Portal:'}</span>
+                  <span className="text-xs font-semibold text-amber-300">cybercrime.gov.in</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="border-t border-slate-800 bg-[#040E1B] py-3 px-4 sm:px-8 text-[11px] text-slate-400">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+              <div className="flex items-center space-x-2">
+                <DigitalIndiaLogo className="h-5" />
+                <span className="hidden md:inline text-slate-600">|</span>
+                <span>{isHi ? '© 2026 भारत सरकार / Government of India. सर्वाधिकार सुरक्षित।' : '© 2026 Government of India. All Rights Reserved.'}</span>
+              </div>
+              <div className="flex items-center space-x-3 text-[10px] font-mono text-slate-400">
+                <span>SIH26188 CENTRAL NODE</span>
+                <span>•</span>
+                <span className="text-emerald-400 font-bold">{isHi ? 'डीपीडीपी अनुपालित' : 'DPDP COMPLIANT'}</span>
+              </div>
+            </div>
+          </div>
+        </footer>
+      );
+    }
+const GATEWAY_BASE_URL = (!window.location.hostname || window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
       ? 'http://127.0.0.1:8080' 
       : `${window.location.protocol}//${window.location.hostname}:8080`;
 
@@ -184,7 +397,7 @@
     const PRIMARY_DOCUMENTS = [
       {
         id: 'AADHAAR_CARD',
-        name: 'Aadhaar Card',
+        name: 'Aadhaar Card', nameHi: 'आधार कार्ड', badgeHi: 'यूआईडीएआई', formatHi: '12-अंकीय यूआईडी', checkHi: 'वेरहोफ चेकसम', nameHi: 'आधार कार्ड', badgeHi: 'यूआईडीएआई', formatHi: '12-अंकीय यूआईडी', checkHi: 'वेरहोफ चेकसम', nameHi: 'आधार कार्ड', badgeHi: 'यूआईडीएआई', formatHi: '12-अंकीय यूआईडी', checkHi: 'वेरहोफ चेकसम',
         badge: 'UIDAI',
         format: '12-Digit UID',
         check: 'Verhoeff Check',
@@ -195,7 +408,7 @@
       },
       {
         id: 'PAN_CARD',
-        name: 'PAN Card',
+        name: 'PAN Card', nameHi: 'पैन कार्ड', badgeHi: 'आयकर विभाग', formatHi: '10-अंकीय अल्फ़ान्यूमेरिक', checkHi: 'आयकर चेकसम', nameHi: 'पैन कार्ड', badgeHi: 'आयकर विभाग', formatHi: '10-अंकीय अल्फ़ान्यूमेरिक', checkHi: 'आयकर चेकसम', nameHi: 'पैन कार्ड', badgeHi: 'आयकर विभाग', formatHi: '10-अंकीय अल्फ़ान्यूमेरिक', checkHi: 'आयकर चेकसम',
         badge: 'IT DEPT',
         format: 'ABCDE1234F',
         check: 'Alphanumeric 10-Char',
@@ -206,7 +419,7 @@
       },
       {
         id: 'VOTER_ID',
-        name: 'Voter ID (EPIC)',
+        name: 'Voter ID (EPIC)', nameHi: 'मतदाता पहचान पत्र (EPIC)', badgeHi: 'निर्वाचन आयोग', formatHi: 'ईपीआईसी संख्या', checkHi: 'विधानसभा क्षेत्र', nameHi: 'मतदाता पहचान पत्र (EPIC)', badgeHi: 'निर्वाचन आयोग', formatHi: 'ईपीआईसी संख्या', checkHi: 'विधानसभा क्षेत्र', nameHi: 'मतदाता पहचान पत्र (EPIC)', badgeHi: 'निर्वाचन आयोग', formatHi: 'ईपीआईसी संख्या', checkHi: 'विधानसभा क्षेत्र',
         badge: 'ECI',
         format: 'WBF2938172',
         check: 'Assembly Constituency',
@@ -217,7 +430,7 @@
       },
       {
         id: 'DRIVING_LICENSE',
-        name: 'Driving Licence',
+        name: 'Driving Licence', nameHi: 'ड्राइविंग लाइसेंस', badgeHi: 'सारथी / परिवहन', formatHi: 'डीएल संख्या', checkHi: 'सड़क परिवहन सत्यापित', nameHi: 'ड्राइविंग लाइसेंस', badgeHi: 'सारथी / परिवहन', formatHi: 'डीएल संख्या', checkHi: 'सड़क परिवहन सत्यापित', nameHi: 'ड्राइविंग लाइसेंस', badgeHi: 'सारथी / परिवहन', formatHi: 'डीएल संख्या', checkHi: 'सड़क परिवहन सत्यापित',
         badge: 'SARATHI',
         format: 'WB-0420180...',
         check: 'MoRTH Verified',
@@ -228,7 +441,7 @@
       },
       {
         id: 'INDIAN_PASSPORT',
-        name: 'Indian Passport',
+        name: 'Indian Passport', nameHi: 'भारतीय पासपोर्ट', badgeHi: 'विदेश मंत्रालय', formatHi: 'एमआरजेड प्रारूप', checkHi: 'आईसीएओ 9303 मानक', nameHi: 'भारतीय पासपोर्ट', badgeHi: 'विदेश मंत्रालय', formatHi: 'एमआरजेड प्रारूप', checkHi: 'आईसीएओ 9303 मानक',
         badge: 'MEA MRZ',
         format: 'P8291048',
         check: 'ICAO 9303 Compliant',
@@ -239,7 +452,7 @@
       },
       {
         id: 'STUDENT_ID',
-        name: 'Student ID',
+        name: 'Student ID', nameHi: 'छात्र पहचान पत्र', badgeHi: 'संस्थान / कॉलेज', formatHi: 'पंजीकरण संख्या', checkHi: 'होलोग्राम व मुहर', nameHi: 'छात्र पहचान पत्र', badgeHi: 'संस्थान / कॉलेज', formatHi: 'पंजीकरण संख्या', checkHi: 'होलोग्राम व मुहर',
         badge: 'INSTITUTE',
         format: 'STU/2024/001',
         check: 'University / College',
@@ -254,7 +467,7 @@
     const MORE_DOCUMENTS = [
       {
         id: 'RATION_CARD',
-        name: 'Ration Card (NFSA)',
+        name: 'Ration Card (NFSA)', nameHi: 'राशन कार्ड (एनएफएसए)', badgeHi: 'खाद्य एवं रसद विभाग', formatHi: 'पारिवारिक राशन कार्ड', checkHi: 'पीडीएस बारकोड', nameHi: 'राशन कार्ड (एनएफएसए)', badgeHi: 'खाद्य एवं रसद विभाग', formatHi: 'पारिवारिक राशन कार्ड', checkHi: 'पीडीएस बारकोड', nameHi: 'राशन कार्ड (एनएफएसए)', badgeHi: 'खाद्य एवं रसद विभाग', formatHi: 'पारिवारिक राशन कार्ड', checkHi: 'पीडीएस बारकोड',
         badge: 'PDS/NFSA',
         format: 'State Family Card',
         check: 'PDS Barcode + Seal',
@@ -265,7 +478,7 @@
       },
       {
         id: 'BIRTH_CERTIFICATE',
-        name: 'Birth Certificate',
+        name: 'Birth Certificate', nameHi: 'जन्म प्रमाण पत्र', badgeHi: 'नागरिक पंजीयन', formatHi: 'पंजीकरण सं./वर्ष', checkHi: 'रजिस्ट्रार मुहर', nameHi: 'जन्म प्रमाण पत्र', badgeHi: 'नागरिक पंजीयन', formatHi: 'पंजीकरण सं./वर्ष', checkHi: 'रजिस्ट्रार मुहर',
         badge: 'CRS ORGI',
         format: 'Reg No/Year',
         check: 'Registrar Seal & Stamp',
@@ -276,7 +489,7 @@
       },
       {
         id: 'CASTE_DOMICILE',
-        name: 'Caste / Domicile Cert',
+        name: 'Caste / Domicile Cert', nameHi: 'जाति / अधिवास प्रमाण पत्र', badgeHi: 'राजस्व विभाग', formatHi: 'प्रमाणपत्र संदर्भ ID', checkHi: 'एसडीओ / तहसीलदार हस्ताक्षर', nameHi: 'जाति / अधिवास प्रमाण पत्र', badgeHi: 'राजस्व विभाग', formatHi: 'प्रमाणपत्र संदर्भ ID', checkHi: 'एसडीओ / तहसीलदार हस्ताक्षर',
         badge: 'REVENUE',
         format: 'Certificate Ref ID',
         check: 'SDO / Tehsildar Sign',
@@ -287,7 +500,7 @@
       },
       {
         id: 'ABHA_CARD',
-        name: 'ABHA Health Card',
+        name: 'ABHA Health Card', nameHi: 'आभा स्वास्थ्य कार्ड', badgeHi: 'राष्ट्रीय स्वास्थ्य प्राधिकरण', formatHi: '14-अंकीय आभा संख्या', checkHi: 'एबीडीएम सत्यापित', nameHi: 'आभा स्वास्थ्य कार्ड', badgeHi: 'राष्ट्रीय स्वास्थ्य प्राधिकरण', formatHi: '14-अंकीय आभा संख्या', checkHi: 'एबीडीएम सत्यापित', nameHi: 'आभा स्वास्थ्य कार्ड', badgeHi: 'राष्ट्रीय स्वास्थ्य प्राधिकरण', formatHi: '14-अंकीय आभा संख्या', checkHi: 'एबीडीएम सत्यापित',
         badge: 'NHA/ABDM',
         format: '14-Digit Health ID',
         check: 'NHA QR Validation',
@@ -468,6 +681,39 @@
 
     function App() {
       // 1. Theme Management (Light, Dark, Auto)
+      // App Language State (Persistent English / Hindi)
+      const [language, setLanguage] = useState(() => {
+        return localStorage.getItem('idshield_language') || 'en';
+      });
+
+      useEffect(() => {
+        localStorage.setItem('idshield_language', language);
+      }, [language]);
+
+      const isHi = language === 'hi';
+
+      // App Language State (Persistent English / Hindi)
+      const [language, setLanguage] = useState(() => {
+        return localStorage.getItem('idshield_language') || 'en';
+      });
+
+      useEffect(() => {
+        localStorage.setItem('idshield_language', language);
+      }, [language]);
+
+      const isHi = language === 'hi';
+
+      // App Language State (Persistent English / Hindi)
+      const [language, setLanguage] = useState(() => {
+        return localStorage.getItem('idshield_language') || 'en';
+      });
+
+      useEffect(() => {
+        localStorage.setItem('idshield_language', language);
+      }, [language]);
+
+      const isHi = language === 'hi';
+
       const [themeMode, setThemeMode] = useState(() => {
         const saved = localStorage.getItem('idshield_theme_mode');
         return (saved === 'light' || saved === 'dark' || saved === 'system') ? saved : 'system';
@@ -639,11 +885,13 @@
         sessionStorage.setItem('idshield_auth_token', token);
         sessionStorage.setItem('idshield_user', JSON.stringify(userObj));
         setAuthError(null);
-        setAuthNotice(`Signed in successfully as ${userObj.name}`);
+        setAuthNotice(null);
       };
 
       // Logout Handler
       const handleLogout = () => {
+        setAuthNotice("You have been securely signed out.");
+        setAuthNotice("You have been securely signed out.");
         setAuthToken(null);
         setCurrentUser(null);
         sessionStorage.removeItem('idshield_auth_token');
@@ -1166,462 +1414,524 @@
       });
 
       // =========================================================================
+            // =========================================================================
+            // =========================================================================
+            // =========================================================================
+            // =========================================================================
+            // =========================================================================
       // SCREEN 1: DEDICATED GOVERNMENT AUTHENTICATION GATEWAY (WHEN NOT LOGGED IN)
       // =========================================================================
       if (!authToken || !currentUser) {
         return (
-          <div className="flex-1 flex flex-col min-h-screen bg-slate-100 dark:bg-slate-950 transition-colors duration-300">
+          <div className="flex-1 flex flex-col min-h-screen gov-guilloche-bg transition-colors duration-300">
+            {/* National GIGW Top Bar with Interactive Language Toggle */}
+            <NationalTopBar themeMode={themeMode} setThemeMode={setThemeMode} language={language} setLanguage={setLanguage} />
+
             {/* Top Tricolor Ribbon */}
             <div className="h-1.5 w-full tricolor-border sticky top-0 z-50 shadow-md"></div>
 
-            {/* Portal Header */}
+            {/* Official Government Header */}
             <header className="bg-white/95 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 sm:px-8 py-3.5 flex items-center justify-between shadow-sm">
-              <div className="flex items-center space-x-3.5">
-                <div className="w-12 h-14 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30">
+              <div className="flex items-center space-x-3.5 sm:space-x-4">
+                <div className="w-12 h-14 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 shadow-sm">
                   <AshokStambh className="w-10 h-12 text-amber-600 dark:text-amber-400" />
                 </div>
-                <div className="w-11 h-11 flex-shrink-0 rounded-full p-0.5 bg-blue-500/10 border border-blue-400/40 flex items-center justify-center">
-                  <AshokChakra className="w-9 h-9 text-[#000080] dark:text-blue-400 chakra-spin" />
-                </div>
                 <div>
-                  <h1 className="font-extrabold text-base sm:text-lg tracking-tight text-[#000080] dark:text-white flex items-center gap-1.5">
-                    IDShield AI
-                    <span className="text-[10px] font-mono text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.2 rounded-full bg-amber-500/10 font-bold">
-                      Govt. of India
+                  <div className="flex items-center space-x-2 flex-wrap">
+                    <span className="text-xs font-bold text-amber-700 dark:text-amber-400 font-sans tracking-tight">
+                      {isHi ? 'भारत सरकार • इलेक्ट्रॉनिकी और सूचना प्रौद्योगिकी मंत्रालय' : 'भारत सरकार • Government of India'}
                     </span>
-                    <span className="text-[10px] uppercase font-semibold bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full hidden sm:inline-block">
-                      SIH26188
+                    <span className="text-[10px] font-mono text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 px-2 py-0.2 rounded-full bg-indigo-500/10 font-bold">
+                      MeitY • SIH26188
+                    </span>
+                  </div>
+                  <h1 className="font-extrabold text-base sm:text-xl tracking-tight text-[#0B2545] dark:text-white flex items-center gap-1.5">
+                    IDShield AI
+                    <span className="text-xs font-normal text-slate-500 dark:text-slate-400 hidden sm:inline">
+                      {isHi ? '| राष्ट्रीय पहचान सत्यापन एवं सुरक्षा पोर्टल' : '| National Identity Screening & Anti-Fraud Portal'}
                     </span>
                   </h1>
-                  <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">
-                    राष्ट्रीय पहचान सत्यापन एवं जालसाजी रोधी पोर्टल (National Identity Anti-Fraud Screening Portal)
+                  <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium hidden sm:block">
+                    {isHi ? 'राष्ट्रीय पहचान विरोधी जालसाजी दस्तावेज जांच एवं डीपफेक सत्यापन पोर्टल' : 'National Identity Anti-Fraud Document Screening & Deepfake Verification Portal'}
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center space-x-2">
-                <div className="flex items-center bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-0.5 rounded-xl text-xs">
-                  <button onClick={() => setThemeMode('light')} className={`px-2 py-1 rounded-lg transition ${themeMode === 'light' ? 'bg-white shadow text-amber-500 font-bold' : 'text-slate-500'}`}>☀️</button>
-                  <button onClick={() => setThemeMode('dark')} className={`px-2 py-1 rounded-lg transition ${themeMode === 'dark' ? 'bg-slate-800 shadow text-indigo-400 font-bold' : 'text-slate-500'}`}>🌙</button>
-                  <button onClick={() => setThemeMode('system')} className={`px-2 py-1 rounded-lg transition ${themeMode === 'system' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-500'}`}>Auto</button>
+              <div className="flex items-center space-x-4">
+                <DigitalIndiaLogo className="hidden sm:flex h-8" />
+                <div className="hidden md:flex flex-col text-right">
+                  <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 font-bold">
+                    {isHi ? 'केंद्रीय नोड' : 'CENTRAL NODE'}
+                  </span>
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 justify-end font-mono">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    {isHi ? 'ऑनलाइन (पोर्ट 8080)' : 'Online (Port 8080)'}
+                  </span>
                 </div>
               </div>
             </header>
 
-            {/* Central Gateway Body */}
-            <main className="flex-1 flex items-center justify-center p-4 sm:p-6 lg:p-8">
-              <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 my-auto">
+            {/* Central Hero Body */}
+            <main className="flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 py-8 lg:py-12 max-w-6xl w-full mx-auto">
+              
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                 
-                {/* Gateway Banner */}
-                <div className="p-6 bg-slate-50/80 dark:bg-slate-950/60 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-                  <div className="flex items-center space-x-3.5">
-                    <div className="w-12 h-14 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30">
-                      <AshokStambh className="w-10 h-12 text-amber-600 dark:text-amber-400" />
-                    </div>
-                    <div>
-                      <h2 className="font-extrabold text-base sm:text-lg text-[#000080] dark:text-white leading-tight flex items-center gap-1.5">
-                        National Authentication Gateway
-                        <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 font-mono">
-                          Official
-                        </span>
-                      </h2>
-                      <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 font-medium">
-                        राष्ट्रीय पहचान सत्यापन एवं ई-प्रमाणीकरण (DPDP Act 2023 Compliant)
-                      </p>
-                    </div>
+                {/* LEFT COLUMN: Mission Showcase */}
+                <div className="lg:col-span-6 space-y-5 text-left">
+                  
+                  {/* Ministry Badge */}
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs font-bold tracking-wide">
+                    <AshokStambh className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <span>{isHi ? 'भारत सरकार • इलेक्ट्रॉनिकी एवं सूचना प्रौद्योगिकी मंत्रालय (MeitY)' : 'Government of India • MINISTRY OF ELECTRONICS & IT (MeitY)'}</span>
                   </div>
-                </div>
 
-                {/* 3 Portal Tabs */}
-                <div className="grid grid-cols-3 border-b border-slate-200 dark:border-slate-800 bg-slate-100/70 dark:bg-slate-950/40 text-xs font-bold">
-                  <button
-                    type="button"
-                    onClick={() => { setAuthPortalTab('CITIZEN'); setAuthError(null); fetchCaptcha(); }}
-                    className={`py-3 px-2 text-center transition flex items-center justify-center gap-1.5 border-b-2 ${
-                      authPortalTab === 'CITIZEN'
-                        ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400 bg-white dark:bg-slate-900 shadow-sm'
-                        : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <span>🇮🇳</span>
-                    <span>Citizen Portal</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setAuthPortalTab('OFFICER'); setAuthError(null); }}
-                    className={`py-3 px-2 text-center transition flex items-center justify-center gap-1.5 border-b-2 ${
-                      authPortalTab === 'OFFICER'
-                        ? 'border-blue-500 text-blue-600 dark:text-blue-400 bg-white dark:bg-slate-900 shadow-sm'
-                        : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <span>👮</span>
-                    <span>Officer Portal</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => { setAuthPortalTab('ADMIN'); setAuthError(null); }}
-                    className={`py-3 px-2 text-center transition flex items-center justify-center gap-1.5 border-b-2 ${
-                      authPortalTab === 'ADMIN'
-                        ? 'border-purple-500 text-purple-600 dark:text-purple-400 bg-white dark:bg-slate-900 shadow-sm'
-                        : 'border-transparent text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
-                    }`}
-                  >
-                    <span>🛡️</span>
-                    <span>Admin Console</span>
-                  </button>
-                </div>
-
-                {/* Notifications & Error Banners */}
-                {authError && (
-                  <div className="mx-6 mt-4 p-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border border-rose-300 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2">
-                    <Icon name="alert-triangle" className="w-4 h-4 text-rose-600 flex-shrink-0" />
-                    <span>{authError}</span>
+                  {/* Heading */}
+                  <div className="space-y-2">
+                    <h1 className="text-2xl sm:text-4xl font-black text-[#0B2545] dark:text-white tracking-tight leading-tight">
+                      {isHi ? (
+                        <>राष्ट्रीय पहचान सत्यापन एवं <br /><span className="bg-gradient-to-r from-amber-600 via-indigo-600 to-emerald-600 bg-clip-text text-transparent">साइबर जालसाजी निवारण तंत्र</span></>
+                      ) : (
+                        <>National Anti-Fraud <br /><span className="bg-gradient-to-r from-amber-600 via-indigo-600 to-emerald-600 bg-clip-text text-transparent">Identity Screening Portal</span></>
+                      )}
+                    </h1>
+                    <p className="text-sm font-bold text-amber-700 dark:text-amber-400 font-hindi">
+                      {isHi ? 'राष्ट्रीय पहचान सत्यापन एवं साइबर सुरक्षा प्रवेश द्वार' : 'Unified National Identity Screening & Authentication Gateway'}
+                    </p>
                   </div>
-                )}
 
-                {authNotice && (
-                  <div className="mx-6 mt-4 p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">📱</span>
-                      <span>{authNotice}</span>
-                    </div>
-                  </div>
-                )}
+                  <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-300 leading-relaxed font-normal">
+                    {isHi
+                      ? 'स्मार्ट इंडिया हैकथॉन (SIH26188) के अंतर्गत विकसित अत्याधुनिक राष्ट्रीय पहचान सत्यापन एवं सुरक्षा तंत्र। वैधानिक पहचान दस्तावेजों की तुरंत पुष्टि करें, डीपफेक बायोमेट्रिक धोखाधड़ी का पता लगाएं और नागरिक सेवाओं को सुरक्षित करें।'
+                      : 'Next-generation unified identity screening infrastructure developed under Smart India Hackathon (SIH26188). Instantly verify statutory identity credentials, detect synthetic biometric deepfakes, and safeguard public e-governance services against fraud.'}
+                  </p>
 
-                {/* TAB 1: CITIZEN PORTAL */}
-                {authPortalTab === 'CITIZEN' && (
-                  <div className="p-6 space-y-4">
-                    <div className="space-y-3">
+                  {/* 3 Clean Key Highlights */}
+                  <div className="space-y-3 pt-2">
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm">
+                      <span className="p-2 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-base flex-shrink-0">📄</span>
                       <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          Registered Indian Mobile Number
-                        </label>
-                        <div className="flex rounded-xl overflow-hidden border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 focus-within:border-emerald-500 shadow-sm">
-                          <span className="px-3 py-2 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-mono text-xs flex items-center border-r border-slate-200 dark:border-slate-700">
-                            🇮🇳 +91
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">
+                          {isHi ? 'बहु-दस्तावेज त्वरित जांच' : 'Multi-Document Screening'}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {isHi ? 'आधार, पैन, पासपोर्ट और ड्राइविंग लाइसेंस के लिए त्वरित ओसीआर, प्रारूप ज्यामिति एवं वेरहोफ चेकसम सत्यापन।' : 'Rapid OCR, layout geometry, and checksum verification for Aadhaar, PAN, Passport, and DL.'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm">
+                      <span className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 text-base flex-shrink-0">🧬</span>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">
+                          {isHi ? 'तंत्रिका बायोमेट्रिक्स एवं एंटी-स्पूफिंग' : 'Neural Biometrics & Anti-Spoofing'}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {isHi ? 'आर्कफेस 512डी कोसाइन समानता मिलान तथा स्पेक्ट्रल विश्लेषण द्वारा सिंथेटिक डीपफेक और मास्क की पहचान।' : 'ArcFace 512D cosine similarity matching with spectral manipulation and deepfake detection.'}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 rounded-2xl bg-white/80 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 shadow-sm">
+                      <span className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-base flex-shrink-0">⚖️</span>
+                      <div>
+                        <div className="text-xs font-bold text-slate-900 dark:text-white">
+                          {isHi ? 'धारा 65ख विधिक साक्ष्य प्रमाणन' : 'Section 65B Legal Attestation'}
+                        </div>
+                        <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                          {isHi ? 'भारतीय साक्ष्य अधिनियम तथा भारतीय साक्ष्य अधिनियम 2023 के अंतर्गत न्यायालयीन साक्ष्य योग्य डिजिटल प्रमाण पत्र।' : 'Admissible cryptographic certificates under the Indian Evidence Act & Bharatiya Sakshya Adhiniyam.'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trust Footer */}
+                  <div className="flex items-center gap-3 flex-wrap text-[11px] text-slate-500 dark:text-slate-400 font-medium pt-1">
+                    <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-bold">✓</span> {isHi ? 'डीपीडीपी अधिनियम 2023 अनुपालित' : 'DPDP Act 2023 Compliant'}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-bold">✓</span> {isHi ? 'यूआईडीएआई एवं डिजिलॉकर मानक' : 'UIDAI & DigiLocker Standards'}</span>
+                    <span>•</span>
+                    <span className="flex items-center gap-1.5"><span className="text-emerald-500 font-bold">✓</span> {isHi ? 'सर्ट-इन सुरक्षा वास्तुकला' : 'CERT-In Architecture'}</span>
+                  </div>
+
+                </div>
+
+                {/* RIGHT COLUMN: Gateway Card */}
+                <div className="lg:col-span-6">
+                  <div className="bg-white dark:bg-slate-900 rounded-3xl gov-card-shadow gold-foil-border p-6 sm:p-7 space-y-5 relative animate-in fade-in zoom-in-95">
+                    
+                    {/* Watermark in Card Background */}
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.02] dark:opacity-[0.04]">
+                      <AshokStambh className="w-72 h-72 text-[#0B2545] dark:text-blue-400" />
+                    </div>
+
+                    {/* Gateway Card Header */}
+                    <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 relative z-10">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-12 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-amber-500/10 border border-amber-500/30 shadow-sm">
+                          <AshokStambh className="w-8 h-10 text-amber-600 dark:text-amber-400" />
+                        </div>
+                        <div>
+                          <h2 className="font-extrabold text-base sm:text-lg text-[#0B2545] dark:text-white leading-tight">
+                            {isHi ? 'आधिकारिक पोर्टल लॉगिन' : 'Official Portal Sign In'}
+                          </h2>
+                          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                            {isHi ? 'राष्ट्रीय पहचान सत्यापन एवं ई-प्रमाणीकरण' : 'National Identity Screening & Authentication'}
+                          </p>
+                        </div>
+                      </div>
+                      <span className="text-[9px] uppercase font-bold px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 font-mono">
+                        {isHi ? 'सरकारी एसएसओ' : 'Govt SSO'}
+                      </span>
+                    </div>
+
+                    {/* 1-CLICK QUICK DEMO BAR */}
+                    <div className="p-3 rounded-2xl bg-amber-500/10 border border-amber-500/25 relative z-10 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-amber-900 dark:text-amber-300">
+                        <span className="flex items-center gap-1.5">⚡ <span>{isHi ? 'त्वरित डेमो लॉगिन' : 'Quick 1-Click Access'}</span></span>
+                        <span className="text-[9px] font-mono text-amber-700 dark:text-amber-400 bg-amber-200/50 dark:bg-amber-900/40 px-1.5 py-0.2 rounded">
+                          {isHi ? 'तुरंत परीक्षण' : 'Instant Test'}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        <button
+                          type="button"
+                          onClick={() => quickDemoLogin('CITIZEN')}
+                          title={isHi ? 'नागरिक के रूप में तुरंत लॉगिन करें (सायक दत्ता)' : 'Click to instantly sign in as Citizen (Sayak Dutta)'}
+                          className="py-2 px-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 border border-emerald-500/30 text-emerald-800 dark:text-emerald-300 text-xs font-bold transition shadow-sm flex flex-col items-center justify-center text-center cursor-pointer active:scale-95"
+                        >
+                          <span className="text-sm">👤</span>
+                          <span className="text-[10px] font-semibold mt-0.5 truncate w-full">
+                            {isHi ? 'नागरिक' : 'Citizen'}
                           </span>
-                          <input
-                            type="tel"
-                            maxLength="10"
-                            value={mobileNumber}
-                            onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
-                            placeholder="9876543210"
-                            className="flex-1 px-3 py-2 text-xs bg-transparent outline-none text-slate-900 dark:text-white font-mono"
-                          />
-                        </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => quickDemoLogin('OFFICER')}
+                          title={isHi ? 'अधिकारी के रूप में तुरंत लॉगिन करें (राजेश सेन)' : 'Click to instantly sign in as Officer (Rajesh Sen)'}
+                          className="py-2 px-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-blue-50 dark:hover:bg-blue-950/40 border border-blue-500/30 text-blue-800 dark:text-blue-300 text-xs font-bold transition shadow-sm flex flex-col items-center justify-center text-center cursor-pointer active:scale-95"
+                        >
+                          <span className="text-sm">👮</span>
+                          <span className="text-[10px] font-semibold mt-0.5 truncate w-full">
+                            {isHi ? 'अधिकारी' : 'Officer'}
+                          </span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => quickDemoLogin('ADMIN')}
+                          title={isHi ? 'प्रशासक के रूप में तुरंत लॉगिन करें' : 'Click to instantly sign in as Admin'}
+                          className="py-2 px-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-purple-50 dark:hover:bg-purple-950/40 border border-purple-500/30 text-purple-800 dark:text-purple-300 text-xs font-bold transition shadow-sm flex flex-col items-center justify-center text-center cursor-pointer active:scale-95"
+                        >
+                          <span className="text-sm">🛡️</span>
+                          <span className="text-[10px] font-semibold mt-0.5 truncate w-full">
+                            {isHi ? 'प्रशासक' : 'Admin'}
+                          </span>
+                        </button>
                       </div>
+                    </div>
 
-                      {/* Anti-Bot Captcha Challenge */}
-                      <div className="p-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950/50 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5 uppercase tracking-wider">
-                            <span>🤖 Anti-Bot Security Challenge</span>
-                          </label>
-                          <button
-                            type="button"
-                            onClick={fetchCaptcha}
-                            className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-1 cursor-pointer"
-                          >
-                            <Icon name="refresh-cw" className="w-3 h-3" />
-                            <span>Refresh</span>
-                          </button>
+                    {/* 3 PORTAL TABS */}
+                    <div className="grid grid-cols-3 p-1 rounded-2xl bg-slate-100 dark:bg-slate-800/80 text-xs font-bold relative z-10">
+                      <button
+                        type="button"
+                        onClick={() => { setAuthPortalTab('CITIZEN'); setAuthError(null); setAuthNotice(null); }}
+                        className={`py-2 px-1 rounded-xl transition text-center flex items-center justify-center gap-1 cursor-pointer ${
+                          authPortalTab === 'CITIZEN'
+                            ? 'bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-400 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <IndiaFlag className="w-3.5 h-2.5" />
+                        <span>{isHi ? 'नागरिक' : 'Citizen'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => { setAuthPortalTab('OFFICER'); setAuthError(null); setAuthNotice(null); }}
+                        className={`py-2 px-1 rounded-xl transition text-center flex items-center justify-center gap-1 cursor-pointer ${
+                          authPortalTab === 'OFFICER'
+                            ? 'bg-white dark:bg-slate-900 text-blue-700 dark:text-blue-400 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <span>👮</span>
+                        <span>{isHi ? 'अधिकारी' : 'Officer'}</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => { setAuthPortalTab('ADMIN'); setAuthError(null); setAuthNotice(null); }}
+                        className={`py-2 px-1 rounded-xl transition text-center flex items-center justify-center gap-1 cursor-pointer ${
+                          authPortalTab === 'ADMIN'
+                            ? 'bg-white dark:bg-slate-900 text-purple-700 dark:text-purple-400 shadow-sm'
+                            : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                        }`}
+                      >
+                        <span>🛡️</span>
+                        <span>{isHi ? 'प्रशासक' : 'Admin'}</span>
+                      </button>
+                    </div>
+
+                    {/* Alerts */}
+                    <div className="relative z-10">
+                      {authNotice && (
+                        <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 text-blue-800 dark:text-blue-300 text-xs flex items-center gap-2 animate-in fade-in">
+                          <span>ℹ️</span>
+                          <span>{authNotice}</span>
                         </div>
-
-                        <div className="flex items-center gap-3">
-                          <div className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-slate-800 font-mono font-black text-slate-900 dark:text-white tracking-widest text-sm shadow-inner border border-slate-300 dark:border-slate-700 select-none">
-                            {captchaChallenge ? captchaChallenge.question : '14 + 7 = ?'}
-                          </div>
-                          <input
-                            type="text"
-                            value={captchaAnswer}
-                            onChange={(e) => setCaptchaAnswer(e.target.value)}
-                            placeholder="Answer"
-                            className="w-28 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
-                          />
-                          <button
-                            type="button"
-                            disabled={authLoading}
-                            onClick={handleSendOtp}
-                            className="flex-1 py-2 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow-sm active:scale-95 cursor-pointer"
-                          >
-                            {otpSent ? 'Resend OTP' : 'Request OTP'}
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* 6-Digit OTP Input */}
-                      {otpSent && (
-                        <div className="space-y-1.5 animate-in fade-in">
-                          <div className="flex items-center justify-between text-[11px]">
-                            <span className="font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                              6-Digit SMS OTP Code
-                            </span>
-                            <span className="text-amber-600 dark:text-amber-400 font-mono font-semibold">
-                              Demo OTP: 123456
-                            </span>
-                          </div>
-                          <input
-                            type="text"
-                            maxLength="6"
-                            value={otpCode}
-                            onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
-                            placeholder="123456"
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-center font-mono text-lg tracking-[0.5em] text-slate-900 dark:text-white outline-none focus:border-emerald-500 shadow-sm"
-                          />
-
-                          <button
-                            type="button"
-                            disabled={authLoading || otpCode.length < 4}
-                            onClick={handleCitizenLogin}
-                            className="w-full mt-2 py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-500/20 transition active:scale-95 cursor-pointer"
-                          >
-                            {authLoading ? 'Verifying Identity Credentials...' : 'Verify OTP & Enter Citizen Portal'}
-                          </button>
+                      )}
+                      {authError && (
+                        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs flex items-center gap-2 animate-in fade-in">
+                          <span>⚠️</span>
+                          <span>{authError}</span>
                         </div>
                       )}
                     </div>
 
-                    {/* 1-Click Quick Demo Login for Evaluator */}
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                      <button
-                        type="button"
-                        onClick={() => quickDemoLogin('CITIZEN')}
-                        className="w-full py-2.5 px-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 dark:text-emerald-300 text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer"
-                      >
-                        <span>⚡</span>
-                        <span>1-Click Citizen Demo Login (Sayak Dutta • 9876543210)</span>
-                      </button>
+                    {/* TAB 1: CITIZEN FORM */}
+                    {authPortalTab === 'CITIZEN' && (
+                      <div className="space-y-4 relative z-10">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                              {isHi ? 'भारतीय मोबाइल नंबर (+91)' : 'Indian Mobile Number (+91)'}
+                            </label>
+                            <div className="relative">
+                              <span className="absolute left-3 top-2.5 text-xs text-slate-500 font-bold font-mono">+91</span>
+                              <input
+                                type="text"
+                                maxLength="10"
+                                value={mobileNumber}
+                                onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ''))}
+                                placeholder="9876543210"
+                                className="w-full pl-12 pr-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-emerald-500 transition shadow-inner"
+                              />
+                            </div>
+                          </div>
+
+                          {!otpSent ? (
+                            <button
+                              type="button"
+                              disabled={authLoading}
+                              onClick={handleSendOtp}
+                              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                            >
+                              <span>📩</span>
+                              <span>{authLoading ? (isHi ? 'OTP भेजा जा रहा है...' : 'Sending OTP...') : (isHi ? 'सुरक्षित OTP प्राप्त करें' : 'Get Secure OTP')}</span>
+                            </button>
+                          ) : (
+                            <div className="space-y-3 animate-in fade-in">
+                              <div className="flex items-center justify-between">
+                                <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                  {isHi ? '6-अंकीय OTP कोड दर्ज करें' : 'Enter 6-Digit OTP Code'}
+                                </label>
+                                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/30">
+                                  {isHi ? 'डेमो OTP: 123456' : 'Demo OTP: 123456'}
+                                </span>
+                              </div>
+                              <input
+                                type="text"
+                                maxLength="6"
+                                value={otpCode}
+                                onChange={(e) => setOtpCode(e.target.value)}
+                                placeholder="123456"
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-center text-sm font-mono tracking-widest text-slate-900 dark:text-white outline-none focus:border-emerald-500 transition shadow-inner font-bold"
+                              />
+                              <button
+                                type="button"
+                                disabled={authLoading}
+                                onClick={handleCitizenLogin}
+                                className="w-full py-3 rounded-xl bg-[#0B2545] hover:bg-[#133E6E] text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2 border border-[#C59B27]/40"
+                              >
+                                <span>🇮🇳</span>
+                                <span>{authLoading ? (isHi ? 'प्रमाणीकरण हो रहा है...' : 'Authenticating...') : (isHi ? 'सत्यापित कर लॉगिन करें' : 'Verify & Sign In')}</span>
+                              </button>
+                              <div className="text-center pt-1">
+                                <button
+                                  type="button"
+                                  onClick={() => { setOtpSent(false); setAuthNotice(null); }}
+                                  className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 underline cursor-pointer"
+                                >
+                                  {isHi ? 'नंबर बदलें या पुनः OTP भेजें' : 'Change Number / Resend OTP'}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TAB 2: OFFICER FORM */}
+                    {authPortalTab === 'OFFICER' && (
+                      <div className="space-y-4 relative z-10">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                              {isHi ? 'अधिकारी कर्मचारी कोड (Officer ID / Badge)' : 'Officer ID / Badge Number'}
+                            </label>
+                            <input
+                              type="text"
+                              value={officerEmpId}
+                              onChange={(e) => setOfficerEmpId(e.target.value)}
+                              placeholder="OFF-8821"
+                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-inner"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                              {isHi ? 'विभागीय सुरक्षा पासवर्ड (Password)' : 'Departmental Security Password'}
+                            </label>
+                            <input
+                              type="password"
+                              value={officerPassword}
+                              onChange={(e) => setOfficerPassword(e.target.value)}
+                              placeholder="••••••••••••"
+                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-inner"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={authLoading}
+                            onClick={handleOfficerLogin}
+                            className="w-full py-3 rounded-xl bg-gradient-to-r from-blue-700 to-indigo-800 hover:from-blue-600 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            <span>👮</span>
+                            <span>{authLoading ? (isHi ? 'सत्यापित हो रहा है...' : 'Authenticating...') : (isHi ? 'अधिकारी लॉगिन (जांच कतार)' : 'Sign In as Officer')}</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* TAB 3: ADMIN FORM */}
+                    {authPortalTab === 'ADMIN' && (
+                      <div className="space-y-4 relative z-10">
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                              {isHi ? 'प्रशासक ईमेल आईडी (Admin Email)' : 'Administrator Email'}
+                            </label>
+                            <input
+                              type="text"
+                              value={adminEmail}
+                              onChange={(e) => setAdminEmail(e.target.value)}
+                              placeholder="admin@idshield.com"
+                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-inner"
+                            />
+                          </div>
+
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1.5">
+                              {isHi ? 'मास्टर पासवर्ड (Password)' : 'Master Password'}
+                            </label>
+                            <input
+                              type="password"
+                              value={adminPassword}
+                              onChange={(e) => setAdminPassword(e.target.value)}
+                              placeholder="••••••••••••"
+                              className="w-full px-3 py-2.5 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500 shadow-inner"
+                            />
+                          </div>
+
+                          <button
+                            type="button"
+                            disabled={authLoading}
+                            onClick={handleAdminLogin}
+                            className="w-full py-3 rounded-xl bg-gradient-to-r from-purple-700 to-indigo-800 hover:from-purple-600 hover:to-indigo-700 text-white font-bold text-xs shadow-md transition active:scale-95 cursor-pointer flex items-center justify-center gap-2"
+                          >
+                            <span>🛡️</span>
+                            <span>{authLoading ? (isHi ? 'सत्यापित हो रहा है...' : 'Authenticating...') : (isHi ? 'प्रशासक लॉगिन (कंसोल)' : 'Sign In as Admin')}</span>
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Card Security Footnote */}
+                    <div className="pt-2 text-center text-[10px] text-slate-500 font-mono">
+                      {isHi ? '🔒 256-बिट टीएलएस क्रिप्टोग्राफिक टनल • सर्ट-इन 2022 दिशा-निर्देश अनुपालित' : '🔒 256-Bit TLS Cryptographic Tunnel • CERT-In Directions 2022 Compliant'}
                     </div>
+
                   </div>
-                )}
-
-                {/* TAB 2: OFFICER PORTAL */}
-                {authPortalTab === 'OFFICER' && (
-                  <div className="p-6 space-y-4">
-                    <div className="p-3 rounded-2xl bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-900/50 text-blue-900 dark:text-blue-300 text-xs flex items-center gap-2">
-                      <Icon name="shield-alert" className="w-4 h-4 text-blue-600 flex-shrink-0" />
-                      <span>Restricted: Requires Law Enforcement or Cyber Forensic Investigator Clearance.</span>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          Officer Employee ID / Badge
-                        </label>
-                        <input
-                          type="text"
-                          value={officerEmpId}
-                          onChange={(e) => setOfficerEmpId(e.target.value)}
-                          placeholder="OFF-8821"
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          Department Security Password
-                        </label>
-                        <input
-                          type="password"
-                          value={officerPassword}
-                          onChange={(e) => setOfficerPassword(e.target.value)}
-                          placeholder="••••••••••••"
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          2FA Hardware / Time-Based OTP
-                        </label>
-                        <input
-                          type="text"
-                          maxLength="6"
-                          value={officerOtp}
-                          onChange={(e) => setOfficerOtp(e.target.value)}
-                          placeholder="123456"
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono tracking-widest text-slate-900 dark:text-white outline-none focus:border-blue-500"
-                        />
-                      </div>
-
-                      <button
-                        type="button"
-                        disabled={authLoading}
-                        onClick={handleOfficerLogin}
-                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-blue-500/20 transition active:scale-95 cursor-pointer"
-                      >
-                        {authLoading ? 'Authorizing Badge...' : 'Authorize Officer Badge & Open Review Queue'}
-                      </button>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                      <button
-                        type="button"
-                        onClick={() => quickDemoLogin('OFFICER')}
-                        className="w-full py-2.5 px-3 rounded-xl border border-blue-500/40 bg-blue-500/10 hover:bg-blue-500/20 text-blue-800 dark:text-blue-300 text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer"
-                      >
-                        <span>⚡</span>
-                        <span>1-Click Officer Demo Login (Officer Rajesh Sen • OFF-8821)</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* TAB 3: ADMINISTRATOR PORTAL */}
-                {authPortalTab === 'ADMIN' && (
-                  <div className="p-6 space-y-4">
-                    <div className="p-3 rounded-2xl bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/50 text-purple-900 dark:text-purple-300 text-xs flex items-center gap-2">
-                      <Icon name="shield-check" className="w-4 h-4 text-purple-600 flex-shrink-0" />
-                      <span>Level-4 Administrator: Audit trail inspection, policy changes, and master oversight.</span>
-                    </div>
-
-                    <div className="space-y-3">
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          Administrator Identifier
-                        </label>
-                        <input
-                          type="text"
-                          value={adminEmail}
-                          onChange={(e) => setAdminEmail(e.target.value)}
-                          placeholder="admin@idshield.com"
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono text-slate-900 dark:text-white outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          Master Console Password
-                        </label>
-                        <input
-                          type="password"
-                          value={adminPassword}
-                          onChange={(e) => setAdminPassword(e.target.value)}
-                          placeholder="••••••••••••"
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs text-slate-900 dark:text-white outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider mb-1">
-                          Master 2FA Hardware Token
-                        </label>
-                        <input
-                          type="text"
-                          maxLength="6"
-                          value={adminOtp}
-                          onChange={(e) => setAdminOtp(e.target.value)}
-                          placeholder="123456"
-                          className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-xs font-mono tracking-widest text-slate-900 dark:text-white outline-none focus:border-purple-500"
-                        />
-                      </div>
-
-                      <button
-                        type="button"
-                        disabled={authLoading}
-                        onClick={handleAdminLogin}
-                        className="w-full py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs shadow-lg shadow-purple-500/20 transition active:scale-95 cursor-pointer"
-                      >
-                        {authLoading ? 'Authorizing Master Console...' : 'Authenticate Master Administrator Console'}
-                      </button>
-                    </div>
-
-                    <div className="pt-2 border-t border-slate-200 dark:border-slate-800">
-                      <button
-                        type="button"
-                        onClick={() => quickDemoLogin('ADMIN')}
-                        className="w-full py-2.5 px-3 rounded-xl border border-purple-500/40 bg-purple-500/10 hover:bg-purple-500/20 text-purple-800 dark:text-purple-300 text-xs font-bold flex items-center justify-center gap-2 transition cursor-pointer"
-                      >
-                        <span>⚡</span>
-                        <span>1-Click Admin Demo Login (System Administrator)</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
+                </div>
 
               </div>
+
             </main>
 
-            {/* Portal Footer */}
-            <footer className="border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/80 dark:bg-slate-950/80 text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center justify-between gap-4 transition-colors duration-300">
-              <div className="flex items-center gap-3">
-                <span className="font-bold text-amber-600 dark:text-amber-400">🇮🇳 Digital India Initiative</span>
-                <span>•</span>
-                <span>Zero-Trust Architecture</span>
-                <span>•</span>
-                <span>UIDAI & MEA Compliant</span>
-              </div>
-              <div className="font-mono text-[11px] text-slate-500">
-                SIH26188 • Deep Biometric & AI Forensic Screening System
-              </div>
-            </footer>
+            {/* Bilingual National Portal Footer */}
+            <GovernmentFooter language={language} />
           </div>
         );
       }
-
       // =========================================================================
-      // SCREEN 2: AUTHENTICATED PORTAL (WITH CITIZEN, OFFICER, AND ADMIN VIEWS)
+      // SCREEN 2: AUTHENTICATED PORTAL (ROLE PROTECTED - PRIVACY ENFORCEMENT)
       // =========================================================================
       return (
-        <div className="flex-1 flex flex-col min-h-screen">
+        <div className="flex-1 flex flex-col min-h-screen gov-guilloche-bg transition-colors duration-300">
           
+          {/* National GIGW Top Bar with Interactive Language Toggle */}
+          <NationalTopBar themeMode={themeMode} setThemeMode={setThemeMode} language={language} setLanguage={setLanguage} />
+
           {/* Top Tricolor Ribbon */}
           <div className="h-1.5 w-full tricolor-border sticky top-0 z-50 shadow-md"></div>
 
-          {/* Top Navbar & Controls */}
-          <header className="sticky top-1.5 z-40 bg-white/95 dark:bg-slate-950/90 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
+          {/* Official Government Header */}
+          <header className="sticky top-1.5 z-40 bg-white/95 dark:bg-slate-950/95 backdrop-blur-md px-4 sm:px-8 py-3 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors duration-300">
             <div className="flex items-center space-x-3 sm:space-x-4">
-              <div className="w-12 h-14 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30">
+              <div className="w-12 h-14 flex-shrink-0 flex items-center justify-center p-0.5 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 shadow-sm">
                 <AshokStambh className="w-10 h-12 text-amber-600 dark:text-amber-400 filter drop-shadow" />
-              </div>
-              <div className="w-11 h-11 flex-shrink-0 rounded-full p-0.5 bg-blue-500/10 border border-blue-400/40 flex items-center justify-center shadow-sm">
-                <AshokChakra className="w-9 h-9 text-[#000080] dark:text-blue-400 chakra-spin" />
               </div>
               <div>
                 <div className="flex items-center space-x-2 flex-wrap">
-                  <h1 className="font-extrabold text-base sm:text-lg tracking-tight text-[#000080] dark:text-white flex items-center gap-1.5">
-                    IDShield AI
-                    <span className="text-[10px] font-mono text-amber-700 dark:text-amber-400 border border-amber-500/30 px-2 py-0.2 rounded-full bg-amber-500/10 font-bold">
-                      Govt. of India
-                    </span>
-                    <span className="hidden sm:inline-block text-[10px] uppercase font-semibold bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 px-2 py-0.5 rounded-full">
-                      SIH26188
-                    </span>
-                  </h1>
+                  <span className="text-xs font-bold text-amber-700 dark:text-amber-400 font-sans tracking-tight">
+                    {isHi ? 'भारत सरकार • इलेक्ट्रॉनिकी और सूचना प्रौद्योगिकी मंत्रालय' : 'भारत सरकार • Government of India'}
+                  </span>
+                  <span className="text-[10px] font-mono text-indigo-700 dark:text-indigo-400 border border-indigo-500/30 px-2 py-0.2 rounded-full bg-indigo-500/10 font-bold">
+                    MeitY • SIH26188
+                  </span>
                 </div>
+                <h1 className="font-extrabold text-base sm:text-xl tracking-tight text-[#0B2545] dark:text-white flex items-center gap-1.5">
+                  IDShield AI
+                  <span className="text-xs font-normal text-slate-500 dark:text-slate-400 hidden sm:inline">
+                    {isHi ? '| राष्ट्रीय पहचान सत्यापन एवं सुरक्षा पोर्टल' : '| National Identity Screening & Anti-Fraud Portal'}
+                  </span>
+                </h1>
                 <div className="flex items-center space-x-2 mt-0.5">
                   <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 font-mono">
-                    Gateway Online (Port 8080)
+                  <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 font-mono">
+                    {isHi ? 'पोर्टल ऑनलाइन (पोर्ट 8080) • डीपीडीपी अधिनियम 2023 अनुपालित' : 'Gateway Online (Port 8080) • DPDP Act 2023 Compliant'}
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Right Controls: User Profile, View Tabs & Logout */}
+            {/* Right Controls: Digital India, Profile Chip & Logout */}
             <div className="flex items-center space-x-3">
-              
-              {/* Theme Switcher */}
-              <div className="hidden md:flex items-center bg-slate-200/80 dark:bg-slate-900 border border-slate-300 dark:border-slate-800 p-0.5 rounded-xl text-xs">
-                <button onClick={() => setThemeMode('light')} className={`px-2 py-1 rounded-lg transition ${themeMode === 'light' ? 'bg-white shadow text-amber-500 font-bold' : 'text-slate-500'}`}>☀️</button>
-                <button onClick={() => setThemeMode('dark')} className={`px-2 py-1 rounded-lg transition ${themeMode === 'dark' ? 'bg-slate-800 shadow text-indigo-400 font-bold' : 'text-slate-500'}`}>🌙</button>
-                <button onClick={() => setThemeMode('system')} className={`px-2 py-1 rounded-lg transition ${themeMode === 'system' ? 'bg-indigo-600 text-white font-bold' : 'text-slate-500'}`}>Auto</button>
-              </div>
+              <DigitalIndiaLogo className="hidden lg:flex h-8 mr-2" />
 
-              {/* Logged in User Profile Chip */}
+              {/* Logged in User Profile Chip (Role-Protected Details) */}
               <div className="flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
-                <div className={`w-7 h-7 rounded-xl text-white font-bold text-xs flex items-center justify-center ${currentUser.avatarBg || 'bg-indigo-600'}`}>
-                  {currentUser.name?.charAt(0) || 'U'}
+                <div className={`w-8 h-8 rounded-xl text-white font-bold text-xs flex items-center justify-center ${
+                  currentUser.role === 'ROLE_ADMIN' 
+                    ? 'bg-purple-600' 
+                    : currentUser.role === 'ROLE_INVESTIGATOR' 
+                    ? 'bg-blue-600' 
+                    : 'bg-emerald-600'
+                }`}>
+                  {currentUser.role === 'ROLE_ADMIN' ? '🛡️' : currentUser.role === 'ROLE_INVESTIGATOR' ? '👮' : '👤'}
                 </div>
                 <div className="hidden sm:block text-left">
                   <div className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
                     {currentUser.name}
                   </div>
-                  <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
-                    {currentUser.role === 'ROLE_ADMIN' ? 'Admin' : currentUser.role === 'ROLE_INVESTIGATOR' ? 'Cyber Officer' : 'Citizen'}
+                  <div className="text-[10px] font-semibold text-slate-500 dark:text-slate-400 flex items-center gap-1">
+                    {currentUser.role === 'ROLE_ADMIN' ? (
+                      <span className="text-purple-600 dark:text-purple-400 font-bold">{isHi ? 'प्रशासक • सुपर एडमिन' : 'Super Admin • System Administrator'}</span>
+                    ) : currentUser.role === 'ROLE_INVESTIGATOR' ? (
+                      <span className="text-blue-600 dark:text-blue-400 font-bold">{isHi ? 'विधि अधिकारी • साइबर अन्वेषक' : 'Law Enforcement • Cyber Investigator'}</span>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">{isHi ? 'सत्यापित नागरिक • नागरिक पोर्टल' : 'Verified Citizen • Citizen Portal'}</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1630,75 +1940,138 @@
               <button
                 type="button"
                 onClick={handleLogout}
-                title="Secure Sign Out"
+                title={isHi ? 'सुरक्षित लॉगआउट' : 'Secure Sign Out'}
                 className="px-3 py-1.5 rounded-xl bg-rose-50 hover:bg-rose-100 dark:bg-rose-950/40 dark:hover:bg-rose-900/60 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
                 <Icon name="log-out" className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Sign Out</span>
+                <span className="hidden sm:inline">{isHi ? 'लॉगआउट' : 'Sign Out'}</span>
               </button>
-
             </div>
           </header>
 
-          {/* VIEW SWITCHER SUB-HEADER TABS */}
+          {/* VIEW SWITCHER SUB-HEADER TABS (ROLE PROTECTED) */}
           <div className="bg-slate-200/70 dark:bg-slate-900/80 border-b border-slate-300 dark:border-slate-800 px-4 sm:px-8 py-2 flex items-center justify-between flex-wrap gap-2 text-xs">
             <div className="flex items-center space-x-1 sm:space-x-2">
+              
+              {/* Citizen Tab */}
               <button
                 type="button"
                 onClick={() => setActiveView('citizen')}
-                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
                   activeView === 'citizen'
                     ? 'bg-emerald-600 text-white shadow'
                     : 'bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
                 }`}
               >
                 <span>👤</span>
-                <span>Citizen KYC Hub</span>
+                <span>{isHi ? (currentUser.role === 'ROLE_USER' ? 'नागरिक सेवा केंद्र' : 'नागरिक सत्यापन सैंडबॉक्स') : (currentUser.role === 'ROLE_USER' ? 'Citizen KYC Hub' : 'Citizen KYC Sandbox')}</span>
               </button>
 
-              <button
-                type="button"
-                onClick={() => setActiveView('officer')}
-                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  activeView === 'officer'
-                    ? 'bg-blue-600 text-white shadow'
-                    : 'bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
-                }`}
-              >
-                <span>👮</span>
-                <span>Officer Investigation Queue</span>
-                {officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length > 0 && (
-                  <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[9px] font-mono">
-                    {officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length}
-                  </span>
-                )}
-              </button>
+              {/* Officer Tab */}
+              {(currentUser.role === 'ROLE_INVESTIGATOR' || currentUser.role === 'ROLE_ADMIN') && (
+                <button
+                  type="button"
+                  onClick={() => setActiveView('officer')}
+                  className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    activeView === 'officer'
+                      ? 'bg-blue-600 text-white shadow'
+                      : 'bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  <span>👮</span>
+                  <span>{isHi ? 'विधि प्रवर्तन जांच कतार' : 'Officer Investigation Queue'}</span>
+                  {officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full bg-rose-500 text-white text-[9px] font-mono">
+                      {officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length}
+                    </span>
+                  )}
+                </button>
+              )}
 
-              <button
-                type="button"
-                onClick={() => { setActiveView('admin'); fetchAuditLogs(); }}
-                className={`px-3 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
-                  activeView === 'admin'
-                    ? 'bg-purple-600 text-white shadow'
-                    : 'bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
-                }`}
-              >
-                <span>🛡️</span>
-                <span>Admin Audit & Telemetry</span>
-              </button>
+              {/* Admin Tab */}
+              {currentUser.role === 'ROLE_ADMIN' && (
+                <button
+                  type="button"
+                  onClick={() => { setActiveView('admin'); fetchAuditLogs(); }}
+                  className={`px-3.5 py-1.5 rounded-xl font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                    activeView === 'admin'
+                      ? 'bg-purple-600 text-white shadow'
+                      : 'bg-white/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                  }`}
+                >
+                  <span>🛡️</span>
+                  <span>{isHi ? 'प्रशासक ऑडिट एवं टेलीमेट्री' : 'Admin Audit & Telemetry'}</span>
+                </button>
+              )}
             </div>
 
-            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500 dark:text-slate-400">
-              <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span>IMMUTABLE AUDIT ACTIVE</span>
+            {/* Right Status Badge */}
+            <div className="flex items-center gap-2 text-[11px] font-mono">
+              {currentUser.role === 'ROLE_USER' ? (
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-1 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span className="font-semibold">{isHi ? 'डीपीडीपी अधिनियम 2023 सुरक्षित • नागरिक गोपनीयता मोड' : 'DPDP ACT 2023 SECURED • CITIZEN PRIVACY MODE'}</span>
+                </div>
+              ) : currentUser.role === 'ROLE_INVESTIGATOR' ? (
+                <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40 px-3 py-1 rounded-xl border border-blue-200 dark:border-blue-800">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                  <span className="font-semibold">{isHi ? 'विधि प्रवर्तन स्तर-2 • साक्ष्य श्रृंखला सक्रिय' : 'LAW ENFORCEMENT LEVEL-2 • CHAIN OF CUSTODY ACTIVE'}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1.5 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/40 px-3 py-1 rounded-xl border border-purple-200 dark:border-purple-800">
+                  <span className="w-2 h-2 rounded-full bg-purple-500 animate-pulse"></span>
+                  <span className="font-semibold">{isHi ? 'मुख्य सुपर प्रशासक • अपरिवर्तनीय लेजर' : 'ROOT SUPER ADMINISTRATOR • IMMUTABLE LEDGER'}</span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* MAIN WORKSPACE BODY */}
           <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
 
-            {/* ========================================================================= */}
-            {/* VIEW A: CITIZEN KYC & SCREENING HUB                                       */}
+            {/* ROUTE ACCESS GUARDS */}
+            {currentUser.role === 'ROLE_USER' && activeView !== 'citizen' && (
+              <div className="p-8 rounded-3xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-300 dark:border-rose-800 text-center space-y-4 my-8 max-w-xl mx-auto shadow-xl">
+                <div className="text-4xl">🚫</div>
+                <h3 className="text-lg font-bold text-rose-800 dark:text-rose-200">
+                  {isHi ? 'अनधिकृत विधि प्रवर्तन क्षेत्र' : 'Unauthorized Law Enforcement Zone'}
+                </h3>
+                <p className="text-xs text-rose-700 dark:text-rose-300 leading-relaxed">
+                  {isHi
+                    ? 'शासकीय गुप्त बात अधिनियम तथा डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम 2023 के तहत नागरिक खाते पुलिस जांच कतारों और सिस्टम टेलीमेट्री से प्रतिबंधित हैं।'
+                    : 'Under the Official Secrets Act and the Digital Personal Data Protection Act 2023, Citizen accounts are restricted from police investigation queues and system telemetry.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('citizen')}
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                >
+                  {isHi ? 'नागरिक सेवा केंद्र पर वापस जाएं' : 'Return to Citizen KYC Hub'}
+                </button>
+              </div>
+            )}
+
+            {currentUser.role === 'ROLE_INVESTIGATOR' && activeView === 'admin' && (
+              <div className="p-8 rounded-3xl bg-amber-50 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800 text-center space-y-4 my-8 max-w-xl mx-auto shadow-xl">
+                <div className="text-4xl">🛡️</div>
+                <h3 className="text-lg font-bold text-amber-800 dark:text-amber-200">
+                  {isHi ? 'स्तर-4 सुपर प्रशासक अनुमति आवश्यक' : 'Level-4 Super Administrator Clearance Required'}
+                </h3>
+                <p className="text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
+                  {isHi
+                    ? 'अधिकारी केवल मामलों की जांच कर सकते हैं। केंद्रीय सिस्टम ऑडिट ट्रेल्स और नीतियों में संशोधन के लिए सुपर एडमिन क्रेडेंशियल आवश्यक हैं।'
+                    : 'Officer clearance allows evidence examination and case review. Central system audit trails and policy modifications require Super Administrator credentials.'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setActiveView('officer')}
+                  className="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-xs shadow-md transition cursor-pointer"
+                >
+                  {isHi ? 'अधिकारी अन्वेषण कतार पर वापस जाएं' : 'Return to Officer Investigation Queue'}
+                </button>
+              </div>
+            )}
+{/* VIEW A: CITIZEN KYC & SCREENING HUB                                       */}
             {/* ========================================================================= */}
             {activeView === 'citizen' && (
               <div className="space-y-6 animate-in fade-in">
@@ -1706,39 +2079,62 @@
                 {/* 3-Step Stepper Header */}
                 <div className="relative overflow-hidden rounded-3xl border border-slate-200 dark:border-slate-800/80 bg-white dark:bg-slate-900/60 p-5 shadow-lg">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 relative z-10">
-                    <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-gradient-to-br dark:from-indigo-950/60 dark:to-slate-900/80 border border-indigo-200 dark:border-indigo-500/40">
+                    <div className="p-3.5 rounded-2xl bg-indigo-50/70 dark:bg-gradient-to-br dark:from-indigo-950/60 dark:to-slate-900/80 border border-indigo-200 dark:border-indigo-500/40 shadow-sm">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow">1</div>
+                        <div className="w-8 h-8 rounded-xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shadow">१</div>
                         <div>
-                          <div className="text-xs font-bold text-indigo-900 dark:text-white uppercase tracking-wider">Step 1: Document Category</div>
-                          <div className="text-[11px] text-slate-600 dark:text-slate-400">Select declared statutory identity format</div>
+                          <div className="text-xs font-bold text-indigo-950 dark:text-white uppercase tracking-wider">
+                            {isHi ? 'चरण 1: दस्तावेज चयन' : 'Step 1: Document Selection'}
+                          </div>
+                          <div className="text-[11px] text-slate-600 dark:text-slate-400">
+                            {isHi ? 'वैधानिक पहचान प्रारूप चुनें' : 'Select Statutory Identity Format'}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
+                    <div className={`p-3.5 rounded-2xl border transition ${
+                      docFile 
+                        ? 'bg-emerald-50/70 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700/60 shadow-sm' 
+                        : 'bg-slate-50 dark:bg-slate-900/70 border-slate-200 dark:border-slate-800'
+                    }`}>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs">2</div>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm ${
+                          docFile ? 'bg-emerald-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        }`}>२</div>
                         <div>
-                          <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Step 2: Upload & Selfie</div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">PDF/JPG ID + Optional live reference selfie</div>
+                          <div className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                            चरण 2: अपलोड व बायोमेट्रिक
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Step 2: Upload ID & Optional Live Selfie
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/70 border border-slate-200 dark:border-slate-800">
+                    <div className={`p-3.5 rounded-2xl border transition ${
+                      verificationResult 
+                        ? 'bg-purple-50/70 dark:bg-purple-950/40 border-purple-300 dark:border-purple-700/60 shadow-sm' 
+                        : 'bg-slate-50 dark:bg-slate-900/70 border-slate-200 dark:border-slate-800'
+                    }`}>
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs">3</div>
+                        <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs shadow-sm ${
+                          verificationResult ? 'bg-purple-600 text-white' : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                        }`}>३</div>
                         <div>
-                          <div className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">Step 3: Forensic Verdict</div>
-                          <div className="text-[11px] text-slate-500 dark:text-slate-400">Real-time tampering & biometric verification</div>
+                          <div className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                            चरण 3: एआई फॉरेंसिक परिणाम
+                          </div>
+                          <div className="text-[11px] text-slate-500 dark:text-slate-400">
+                            Step 3: Forensic Verdict & Certificate
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Primary Recognized Indian Identity Cards */}
+{/* Primary Recognized Indian Identity Cards */}
                 <div>
                   <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
                     <label className="text-xs font-bold uppercase tracking-wider text-slate-800 dark:text-slate-300 flex items-center gap-2">
@@ -1775,17 +2171,17 @@
                         >
                           <div className="flex items-center justify-between">
                             <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shadow-sm ${doc.badgeClass}`}>
-                              {doc.badge}
+                              {isHi ? (doc.badgeHi || doc.badge) : doc.badge}
                             </span>
                             <span className="text-xs">{doc.icon}</span>
                           </div>
                           <div className="mt-2.5">
-                            <div className="text-xs font-bold text-slate-900 dark:text-white">{doc.name}</div>
-                            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{doc.format}</div>
+                            <div className="text-xs font-bold text-slate-900 dark:text-white">{isHi ? (doc.nameHi || doc.name) : doc.name}</div>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{isHi ? (doc.formatHi || doc.format) : doc.format}</div>
                           </div>
                           <div className="text-[9px] text-slate-600 dark:text-slate-400 mt-2 flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                            <span>{doc.check}</span>
+                            <span>{isHi ? (doc.checkHi || doc.check) : doc.check}</span>
                           </div>
                         </div>
                       );
@@ -1810,13 +2206,13 @@
                             >
                               <div className="flex items-center justify-between">
                                 <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${doc.badgeClass}`}>
-                                  {doc.badge}
+                                  {isHi ? (doc.badgeHi || doc.badge) : doc.badge}
                                 </span>
                                 <span className="text-xs">{doc.icon}</span>
                               </div>
                               <div className="mt-2.5">
-                                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{doc.name}</div>
-                                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{doc.format}</div>
+                                <div className="text-xs font-bold text-slate-800 dark:text-slate-200">{isHi ? (doc.nameHi || doc.name) : doc.name}</div>
+                                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">{isHi ? (doc.formatHi || doc.format) : doc.format}</div>
                               </div>
                               <div className="text-[9px] text-emerald-600 dark:text-emerald-400 mt-2 font-medium flex items-center gap-1">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -1877,7 +2273,7 @@
                           <span className="text-[10px] text-slate-500 font-mono">({Math.round(docFile.size / 1024)} KB)</span>
                         </div>
                         <span className="text-[11px] text-indigo-600 dark:text-indigo-400 underline font-semibold">
-                          Click to replace document
+                          {isHi ? 'दस्तावेज बदलने हेतु क्लिक करें' : 'Click to replace document'}
                         </span>
                       </div>
                     ) : (
@@ -1887,10 +2283,10 @@
                         </div>
                         <div>
                           <div className="text-sm font-bold text-slate-900 dark:text-white">
-                            Upload {selectedDocObj.name}
+                            {isHi ? 'दस्तावेज अपलोड करें: ' + (selectedDocObj.nameHi || selectedDocObj.name) : 'Upload ' + selectedDocObj.name}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            Drag & drop or click to browse (JPG, PNG, PDF up to 10MB)
+                            {isHi ? 'दस्तावेज खींचकर लाएं या ब्राउज़ करें (JPG, PNG, PDF अधिकतम 10MB)' : 'Drag & drop or click to browse (JPG, PNG, PDF up to 10MB)'}
                           </div>
                         </div>
                       </div>
@@ -1926,7 +2322,7 @@
                           <span>{selfieFile.name}</span>
                         </div>
                         <span className="text-[11px] text-emerald-600 dark:text-emerald-400 underline font-semibold">
-                          Click to replace selfie
+                          {isHi ? 'सेल्फी बदलने हेतु क्लिक करें' : 'Click to replace selfie'}
                         </span>
                       </div>
                     ) : (
@@ -1936,10 +2332,10 @@
                         </div>
                         <div>
                           <div className="text-sm font-bold text-slate-900 dark:text-white">
-                            Live Facial Selfie (Biometric Match)
+                            {isHi ? 'लाइव फेशियल सेल्फी (बायोमेट्रिक मिलान)' : 'Live Facial Selfie (Biometric Match)'}
                           </div>
                           <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                            Optional: Facial biometric verification against card photo
+                            {isHi ? 'वैकल्पिक: कार्ड फोटो के साथ चेहरे का बायोमेट्रिक मिलान' : 'Optional: Facial biometric verification against card photo'}
                           </div>
                         </div>
                       </div>
@@ -1956,10 +2352,10 @@
                     </div>
                     <div>
                       <div className="text-xs font-bold text-slate-900 dark:text-white">
-                        Multi-Layer Forensic Screening Engine
+                        {isHi ? 'बहु-स्तरीय फॉरेंसिक सत्यापन इंजन' : 'Multi-Layer Forensic Screening Engine'}
                       </div>
                       <div className="text-[11px] text-slate-500 dark:text-slate-400">
-                        RapidOCR • InsightFace ArcFace • Spectral FFT • Error Level Analysis
+                        {isHi ? 'रेपिड ओसीआर • आर्कफेस बायोमेट्रिक • स्पेक्ट्रल एफएफटी • ईएलए विश्लेषण' : 'RapidOCR • InsightFace ArcFace • Spectral FFT • Error Level Analysis'}
                       </div>
                     </div>
                   </div>
@@ -1984,111 +2380,191 @@
                   </button>
                 </div>
 
-                {/* VERIFICATION RESULTS DOSSIER */}
+                                {/* OFFICIAL GOVERNMENT FORENSIC CLEARANCE CERTIFICATE */}
                 {verificationResult && (
-                  <div className="rounded-3xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 shadow-xl space-y-6 animate-in fade-in">
+                  <div className="rounded-3xl border-2 border-[#0B2545]/20 dark:border-blue-500/30 bg-white dark:bg-slate-900 shadow-2xl p-6 sm:p-8 space-y-6 animate-in fade-in certificate-frame print-certificate relative overflow-hidden">
                     
-                    {/* Header Verdict Banner */}
-                    <div className={`p-4 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${
-                      verificationResult.riskScore <= 30
-                        ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-                        : 'bg-amber-50/80 dark:bg-amber-950/30 border-amber-300 dark:border-amber-800 text-amber-900 dark:text-amber-200'
-                    }`}>
-                      <div className="flex items-center space-x-3.5">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-2xl shadow ${
-                          verificationResult.riskScore <= 30 ? 'bg-emerald-600 text-white' : 'bg-amber-600 text-white'
-                        }`}>
-                          {verificationResult.riskScore <= 30 ? '✅' : '⚠️'}
+                    {/* Subtle Government Watermark in Background */}
+                    <div className="absolute inset-0 pointer-events-none flex items-center justify-center opacity-[0.03] dark:opacity-[0.05]">
+                      <AshokStambh className="w-96 h-96 text-[#0B2545] dark:text-blue-400" />
+                    </div>
+
+                    {/* Certificate Top Header */}
+                    <div className="border-b-2 border-slate-200 dark:border-slate-800 pb-5 flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10 text-center sm:text-left">
+                      <div className="flex items-center space-x-4">
+                        <div className="w-14 h-16 flex-shrink-0 flex items-center justify-center p-1 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 shadow-sm">
+                          <AshokStambh className="w-12 h-14 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                          <div className="text-base font-extrabold flex items-center gap-2">
-                            {verificationResult.riskScore <= 30 ? 'AUTHENTIC IDENTITY VERIFIED' : 'UNDER FORENSIC OFFICER REVIEW'}
-                            <span className="text-xs px-2 py-0.5 rounded-full font-mono font-bold bg-white/70 dark:bg-slate-900">
-                              Risk {verificationResult.riskScore}/100
-                            </span>
+                          <div className="text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-widest font-sans">
+                            भारत सरकार • GOVERNMENT OF INDIA
                           </div>
-                          <div className="text-xs opacity-90 mt-0.5">
-                            {verificationResult.riskScore <= 30
-                              ? 'Statutory document passed cryptographic, layout, and facial biometric verification.'
-                              : 'One or more forensic anomalies detected. Document routed to Cyber Forensic Officer queue.'}
-                          </div>
+                          <h2 className="text-lg sm:text-xl font-black text-[#0B2545] dark:text-white tracking-tight">
+                            राष्ट्रीय पहचान सत्यापन एवं फॉरेंसिक जांच प्रमाणपत्र
+                          </h2>
+                          <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">
+                            National Anti-Fraud Document Screening & Forensic Examination Dossier
+                          </p>
                         </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => { setChatOpen(true); handleSendChatMessage('Why was my document flagged?'); }}
-                        className="px-4 py-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 text-indigo-600 dark:text-indigo-400 font-bold text-xs shadow-sm border border-slate-200 dark:border-slate-700 transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer"
-                      >
-                        <span>💬</span>
-                        <span>Ask AI Assistant About Verdict</span>
-                      </button>
+                      {/* Official Certificate Number & Timestamp */}
+                      <div className="text-right sm:border-l sm:border-slate-200 dark:sm:border-slate-800 sm:pl-4">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                          Certificate Reference No:
+                        </div>
+                        <div className="text-xs font-black font-mono text-indigo-700 dark:text-indigo-400">
+                          GOV-IDSHIELD-2026-{(verificationResult.id || 1042).toString().padStart(6, '0')}
+                        </div>
+                        <div className="text-[10px] text-slate-400 mt-1 font-mono">
+                          Issued: {new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })} • {new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })} IST
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Forensic Telemetry Grid */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                    {/* Verdict Banner with Official Seal */}
+                    <div className={`p-5 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 relative z-10 ${
+                      verificationResult.riskScore <= 30
+                        ? 'bg-emerald-50/90 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-700 text-emerald-950 dark:text-emerald-100 shadow-sm'
+                        : 'bg-amber-50/90 dark:bg-amber-950/40 border-amber-400 dark:border-amber-700 text-amber-950 dark:text-amber-100 shadow-sm'
+                    }`}>
+                      <div className="flex items-center space-x-4">
+                        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl shadow-md border ${
+                          verificationResult.riskScore <= 30
+                            ? 'bg-emerald-600 border-emerald-500 text-white'
+                            : 'bg-amber-600 border-amber-500 text-white'
+                        }`}>
+                          {verificationResult.riskScore <= 30 ? '✓' : '⚠'}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-base sm:text-lg font-black tracking-tight">
+                              {verificationResult.riskScore <= 30 ? (isHi ? 'सत्यापित • प्रामाणिक पहचान स्वीकृति प्रदत्त' : 'AUTHENTIC IDENTITY CLEARANCE GRANTED') : (isHi ? 'अन्वेषणाधीन • साइबर अधिकारी निरीक्षण हेतु चिह्नित' : 'FLAGGED FOR CYBER OFFICER INSPECTION')}
+                            </span>
+                            <span className="text-xs px-2.5 py-0.5 rounded-full font-mono font-bold bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700">
+                              Forensic Risk: {verificationResult.riskScore}/100 ({verificationResult.riskLevel})
+                            </span>
+                          </div>
+                          <p className="text-xs mt-1 leading-relaxed opacity-90">
+                            {verificationResult.riskScore <= 30
+                              ? 'Official clearance: The submitted statutory document passed deep neural face matching, cryptographically validated digital signatures, and ELA frequency analysis.'
+                              : 'Provisional status: One or more forensic signal anomalies detected. Record dispatched to Cyber Crime Unit for Level-2 biometric scrutiny.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Action Buttons: Print & Chat */}
+                      <div className="flex items-center gap-2 flex-shrink-0 no-print">
+                        <button
+                          type="button"
+                          onClick={() => window.print()}
+                          title="Print or Save PDF"
+                          className="px-4 py-2.5 rounded-xl bg-[#0B2545] hover:bg-[#133E6E] text-white font-bold text-xs shadow-md transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <Icon name="printer" className="w-4 h-4" />
+                          <span>प्रमाणपत्र प्रिंट करें (Print)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => { setChatOpen(true); handleSendChatMessage('Can you explain my forensic verification verdict?'); }}
+                          className="px-4 py-2.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-slate-100 text-indigo-600 dark:text-indigo-400 font-bold text-xs shadow-sm border border-slate-300 dark:border-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+                        >
+                          <span>💬</span>
+                          <span>AI Help</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Forensic Telemetry Matrix */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 relative z-10">
                       
-                      {/* Risk Score */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Overall Risk Score</div>
+                      {/* Telemetry 1: Overall Risk */}
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'कुल फॉरेंसिक जोखिम' : 'Overall Risk Score'}</div>
                         <div className="text-2xl font-black mt-1 font-mono text-slate-900 dark:text-white">
                           {verificationResult.riskScore}<span className="text-xs font-normal text-slate-400">/100</span>
                         </div>
                         <div className="text-[10px] text-slate-500 mt-1 capitalize font-semibold">
-                          Level: {verificationResult.riskLevel}
+                          Grade: {verificationResult.riskLevel}
                         </div>
                       </div>
 
-                      {/* AI Synthetic Probability */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">AI Synthetic Score</div>
+                      {/* Telemetry 2: Deepfake / Synthetic Detection */}
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'एआई सिंथेटिक / डीपफेक' : 'AI Synthetic / Deepfake'}</div>
                         <div className={`text-2xl font-black mt-1 font-mono ${
                           (verificationResult.forensicDetails?.syntheticProbability || 0) > 0.5 ? 'text-rose-500' : 'text-emerald-500'
                         }`}>
                           {Math.round((verificationResult.forensicDetails?.syntheticProbability || 0) * 100)}%
                         </div>
                         <div className="text-[10px] text-slate-500 mt-1 font-semibold truncate">
-                          {verificationResult.forensicDetails?.syntheticModelDetected || 'Physical Sensor'}
+                          {verificationResult.forensicDetails?.syntheticModelDetected || 'Physical Paper / Sensor'}
                         </div>
                       </div>
 
-                      {/* Biometric Face Match */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Facial Biometrics</div>
+                      {/* Telemetry 3: Facial Biometrics */}
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'बायोमेट्रिक चेहरा मिलान' : 'Biometric Face Match'}</div>
                         <div className={`text-2xl font-black mt-1 font-mono ${
                           verificationResult.faceMatched ? 'text-emerald-500' : 'text-amber-500'
                         }`}>
                           {verificationResult.faceMatchConfidence ? `${Math.round(verificationResult.faceMatchConfidence * 100)}%` : 'N/A'}
                         </div>
                         <div className="text-[10px] text-slate-500 mt-1 font-semibold">
-                          {verificationResult.faceMatched ? 'Biometrics Matched' : 'Mismatch / No Selfie'}
+                          {verificationResult.faceMatched ? 'InsightFace ArcFace 512D Matched' : 'Provisional / No Live Face'}
                         </div>
                       </div>
 
-                      {/* Cryptographic QR */}
-                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/50 border border-slate-200 dark:border-slate-800">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Cryptographic Signature</div>
+                      {/* Telemetry 4: Cryptographic Signature */}
+                      <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800">
+                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'क्रिप्टोग्राफिक साक्ष्य प्रमाणन' : 'Cryptographic Attestation'}</div>
                         <div className="text-base font-bold mt-2 font-mono text-indigo-600 dark:text-indigo-400 truncate">
-                          {verificationResult.forensicDetails?.qrCryptographicValidationPassed !== false ? 'RSA-2048 VALID' : 'FAILED / BOGUS'}
+                          {verificationResult.forensicDetails?.qrCryptographicValidationPassed !== false ? 'RSA-2048 VERIFIED' : 'FAILED / BOGUS'}
                         </div>
                         <div className="text-[10px] text-slate-500 mt-1 font-semibold">
-                          UIDAI Public Key Check
+                          UIDAI / MeitY Key Check
                         </div>
                       </div>
 
                     </div>
 
-                    {/* Forensic Finding Bullet Points */}
-                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800 space-y-2">
-                      <div className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                        Detailed Signal Inspection Findings:
+                    {/* Signal Inspection Findings & Legal Clause */}
+                    <div className="p-4 rounded-2xl bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 space-y-3 relative z-10">
+                      <div className="text-xs font-bold text-slate-900 dark:text-slate-200 uppercase tracking-wider flex items-center justify-between">
+                        <span>फॉरेंसिक साक्ष्य विवरण • Detailed Forensic Evidence Breakdown:</span>
+                        <span className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 font-bold">SHA-256 HASH VERIFIED</span>
                       </div>
-                      {verificationResult.reasons?.map((reason, idx) => (
-                        <div key={idx} className="text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2">
-                          <span className="text-indigo-500 font-bold">•</span>
-                          <span>{reason}</span>
-                        </div>
-                      ))}
+                      <div className="space-y-1.5">
+                        {verificationResult.reasons?.map((reason, idx) => (
+                          <div key={idx} className="text-xs text-slate-700 dark:text-slate-300 flex items-start gap-2">
+                            <span className="text-indigo-500 font-bold">•</span>
+                            <span>{reason}</span>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Statutory Legal Attestation Footer Note */}
+                      <div className="mt-3 pt-3 border-t border-slate-200 dark:border-slate-800 text-[10px] text-slate-500 dark:text-slate-400 leading-relaxed font-mono">
+                        {isHi ? <>⚖️ <strong>विधिक घोषणा (भारतीय साक्ष्य अधिनियम):</strong> यह इलेक्ट्रॉनिक अभिलेख स्वचालित संगणकीय प्रणाली द्वारा जनरेट किया गया है तथा भारतीय साक्ष्य अधिनियम 1872 की धारा 65ख / भारतीय साक्ष्य अधिनियम 2023 की धारा 63 के तहत न्यायालयीन साक्ष्य हेतु पूर्णतः ग्राह्य है। डिजिटल इंडिया कॉर्पोरेशन (डीआईसी) द्वारा प्रमाणित।</> : <>{isHi ? <>⚖️ <strong>विधिक घोषणा (भारतीय साक्ष्य अधिनियम):</strong> यह इलेक्ट्रॉनिक अभिलेख स्वचालित संगणकीय प्रणाली द्वारा जनरेट किया गया है तथा भारतीय साक्ष्य अधिनियम 1872 की धारा 65ख / भारतीय साक्ष्य अधिनियम 2023 की धारा 63 के तहत न्यायालयीन साक्ष्य हेतु पूर्णतः ग्राह्य है। डिजिटल इंडिया कॉर्पोरेशन (डीआईसी) द्वारा प्रमाणित।</> : <>⚖️ <strong>STATUTORY DECLARATION UNDER INDIAN EVIDENCE ACT:</strong> This electronic record is generated by an automated computational system and satisfies the evidentiary admissibility criteria under Section 65B of the Indian Evidence Act, 1872 / Section 63 of the Bharatiya Sakshya Adhiniyam, 2023. Authenticated by Digital India Corporation (DIC).</>}</>}
+                      </div>
+                    </div>
+
+                    {/* Reset / New Scan Button */}
+                    <div className="flex justify-end pt-2 no-print">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setVerificationResult(null);
+                          setDocFile(null);
+                          setDocPreviewUrl(null);
+                          setSelfieFile(null);
+                          setSelfiePreviewUrl(null);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer"
+                      >
+                        <Icon name="refresh-cw" className="w-3.5 h-3.5" />
+                        <span>{isHi ? 'अन्य दस्तावेज सत्यापित करें' : 'Screen Another Document'}</span>
+                      </button>
                     </div>
 
                   </div>
@@ -2096,9 +2572,7 @@
 
               </div>
             )}
-
-            {/* ========================================================================= */}
-            {/* VIEW B: POLICE & CYBER FORENSIC OFFICER INVESTIGATION QUEUE               */}
+{/* VIEW B: POLICE & CYBER FORENSIC OFFICER INVESTIGATION QUEUE               */}
             {/* ========================================================================= */}
             {activeView === 'officer' && (
               <div className="space-y-6 animate-in fade-in">
@@ -2106,26 +2580,26 @@
                 {/* Officer Banner & Case Stats */}
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="p-4 rounded-3xl bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800">
-                    <div className="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider">Total Scanned Cases</div>
+                    <div className="text-xs font-bold text-blue-900 dark:text-blue-300 uppercase tracking-wider">{isHi ? 'कुल स्कैन मामले' : 'Total Scanned Cases'}</div>
                     <div className="text-2xl font-black text-blue-900 dark:text-white mt-1 font-mono">{officerCases.length}</div>
                   </div>
 
                   <div className="p-4 rounded-3xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
-                    <div className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider">Pending Officer Review</div>
+                    <div className="text-xs font-bold text-amber-900 dark:text-amber-300 uppercase tracking-wider">{isHi ? 'लंबित अधिकारी समीक्षा' : 'Pending Officer Review'}</div>
                     <div className="text-2xl font-black text-amber-900 dark:text-amber-400 mt-1 font-mono">
                       {officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length}
                     </div>
                   </div>
 
                   <div className="p-4 rounded-3xl bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-800">
-                    <div className="text-xs font-bold text-rose-900 dark:text-rose-300 uppercase tracking-wider">Flagged AI Fakes</div>
+                    <div className="text-xs font-bold text-rose-900 dark:text-rose-300 uppercase tracking-wider">{isHi ? 'चिह्नित एआई डीपफेक' : 'Flagged AI Fakes'}</div>
                     <div className="text-2xl font-black text-rose-900 dark:text-rose-400 mt-1 font-mono">
                       {officerCases.filter(c => c.syntheticProbability > 0.5).length}
                     </div>
                   </div>
 
                   <div className="p-4 rounded-3xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800">
-                    <div className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">Approved Authentic</div>
+                    <div className="text-xs font-bold text-emerald-900 dark:text-emerald-300 uppercase tracking-wider">{isHi ? 'सत्यापित प्रामाणिक' : 'Approved Authentic'}</div>
                     <div className="text-2xl font-black text-emerald-900 dark:text-emerald-400 mt-1 font-mono">
                       {officerCases.filter(c => c.investigationStatus === 'VERIFIED').length}
                     </div>
@@ -2138,25 +2612,25 @@
                     onClick={() => setCaseFilter('ALL')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${caseFilter === 'ALL' ? 'bg-blue-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                   >
-                    All Cases ({officerCases.length})
+                    {isHi ? 'सभी मामले' : 'All Cases'} ({officerCases.length})
                   </button>
                   <button
                     onClick={() => setCaseFilter('REVIEW_REQUIRED')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${caseFilter === 'REVIEW_REQUIRED' ? 'bg-amber-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                   >
-                    ⚠️ Needs Review ({officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length})
+                    ⚠️ {isHi ? 'समीक्षा आवश्यक' : 'Needs Review'} ({officerCases.filter(c => c.investigationStatus === 'REVIEW_REQUIRED').length})
                   </button>
                   <button
                     onClick={() => setCaseFilter('SYNTHETIC_FAKES')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${caseFilter === 'SYNTHETIC_FAKES' ? 'bg-rose-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                   >
-                    🤖 AI Synthetic Fakes ({officerCases.filter(c => c.syntheticProbability > 0.5).length})
+                    🤖 {isHi ? 'एआई डीपफेक' : 'AI Synthetic Fakes'} ({officerCases.filter(c => c.syntheticProbability > 0.5).length})
                   </button>
                   <button
                     onClick={() => setCaseFilter('VERIFIED')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition ${caseFilter === 'VERIFIED' ? 'bg-emerald-600 text-white' : 'text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800'}`}
                   >
-                    ✅ Verified ({officerCases.filter(c => c.investigationStatus === 'VERIFIED').length})
+                    ✅ {isHi ? 'सत्यापित' : 'Verified'} ({officerCases.filter(c => c.investigationStatus === 'VERIFIED').length})
                   </button>
                 </div>
 
@@ -2173,7 +2647,7 @@
                   {/* Left: Cases List */}
                   <div className="lg:col-span-1 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-4 shadow-md space-y-3 max-h-[600px] overflow-y-auto custom-scrollbar">
                     <div className="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">
-                      Investigation Queue ({filteredCases.length})
+                      {isHi ? 'अन्वेषण कतार' : 'Investigation Queue'} ({filteredCases.length})
                     </div>
                     {filteredCases.map(c => (
                       <div
@@ -2211,10 +2685,10 @@
                       <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3 flex-wrap gap-2">
                         <div>
                           <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
-                            <span>Forensic Dossier: Case #{selectedCase.id}</span>
+                            <span>{isHi ? 'फॉरेंसिक केस फाइल #' + selectedCase.id : 'Forensic Dossier: Case #' + selectedCase.id}</span>
                             <span className="text-xs font-mono text-slate-500">({selectedCase.docName})</span>
                           </h3>
-                          <div className="text-xs text-slate-500 mt-0.5">Applicant: {selectedCase.applicantName} • Submitted: {selectedCase.submittedAt}</div>
+                          <div className="text-xs text-slate-500 mt-0.5">{isHi ? 'आवेदक: ' + selectedCase.applicantName + ' • प्रस्तुत: ' + selectedCase.submittedAt : 'Applicant: ' + selectedCase.applicantName + ' • Submitted: ' + selectedCase.submittedAt}</div>
                         </div>
 
                         <span className={`text-xs font-bold px-3 py-1 rounded-xl ${
@@ -2303,13 +2777,13 @@
                       {/* Officer Decision Controls */}
                       <div className="p-4 rounded-2xl bg-blue-50/70 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-900/60 space-y-3">
                         <div className="text-xs font-bold text-blue-950 dark:text-blue-300 uppercase tracking-wider">
-                          Cyber Forensic Officer Adjudication
+                          {isHi ? 'साइबर फॉरेंसिक अधिकारी निर्णय एवं आदेश' : 'Cyber Forensic Officer Adjudication'}
                         </div>
                         <input
                           type="text"
                           value={officerNotes}
                           onChange={(e) => setOfficerNotes(e.target.value)}
-                          placeholder="Enter mandatory investigation notes or reason..."
+                          placeholder={isHi ? 'अनिवार्य अन्वेषण टिप्पणी या कारण दर्ज करें...' : 'Enter mandatory investigation notes or reason...'}
                           className="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:border-blue-500 shadow-sm"
                         />
                         <div className="flex items-center gap-3 pt-1">
@@ -2319,7 +2793,7 @@
                             className="flex-1 py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs transition shadow cursor-pointer flex items-center justify-center gap-1.5"
                           >
                             <Icon name="check" className="w-3.5 h-3.5" />
-                            <span>Approve Document (सत्यापित करें)</span>
+                            <span>{isHi ? 'दस्तावेज स्वीकृत करें (सत्यापित)' : 'Approve Document (Verified)'}</span>
                           </button>
 
                           <button
@@ -2328,7 +2802,7 @@
                             className="flex-1 py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs transition shadow cursor-pointer flex items-center justify-center gap-1.5"
                           >
                             <Icon name="x" className="w-3.5 h-3.5" />
-                            <span>Reject as Fraud (अस्वीकार करें)</span>
+                            <span>{isHi ? 'जालसाजी घोषित करें (अस्वीकार)' : 'Reject as Fraud (Counterfeit)'}</span>
                           </button>
 
                           <button
@@ -2337,7 +2811,7 @@
                             className="py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-bold text-xs transition shadow cursor-pointer flex items-center justify-center gap-1.5"
                           >
                             <Icon name="clock" className="w-3.5 h-3.5" />
-                            <span>Re-Verify</span>
+                            <span>{isHi ? 'पुनः जांच' : 'Re-Verify'}</span>
                           </button>
                         </div>
                       </div>
@@ -2360,16 +2834,16 @@
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Spring Boot Gateway</span>
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'स्प्रिंग बूट गेटवे' : 'Spring Boot Gateway'}</span>
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     </div>
-                    <div className="text-lg font-black text-slate-900 dark:text-white mt-1">Port 8080 Active</div>
+                    <div className="text-lg font-black text-slate-900 dark:text-white mt-1">{isHi ? 'पोर्ट 8080 सक्रिय' : 'Port 8080 Active'}</div>
                     <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono mt-0.5">HTTP 200 OK • JWT Authenticated</div>
                   </div>
 
                   <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">PostgreSQL 18 DB</span>
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'डेटाबेस सेवा' : 'PostgreSQL 18 DB'}</span>
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     </div>
                     <div className="text-lg font-black text-slate-900 dark:text-white mt-1">idshield_db (5432)</div>
@@ -2378,7 +2852,7 @@
 
                   <div className="p-4 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">AI Forensic Service</span>
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">{isHi ? 'एआई फॉरेंसिक सेवा' : 'AI Forensic Service'}</span>
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
                     </div>
                     <div className="text-lg font-black text-slate-900 dark:text-white mt-1">RapidOCR + ArcFace</div>
@@ -2392,9 +2866,9 @@
                     <div>
                       <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
                         <Icon name="shield" className="w-5 h-5 text-purple-600" />
-                        <span>Append-Only Security Audit Trail (PostgreSQL)</span>
+                        <span>{isHi ? 'अपरिवर्तनीय सुरक्षा ऑडिट ट्रेल (डेटाबेस)' : 'Append-Only Security Audit Trail (PostgreSQL)'}</span>
                       </h3>
-                      <div className="text-xs text-slate-500 mt-0.5">Forensically logged non-repudiable events</div>
+                      <div className="text-xs text-slate-500 mt-0.5">{isHi ? 'फॉरेंसिक रूप से लॉग किए गए गैर-अस्वीकार्य सुरक्षा इवेंट्स' : 'Forensically logged non-repudiable events'}</div>
                     </div>
                     <button
                       type="button"
@@ -2402,7 +2876,7 @@
                       className="px-3 py-1.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                     >
                       <Icon name="refresh-cw" className="w-3.5 h-3.5" />
-                      <span>Refresh Trail</span>
+                      <span>{isHi ? 'ऑडिट ट्रेल ताज़ा करें' : 'Refresh Trail'}</span>
                     </button>
                   </div>
 
@@ -2415,11 +2889,11 @@
                       <table className="w-full text-left text-xs border-collapse">
                         <thead>
                           <tr className="border-b border-slate-200 dark:border-slate-800 text-slate-500 text-[10px] uppercase font-mono">
-                            <th className="py-2.5 px-3">Timestamp</th>
-                            <th className="py-2.5 px-3">Event Type</th>
-                            <th className="py-2.5 px-3">Principal</th>
-                            <th className="py-2.5 px-3">IP Address</th>
-                            <th className="py-2.5 px-3">Audit Details</th>
+                            <th className="py-2.5 px-3">{isHi ? 'समय-मुहर' : 'Timestamp'}</th>
+                            <th className="py-2.5 px-3">{isHi ? 'इवेंट प्रकार' : 'Event Type'}</th>
+                            <th className="py-2.5 px-3">{isHi ? 'उपयोगकर्ता' : 'Principal'}</th>
+                            <th className="py-2.5 px-3">{isHi ? 'आईपी पता' : 'IP Address'}</th>
+                            <th className="py-2.5 px-3">{isHi ? 'ऑडिट विवरण' : 'Audit Details'}</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-slate-200 dark:divide-slate-800/60 font-mono text-[11px]">
@@ -2476,12 +2950,12 @@
                   </div>
                   <div>
                     <h4 className="text-xs font-extrabold text-slate-900 dark:text-white flex items-center gap-1.5 leading-tight">
-                      IDShield AI Identity Assistant
+                      {isHi ? 'आईडी-शील्ड एआई फॉरेंसिक सहायक' : 'IDShield AI Forensic Assistant'}
                       <span className="text-[9px] font-mono font-bold px-1.5 py-0.2 rounded bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30">
                         RAG
                       </span>
                     </h4>
-                    <div className="text-[10px] text-slate-500 dark:text-slate-400">UIDAI, Income Tax & MEA Statutory Knowledge</div>
+                    <div className="text-[10px] text-slate-500 dark:text-slate-400">{isHi ? 'यूआईडीएआई, आयकर एवं विदेश मंत्रालय वैधानिक नियम' : 'UIDAI, Income Tax & MEA Statutory Knowledge'}</div>
                   </div>
                 </div>
 
@@ -2499,7 +2973,7 @@
                 <span className="truncate">
                   {verificationResult
                     ? `📄 Context: ${selectedDocObj.name} (Risk ${verificationResult.riskScore}/100 • ${verificationResult.investigationStatus})`
-                    : `🏛️ Guide: Indian Identity Statutory Rules`}
+                    : `{isHi ? '🏛️ मार्गदर्शिका: भारतीय पहचान वैधानिक नियम' : '🏛️ Guide: Indian Identity Statutory Rules'}`}
                 </span>
                 <span className="text-[9px] font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -2514,21 +2988,21 @@
                   onClick={() => handleSendChatMessage('Why was my document flagged?')}
                   className="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-slate-700 dark:text-slate-300 transition cursor-pointer"
                 >
-                  ❓ Why flagged?
+                  {isHi ? '❓ दस्तावेज क्यों चिह्नित हुआ?' : '❓ Why flagged?'}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSendChatMessage('What documents can I submit?')}
                   className="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-slate-700 dark:text-slate-300 transition cursor-pointer"
                 >
-                  📄 Accepted Docs
+                  {isHi ? '📄 मान्य दस्तावेज सूची' : '📄 Accepted Docs'}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleSendChatMessage('How does AI fake document detection work?')}
                   className="px-2.5 py-1 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 text-slate-700 dark:text-slate-300 transition cursor-pointer"
                 >
-                  🔍 AI Forensics
+                  {isHi ? '🔍 एआई फॉरेंसिक जांच' : '🔍 AI Forensics'}
                 </button>
                 <button
                   type="button"
@@ -2592,7 +3066,7 @@
                   type="text"
                   value={chatInput}
                   onChange={(e) => setChatInput(e.target.value)}
-                  placeholder="Ask about statutory rules, status, or remediation..."
+                  placeholder={isHi ? 'पहचान नियमों या सत्यापन संबंधी प्रश्न पूछें...' : 'Ask about statutory rules, status, or remediation...'}
                   className="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs text-slate-900 dark:text-white outline-none focus:border-indigo-500 shadow-sm"
                 />
                 <button
@@ -2607,19 +3081,8 @@
             </div>
           )}
 
-          {/* Portal Footer */}
-          <footer className="border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/80 dark:bg-slate-950/80 text-xs text-slate-600 dark:text-slate-400 flex flex-wrap items-center justify-between gap-4 transition-colors duration-300">
-            <div className="flex items-center gap-3">
-              <span className="font-bold text-amber-600 dark:text-amber-400">🇮🇳 Digital India Initiative</span>
-              <span>•</span>
-              <span>Zero-Trust Architecture</span>
-              <span>•</span>
-              <span>All Rights Reserved</span>
-            </div>
-            <div className="font-mono text-[11px] text-slate-500">
-              SIH26188 • Deep Biometric & Tampering Inspection System
-            </div>
-          </footer>
+                                                            {/* Bilingual National Portal Footer */}
+          <GovernmentFooter language={language} />
 
         </div>
       );

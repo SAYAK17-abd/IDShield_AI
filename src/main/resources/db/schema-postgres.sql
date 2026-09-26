@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS documents (
     mime_type VARCHAR(100) NOT NULL,
     sha256_checksum VARCHAR(64) NOT NULL,
     status VARCHAR(50) NOT NULL DEFAULT 'PENDING'
-        CHECK (status IN ('PENDING', 'PROCESSING', 'VERIFIED', 'REJECTED', 'FAILED')),
+        CHECK (status IN ('PENDING', 'PROCESSING', 'COMPLETED', 'VERIFIED', 'REJECTED', 'FAILED')),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_document_owner
@@ -100,7 +100,7 @@ CREATE TABLE IF NOT EXISTS verification_results (
     id BIGSERIAL PRIMARY KEY,
     document_id BIGINT NOT NULL UNIQUE,
     investigation_status VARCHAR(50) NOT NULL DEFAULT 'PENDING'
-        CHECK (investigation_status IN ('PENDING', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED')),
+        CHECK (investigation_status IN ('PENDING', 'PROCESSING', 'COMPLETED', 'REVIEW_REQUIRED', 'UNDER_REVIEW', 'VERIFIED', 'REJECTED', 'FAILED')),
     risk_score INTEGER NOT NULL,
     risk_level VARCHAR(20) NOT NULL
         CHECK (risk_level IN ('LOW', 'MEDIUM', 'HIGH')),

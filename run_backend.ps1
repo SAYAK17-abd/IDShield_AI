@@ -1,4 +1,4 @@
-﻿# Launch Spring Boot Backend Server
+# Launch Spring Boot Backend Server
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  IDShield AI - Spring Boot Security Gateway (Port 8080)" -ForegroundColor Cyan
 Write-Host "==========================================================" -ForegroundColor Cyan
