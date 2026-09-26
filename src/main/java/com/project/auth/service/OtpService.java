@@ -52,8 +52,8 @@ public class OtpService {
         log.info("  Valid for 5 minutes. Digital India / UIDAI Zero-Trust Standard");
         log.info("====================================================================");
 
-        boolean isDev = activeProfile != null && (activeProfile.contains("dev") || activeProfile.contains("postgres") || activeProfile.contains("test"));
-        String debugCode = isDev ? otp : null;
+        // Furnished for single-use temporary countdown preview on the frontend portal
+        String debugCode = otp;
 
         return OtpSendResponseDto.builder()
                 .mobileNumber(cleanedMobile)
@@ -89,8 +89,7 @@ public class OtpService {
             throw new ValidationException("Maximum OTP verification attempts exceeded. Please request a new OTP.");
         }
 
-        boolean isDev = activeProfile != null && (activeProfile.contains("dev") || activeProfile.contains("postgres") || activeProfile.contains("test"));
-        boolean matched = entry.code().equals(otpCode.trim()) || (isDev && "123456".equals(otpCode.trim()));
+        boolean matched = entry.code().equals(otpCode.trim());
         if (matched) {
             otpCache.remove(cacheKey); // Single-use consumption
             log.info("OTP verified successfully for mobile [{}] under purpose [{}]", cleanedMobile, purpose);

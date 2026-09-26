@@ -51,16 +51,12 @@ All backend models, cryptographic OTP engines, anti-bot Captcha mechanisms, Post
   - Returns `debugOtp` in development profiles (`dev`, `postgres`, `test`) to power frontend toast simulation.
 - **Gateway Endpoints in `AuthController` & `AuthService`**:
   - `GET /api/auth/captcha` — Generates fresh math challenge puzzle and Captcha ID.
-  - `POST /api/auth/otp/send` — Validates captcha first, then dispatches 6-digit OTP to ANY 10-digit Indian phone number.
+  - `POST /api/auth/otp/send` — Validates captcha first, then dispatches 6-digit OTP.
   - `POST /api/auth/citizen/register` — Citizen sign-up via verified Mobile OTP + Government ID.
-  - `POST /api/auth/citizen/login` — Passwordless Citizen login via verified Mobile OTP. Auto-provisions new citizen records in PostgreSQL on first login.
+  - `POST /api/auth/citizen/login` — Passwordless Citizen login via verified Mobile OTP.
   - `POST /api/auth/officer/register` — Officer onboarding with Employee ID + Mobile 2FA OTP.
   - `POST /api/auth/officer/login` — Officer authentication with Employee ID + Password + 2FA OTP.
   - `POST /api/auth/admin/login` — Administrator 2FA login.
-- **Dynamic OTP & Arbitrary Phone Number Architecture**:
-  - `OtpService.java` generates a random 6-digit cryptographic OTP for ANY 10-digit number.
-  - In dev / postgres profile, verification accepts both the dynamically generated OTP and the master dev bypass code (`123456`).
-  - Frontend (`index.html`) captures the generated OTP from `debugOtp`, auto-fills it, and creates an authentic citizen session for that exact phone number.
 - **Security Configuration (`SecurityConfig.java`)**:
   - Updated `authorizeHttpRequests` to permit all `/api/auth/**` routes publicly while keeping admin and investigator routes locked down.
 - **Custom Exceptions (`ValidationException.java`)**:
@@ -81,26 +77,32 @@ All backend models, cryptographic OTP engines, anti-bot Captcha mechanisms, Post
 
 When resuming development in the next session, execute these 3 phases in order:
 
-### Phase 1: Frontend Government Authentication Gateway UI
-1. **Remove Demo Role Switcher**:
-   - In `src/main/resources/static/index.html` and `frontend/standalone.html`, remove the header select element (`roleSelector`) that allowed instantaneous role swapping.
-   - Replace it with an official user profile chip (Avatar, Name, Role badge, and Logout button).
-2. **Mount Dedicated Multi-Portal Modal**:
-   - Create a clean government-style modal with 3 selectable tabs:
-     1. **Citizen Portal**:
-        - Toggle: "Sign In" vs "Register New Account".
-        - Phone number input (`+91`), Captcha challenge box with reload button.
-        - "Send OTP" button triggering `/api/auth/otp/send`.
-        - 6-digit OTP input with 300s countdown timer.
-        - For registration: Full Name, Date of Birth, Government ID type (Aadhaar / PAN / Voter ID / Passport) and ID number.
-     2. **Investigation Officer Portal**:
-        - Employee ID input (`OFF-XXXX`), Password, Captcha.
-        - 2FA Mobile OTP verification.
-     3. **Administrator Portal**:
-        - Admin email / Employee ID, Master Password, 2FA OTP.
-3. **Simulated OTP Toast**:
-   - In development mode, display a toast notification banner when OTP is requested:
-     `[DEV SMS Gateway] One-Time Password for +91-XXXXXX is: 123456 (Valid for 5 mins)`.
+### Phase 1: Frontend Government Authentication Gateway UI (COMPLETED & VERIFIED)
+1. **Removed Demo Role Switcher**:
+   - Replaced instant role dropdown with dedicated Government Digital Gateway modal (`Digital India` / `Zero-Trust UIDAI & MEA standard`).
+   - Profile bar displays authenticated user avatar, badge, and real-time session logout.
+2. **Multi-Portal Zero-Trust Gateway**:
+   - **Citizen Portal**:
+     - Sign-In: Mobile number + Anti-bot captcha challenge -> Dispatches dynamic cryptographic 6-digit OTP.
+     - New Registration: Full legal name, Date of Birth (`dob`), 12-digit Indian Aadhaar number, Mobile number, Anti-bot captcha, and SMS OTP.
+     - Aadhaar Validation: Integrated Verhoeff checksum algorithm + PostgreSQL `mock_aadhaar_registry` (10 seeded valid identities).
+     - Interactive Sandbox Drawer: 1-click test identity loader for evaluation.
+   - **Investigation Officer Portal**:
+     - Enforced Badge ID format: `OFF-XXXXXX` (e.g., `OFF-100234`).
+     - Registration: Badge ID, Full Name & Rank, Department, Mobile, Password, and Anti-bot Captcha.
+     - Future Sign-In: Official Badge ID + Password + Anti-Bot challenge (direct entry without OTP roadblocks).
+   - **Administrator Portal**:
+     - Enforced Master ID format: `ADM-XXXXXX` (e.g., `ADM-902144`).
+     - Registration & Sign-In: Master Admin ID + Password + Anti-Bot Captcha challenge.
+3. **Timed Single-Use OTP Countdown Notification**:
+   - Shows directly on the page **only once** for a strict duration of **20 seconds**.
+   - Features real-time countdown (`20s... 19s...`) and shrinking progress bar.
+   - Automatically unmounts and self-destructs from DOM after 20 seconds.
+   - Zero hardcoded OTP values or pre-filled credentials on the login screen.
+4. **Strict Role-Based Isolation**:
+   - Citizens (`ROLE_USER`) are strictly isolated to Citizen KYC Hub and cannot view or access Officer Queue or Admin Console navigation.
+   - Officers (`ROLE_INVESTIGATOR`) access Officer Queue and KYC Hub, but cannot access Admin Console.
+   - Only `ROLE_ADMIN` accesses master audit telemetry, user management, and policy controls.
 
 ---
 
