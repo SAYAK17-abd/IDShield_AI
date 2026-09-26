@@ -35,10 +35,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Component
 public class RateLimitingFilter extends OncePerRequestFilter {
 
-    @Value("${application.security.rate-limit.requests-per-minute:120}")
+    @Value("${application.security.rate-limit.requests-per-minute:60}")
     private int generalRequestsPerMinute;
 
-    @Value("${application.security.rate-limit.auth-requests-per-minute:60}")
+    @Value("${application.security.rate-limit.auth-requests-per-minute:10}")
     private int authRequestsPerMinute;
 
     private final Map<String, RequestCounter> requestCounts = new ConcurrentHashMap<>();

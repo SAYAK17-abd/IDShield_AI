@@ -50,8 +50,8 @@ application:
       allowed-headers: Authorization,Content-Type,X-Requested-With,Accept,Origin
       allow-credentials: true
     rate-limit:
-      requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:120}
-      auth-requests-per-minute: ${AUTH_RATE_LIMIT_PER_MINUTE:60}
+      requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:60}
+      auth-requests-per-minute: ${AUTH_RATE_LIMIT_PER_MINUTE:10}
 
   storage:
     upload-dir: ${STORAGE_UPLOAD_DIR:./uploads/documents}

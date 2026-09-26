@@ -19,10 +19,8 @@ public class OfficerRegisterRequest {
     private String fullName;
 
     @NotBlank(message = "Employee ID is required")
-    @Pattern(regexp = "^[A-Z0-9-]{4,20}$", message = "Invalid Employee ID format (e.g., OFF-100234)")
+    @Pattern(regexp = "^[A-Z0-9-]{4,20}$", message = "Invalid Employee ID format (e.g., OFF-1001)")
     private String employeeId;
-
-    private String email;
 
     @NotBlank(message = "Mobile number is required")
     @Pattern(regexp = "^(\\+91)?[6-9]\\d{9}$", message = "Invalid 10-digit Indian mobile number")
@@ -32,10 +30,7 @@ public class OfficerRegisterRequest {
     @Size(min = 8, message = "Password must be at least 8 characters")
     private String password;
 
-    private String department;
-
-    private String captchaId;
-    private String captchaAnswer;
-
+    @NotBlank(message = "2FA OTP code is required")
+    @Pattern(regexp = "^\\d{6}$", message = "OTP must be a 6-digit number")
     private String otpCode;
 }

@@ -52,8 +52,8 @@ public class OtpService {
         log.info("  Valid for 5 minutes. Digital India / UIDAI Zero-Trust Standard");
         log.info("====================================================================");
 
-        // Furnished for single-use temporary countdown preview on the frontend portal
-        String debugCode = otp;
+        boolean isDev = activeProfile != null && (activeProfile.contains("dev") || activeProfile.contains("postgres") || activeProfile.contains("test"));
+        String debugCode = isDev ? otp : null;
 
         return OtpSendResponseDto.builder()
                 .mobileNumber(cleanedMobile)
