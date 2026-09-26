@@ -1,7 +1,6 @@
 package com.project.auth.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,8 @@ public class OfficerLoginRequest {
     @NotBlank(message = "Password is required")
     private String password;
 
-    @NotBlank(message = "2FA OTP code is required")
-    @Pattern(regexp = "^\\d{6}$", message = "OTP must be a 6-digit number")
+    private String captchaId;
+    private String captchaAnswer;
+
     private String otpCode;
 }

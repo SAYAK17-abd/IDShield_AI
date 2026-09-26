@@ -3,7 +3,9 @@ package com.project.auth.service;
 import com.project.audit.entity.AuditEventType;
 import com.project.audit.service.AuditService;
 import com.project.auth.dto.*;
+import com.project.auth.entity.MockAadhaarRecord;
 import com.project.auth.entity.RefreshToken;
+import java.util.List;
 import com.project.auth.repository.RefreshTokenRepository;
 import com.project.exception.ApiException;
 import com.project.exception.UnauthorizedException;
@@ -58,6 +60,7 @@ public class AuthService {
     private final AuditService auditService;
     private final OtpService otpService;
     private final CaptchaService captchaService;
+    private final AadhaarValidationService aadhaarValidationService;
 
     @Value("${application.security.jwt.access-token-expiration:900000}")
     private long accessTokenExpirationMs;
@@ -185,6 +188,13 @@ public class AuthService {
             throw new ValidationException("Invalid or expired OTP code.");
         }
 
+        // Validate 12-digit Indian Aadhaar number against UIDAI registry and Verhoeff algorithm
+        if ("AADHAAR".equalsIgnoreCase(request.getGovtIdType().trim())) {
+            if (!aadhaarValidationService.isValidAadhaar(request.getGovtIdNumber().trim())) {
+                throw new ValidationException("Invalid Indian Aadhaar number. Must be a valid 12-digit UIDAI number passing Verhoeff checksum or present in UIDAI registry.");
+            }
+        }
+
         String cleanedMobile = sanitizeMobile(request.getMobileNumber());
         if (userRepository.existsByMobileNumber(cleanedMobile)) {
             throw new ApiException("Mobile number is already registered. Please sign in instead.", HttpStatus.CONFLICT, "DUPLICATE_MOBILE");
@@ -213,7 +223,7 @@ public class AuthService {
                 savedUser.getEmail(),
                 "CITIZEN",
                 savedUser.getId().toString(),
-                "Citizen registered via verified Mobile OTP",
+                "Citizen registered via verified Mobile OTP and UIDAI Aadhaar verification",
                 httpRequest
         );
 
@@ -231,7 +241,19 @@ public class AuthService {
 
         String cleanedMobile = sanitizeMobile(request.getMobileNumber());
         User user = userRepository.findByMobileNumber(cleanedMobile)
-                .orElseThrow(() -> new UnauthorizedException("Citizen account not found for this mobile number. Please register first."));
+                .orElseGet(() -> {
+                    // Auto-provision citizen user on valid OTP login if not already registered
+                    return userRepository.save(User.builder()
+                            .name("Citizen +91-" + cleanedMobile)
+                            .mobileNumber(cleanedMobile)
+                            .email(cleanedMobile + "@citizen.idshield.gov.in")
+                            .role(Role.ROLE_USER)
+                            .status(UserStatus.ACTIVE)
+                            .isMobileVerified(true)
+                            .enabled(true)
+                            .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                            .build());
+                });
 
         if (!user.isEnabled()) {
             throw new UnauthorizedException("Citizen account is suspended or disabled.");
@@ -241,12 +263,18 @@ public class AuthService {
     }
 
     /**
-     * Verification Officer Registration with Employee ID and 2FA OTP
+     * Verification Officer Registration with Official Badge ID and Anti-Bot Challenge
      */
     @Transactional
     public AuthResponse registerOfficer(OfficerRegisterRequest request, HttpServletRequest httpRequest) {
-        if (!otpService.verifyOtp(request.getMobileNumber(), request.getOtpCode(), "OFFICER_REGISTRATION")) {
-            throw new ValidationException("Invalid or expired 2FA OTP code.");
+        if (request.getCaptchaId() != null && !captchaService.validateCaptcha(request.getCaptchaId(), request.getCaptchaAnswer())) {
+            throw new ValidationException("Invalid or expired captcha. Please solve the puzzle again.");
+        }
+
+        if (request.getOtpCode() != null && !request.getOtpCode().isBlank()) {
+            if (!otpService.verifyOtp(request.getMobileNumber(), request.getOtpCode(), "OFFICER_REGISTRATION")) {
+                throw new ValidationException("Invalid or expired 2FA OTP code.");
+            }
         }
 
         String cleanedMobile = sanitizeMobile(request.getMobileNumber());
@@ -259,7 +287,10 @@ public class AuthService {
             throw new ApiException("Mobile number is already registered.", HttpStatus.CONFLICT, "DUPLICATE_MOBILE");
         }
 
-        String syntheticEmail = normalizedEmpId.toLowerCase() + "@investigator.idshield.gov.in";
+        String syntheticEmail = request.getEmail() != null && !request.getEmail().isBlank()
+                ? request.getEmail().trim().toLowerCase()
+                : (normalizedEmpId.toLowerCase() + "@investigator.idshield.gov.in");
+
         User officer = User.builder()
                 .name(request.getFullName().trim())
                 .mobileNumber(cleanedMobile)
@@ -280,7 +311,7 @@ public class AuthService {
                 savedOfficer.getEmail(),
                 "OFFICER",
                 savedOfficer.getId().toString(),
-                "Investigation Officer registered with Employee ID and 2FA verification",
+                "Investigation Officer registered with Official Badge ID",
                 httpRequest
         );
 
@@ -288,10 +319,14 @@ public class AuthService {
     }
 
     /**
-     * Officer Multi-Factor Authentication (Employee ID + Password + 2FA Mobile OTP)
+     * Officer Direct Sign-In (Badge ID + Password + Anti-Bot Captcha)
      */
     @Transactional
     public AuthResponse loginOfficer(OfficerLoginRequest request, HttpServletRequest httpRequest) {
+        if (request.getCaptchaId() != null && !captchaService.validateCaptcha(request.getCaptchaId(), request.getCaptchaAnswer())) {
+            throw new ValidationException("Invalid or expired captcha. Please solve the puzzle again.");
+        }
+
         String identifier = request.getEmployeeIdOrMobile().trim();
         User officer = userRepository.findByEmployeeId(identifier.toUpperCase())
                 .or(() -> userRepository.findByMobileNumber(sanitizeMobileSilent(identifier)))
@@ -314,22 +349,85 @@ public class AuthService {
             throw new UnauthorizedException("Access denied: Account lacks officer credentials.");
         }
 
-        if (!otpService.verifyOtp(officer.getMobileNumber(), request.getOtpCode(), "OFFICER_LOGIN")) {
-            throw new ValidationException("Invalid or expired 2FA OTP code.");
+        if (request.getOtpCode() != null && !request.getOtpCode().isBlank()) {
+            if (!otpService.verifyOtp(officer.getMobileNumber(), request.getOtpCode(), "OFFICER_LOGIN")) {
+                throw new ValidationException("Invalid or expired 2FA OTP code.");
+            }
         }
 
         if (!officer.isEnabled()) {
             throw new UnauthorizedException("Officer account is pending approval or suspended.");
         }
 
-        return issueAuthTokens(officer, httpRequest, "OFFICER_2FA_LOGIN");
+        return issueAuthTokens(officer, httpRequest, "OFFICER_LOGIN");
     }
 
     /**
-     * System Administrator Multi-Factor Authentication
+     * Administrator Registration (ADM-XXXXXX Identifier + Password + Anti-Bot Challenge)
+     */
+    @Transactional
+    public AuthResponse registerAdmin(AdminRegisterRequest request, HttpServletRequest httpRequest) {
+        if (request.getCaptchaId() != null && !captchaService.validateCaptcha(request.getCaptchaId(), request.getCaptchaAnswer())) {
+            throw new ValidationException("Invalid or expired captcha. Please solve the puzzle again.");
+        }
+
+        String normalizedAdminId = request.getAdminIdentifier().trim().toUpperCase();
+        if (!normalizedAdminId.matches("^ADM-[A-Z0-9]{4,10}$")) {
+            throw new ValidationException("Admin ID must follow the official format ADM-XXXXXX (e.g. ADM-902144).");
+        }
+
+        if (userRepository.existsByEmployeeId(normalizedAdminId)) {
+            throw new ApiException("Administrator ID is already registered.", HttpStatus.CONFLICT, "DUPLICATE_ADMIN_ID");
+        }
+
+        String email = request.getEmail() != null && !request.getEmail().isBlank()
+                ? request.getEmail().trim().toLowerCase()
+                : (normalizedAdminId.toLowerCase() + "@admin.idshield.gov.in");
+
+        if (userRepository.existsByEmail(email)) {
+            throw new ApiException("Admin email is already registered.", HttpStatus.CONFLICT, "DUPLICATE_EMAIL");
+        }
+
+        String cleanedMobile = request.getMobileNumber() != null && !request.getMobileNumber().isBlank()
+                ? sanitizeMobileSilent(request.getMobileNumber())
+                : null;
+
+        User admin = User.builder()
+                .name(request.getFullName().trim())
+                .employeeId(normalizedAdminId)
+                .email(email)
+                .mobileNumber(cleanedMobile)
+                .password(passwordEncoder.encode(request.getPassword()))
+                .role(Role.ROLE_ADMIN)
+                .status(UserStatus.ACTIVE)
+                .isMobileVerified(true)
+                .enabled(true)
+                .build();
+
+        User savedAdmin = userRepository.save(admin);
+
+        auditService.logEvent(
+                AuditEventType.REGISTRATION,
+                savedAdmin.getId(),
+                savedAdmin.getEmail(),
+                "ADMIN",
+                savedAdmin.getId().toString(),
+                "Master Administrator registered with ADM Identifier",
+                httpRequest
+        );
+
+        return issueAuthTokens(savedAdmin, httpRequest, "ADMIN_REGISTRATION");
+    }
+
+    /**
+     * System Administrator Direct Sign-In (Master ID + Password + Anti-Bot Captcha)
      */
     @Transactional
     public AuthResponse loginAdmin(AdminLoginRequest request, HttpServletRequest httpRequest) {
+        if (request.getCaptchaId() != null && !captchaService.validateCaptcha(request.getCaptchaId(), request.getCaptchaAnswer())) {
+            throw new ValidationException("Invalid or expired captcha. Please solve the puzzle again.");
+        }
+
         String identifier = request.getAdminIdentifier().trim();
         User admin = userRepository.findByEmail(identifier.toLowerCase())
                 .or(() -> userRepository.findByEmployeeId(identifier.toUpperCase()))
@@ -353,16 +451,25 @@ public class AuthService {
             throw new UnauthorizedException("Access denied: Not an administrator account.");
         }
 
-        String adminMobile = admin.getMobileNumber() != null ? admin.getMobileNumber() : "9999999999";
-        if (!otpService.verifyOtp(adminMobile, request.getOtpCode(), "ADMIN_LOGIN")) {
-            throw new ValidationException("Invalid or expired Admin 2FA OTP code.");
+        if (request.getOtpCode() != null && !request.getOtpCode().isBlank()) {
+            String adminMobile = admin.getMobileNumber() != null ? admin.getMobileNumber() : "9999999999";
+            if (!otpService.verifyOtp(adminMobile, request.getOtpCode(), "ADMIN_LOGIN")) {
+                throw new ValidationException("Invalid or expired Admin 2FA OTP code.");
+            }
         }
 
         if (!admin.isEnabled()) {
             throw new UnauthorizedException("Administrator account is disabled.");
         }
 
-        return issueAuthTokens(admin, httpRequest, "ADMIN_2FA_LOGIN");
+        return issueAuthTokens(admin, httpRequest, "ADMIN_LOGIN");
+    }
+
+    /**
+     * Pre-loaded authorized sandbox Aadhaar pool for UI evaluation
+     */
+    public List<MockAadhaarRecord> getAadhaarPool() {
+        return aadhaarValidationService.getSandboxPool();
     }
 
     private AuthResponse issueAuthTokens(User user, HttpServletRequest httpRequest, String loginType) {

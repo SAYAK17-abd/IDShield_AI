@@ -1,9 +1,11 @@
 package com.project.auth.controller;
 
 import com.project.auth.dto.*;
+import com.project.auth.entity.MockAadhaarRecord;
 import com.project.auth.service.AuthService;
 import com.project.common.ApiResponse;
 import com.project.user.dto.UserDto;
+import java.util.List;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -71,10 +73,25 @@ public class AuthController {
     }
 
     @PostMapping("/admin/login")
-    @Operation(summary = "System Administrator 2FA Login", description = "Authenticates administrator with credentials and 2FA OTP.")
+    @Operation(summary = "System Administrator Sign-In", description = "Authenticates administrator with master ID, password, and anti-bot challenge.")
     public ResponseEntity<ApiResponse<AuthResponse>> loginAdmin(@Valid @RequestBody AdminLoginRequest request, HttpServletRequest httpRequest) {
         AuthResponse response = authService.loginAdmin(request, httpRequest);
         return ResponseEntity.ok(ApiResponse.success(response, "Administrator authentication successful"));
+    }
+
+    @PostMapping("/admin/register")
+    @Operation(summary = "System Administrator Registration", description = "Registers administrator with ADM-XXXXXX identifier and anti-bot challenge.")
+    public ResponseEntity<ApiResponse<AuthResponse>> registerAdmin(@Valid @RequestBody AdminRegisterRequest request, HttpServletRequest httpRequest) {
+        AuthResponse response = authService.registerAdmin(request, httpRequest);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(ApiResponse.success(response, "Administrator registered successfully"));
+    }
+
+    @GetMapping("/aadhaar/pool")
+    @Operation(summary = "Pre-loaded Sandbox Aadhaar Pool", description = "Returns pre-seeded valid 12-digit Indian Aadhaar identities for test sandbox evaluation.")
+    public ResponseEntity<ApiResponse<List<MockAadhaarRecord>>> getAadhaarPool() {
+        List<MockAadhaarRecord> pool = authService.getAadhaarPool();
+        return ResponseEntity.ok(ApiResponse.success(pool, "Authorized sandbox Aadhaar identities retrieved"));
     }
 
     @PostMapping("/register")
