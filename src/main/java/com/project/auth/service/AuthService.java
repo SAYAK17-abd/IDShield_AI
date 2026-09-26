@@ -231,7 +231,20 @@ public class AuthService {
 
         String cleanedMobile = sanitizeMobile(request.getMobileNumber());
         User user = userRepository.findByMobileNumber(cleanedMobile)
-                .orElseThrow(() -> new UnauthorizedException("Citizen account not found for this mobile number. Please register first."));
+                .orElseGet(() -> {
+                    String syntheticEmail = cleanedMobile + "@citizen.idshield.gov.in";
+                    User newCitizen = User.builder()
+                            .name("Citizen +91-" + cleanedMobile)
+                            .mobileNumber(cleanedMobile)
+                            .email(syntheticEmail)
+                            .role(Role.ROLE_USER)
+                            .status(UserStatus.ACTIVE)
+                            .isMobileVerified(true)
+                            .enabled(true)
+                            .password(passwordEncoder.encode(UUID.randomUUID().toString()))
+                            .build();
+                    return userRepository.save(newCitizen);
+                });
 
         if (!user.isEnabled()) {
             throw new UnauthorizedException("Citizen account is suspended or disabled.");
