@@ -27,5 +27,7 @@ public interface VerificationRepository extends JpaRepository<VerificationResult
 
     @Query("SELECT v FROM VerificationResult v WHERE v.document.owner.id = :ownerId")
     Page<VerificationResult> findByDocumentOwnerId(@Param("ownerId") Long ownerId, Pageable pageable);
+
+    Optional<VerificationResult> findFirstByDocumentOwnerIdOrderByCreatedAtDesc(Long ownerId);
 }
 

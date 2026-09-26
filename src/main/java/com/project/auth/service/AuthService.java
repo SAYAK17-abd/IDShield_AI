@@ -160,6 +160,13 @@ public class AuthService {
     }
 
     /**
+     * Generate anti-bot Captcha challenge
+     */
+    public CaptchaResponseDto generateCaptcha() {
+        return captchaService.generateCaptcha();
+    }
+
+    /**
      * Dispatch OTP with anti-bot Captcha challenge validation
      */
     public OtpSendResponseDto sendOtp(OtpSendRequest request) {

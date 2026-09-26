@@ -133,6 +133,14 @@ public class VerificationService {
             verification.setRiskLevel(riskDetails.getRiskLevel());
             verification.setTamperingDetected(aiResponse.getTampering().getDetected());
             verification.setTamperingConfidence(aiResponse.getTampering().getConfidence());
+            verification.setIsSynthetic(aiResponse.getTampering().getIsSynthetic());
+            verification.setSyntheticProbability(aiResponse.getTampering().getSyntheticProbability());
+
+            String forensicJson = (aiResponse.getTampering().getForensicDetails() != null)
+                    ? objectMapper.writeValueAsString(aiResponse.getTampering().getForensicDetails())
+                    : null;
+            verification.setForensicDetailsJson(forensicJson);
+
             verification.setFaceMatched(aiResponse.getFaceVerification().getMatched());
             verification.setFaceMatchConfidence(aiResponse.getFaceVerification().getConfidence());
             verification.setOcrDataJson(ocrJson);

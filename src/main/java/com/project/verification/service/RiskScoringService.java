@@ -52,17 +52,26 @@ public class RiskScoringService {
     public RiskScoreDetails calculateRisk(AiAnalysisResponse aiResponse) {
         List<String> reasons = new ArrayList<>();
 
-        // 1. Tampering Component (Weight: 30%)
+        // 1. Tampering & AI Synthetic Component (Weight: 30%)
         double tamperingRaw = 0.0;
         if (aiResponse.getTampering() != null) {
             Double conf = aiResponse.getTampering().getConfidence();
             boolean detected = Boolean.TRUE.equals(aiResponse.getTampering().getDetected());
+            boolean isSynthetic = Boolean.TRUE.equals(aiResponse.getTampering().getIsSynthetic());
+            Double synthProb = aiResponse.getTampering().getSyntheticProbability();
+
+            if (isSynthetic) {
+                tamperingRaw = Math.max(tamperingRaw, (synthProb != null ? synthProb * 100.0 : 85.0));
+                reasons.add(String.format("AI-Generated Synthetic Document Flagged (Confidence: %.0f%%)", (synthProb != null ? synthProb * 100.0 : 85.0)));
+            }
 
             if (detected) {
-                tamperingRaw = (conf != null) ? conf * 100.0 : 80.0;
+                tamperingRaw = Math.max(tamperingRaw, (conf != null ? conf * 100.0 : 80.0));
                 if (aiResponse.getTampering().getReasons() != null && !aiResponse.getTampering().getReasons().isEmpty()) {
-                    reasons.addAll(aiResponse.getTampering().getReasons());
-                } else {
+                    for (String r : aiResponse.getTampering().getReasons()) {
+                        if (!reasons.contains(r)) reasons.add(r);
+                    }
+                } else if (!isSynthetic) {
                     reasons.add(String.format("Potential image or layout tampering detected (Confidence: %.0f%%)", tamperingRaw));
                 }
             } else if (conf != null && conf > 0.40) {
@@ -123,8 +132,9 @@ public class RiskScoringService {
         // Aggregate total score bounded between 0 and 100
         int totalScore = (int) Math.round(Math.min(100.0, tamperingScore + faceMismatchScore + ocrScore + identityScore));
 
-        // If a document type mismatch was detected, elevate risk to at least MEDIUM (REVIEW_REQUIRED)
-        if (hasDocumentMismatch && totalScore <= lowRiskMax) {
+        // If a document type mismatch or AI-generated synthetic document was detected, elevate risk to at least MEDIUM (REVIEW_REQUIRED)
+        boolean isSyntheticDoc = aiResponse.getTampering() != null && Boolean.TRUE.equals(aiResponse.getTampering().getIsSynthetic());
+        if ((hasDocumentMismatch || isSyntheticDoc) && totalScore <= lowRiskMax) {
             totalScore = lowRiskMax + 15; // 45/100 -> MEDIUM
         }
 

@@ -5,9 +5,10 @@ from typing import Optional
 from fastapi import APIRouter, UploadFile, File, Form, Request, HTTPException, status, Header, Security
 from fastapi.responses import JSONResponse
 
-from app.schemas.requests import AiAnalysisRequest
-from app.schemas.responses import AiAnalysisResponse
+from app.schemas.requests import AiAnalysisRequest, ChatRequest
+from app.schemas.responses import AiAnalysisResponse, ChatResponse
 from app.services.analysis_pipeline import run_full_analysis
+from app.services.chat_service import generate_assistant_response
 from app.utils.file_utils import validate_file_size
 
 logger = logging.getLogger("ai_service.routes")
@@ -117,4 +118,24 @@ async def analyze_document(
                 "errorCode": "PIPELINE_ERROR",
                 "message": f"AI inference processing failed: {str(ex)}"
             }
+        )
+
+
+@router.post("/ai/chat", response_model=ChatResponse)
+async def chat_with_assistant(
+    request: ChatRequest,
+    _authenticated: bool = Security(verify_ai_service_key)
+):
+    """
+    RAG-grounded AI Identity Case Assistant.
+    Provides pre-upload guidance, explainable rejection breakdowns,
+    and remediation actions based on user verification context.
+    """
+    try:
+        return generate_assistant_response(request)
+    except Exception as ex:
+        logger.error("Unhandled error during chat assistant response: %s", str(ex), exc_info=True)
+        return ChatResponse(
+            reply="I am currently experiencing technical difficulty processing your inquiry. Please consult official government UIDAI or Income Tax portal guidelines.",
+            remediationSuggestions=["Ensure document is clean, flat, and legible.", "Check file format (PDF, JPG, PNG)."]
         )

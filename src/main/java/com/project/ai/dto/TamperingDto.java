@@ -15,5 +15,7 @@ public class TamperingDto {
     private Boolean detected;
     private Double confidence; // 0.0 to 1.0
     private List<String> reasons;
+    private Boolean isSynthetic;
+    private Double syntheticProbability;
+    private ForensicDetailsDto forensicDetails;
 }
-

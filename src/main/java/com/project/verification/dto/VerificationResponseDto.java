@@ -35,6 +35,9 @@ public class VerificationResponseDto {
 
     private Boolean tamperingDetected;
     private Double tamperingConfidence;
+    private Boolean isSynthetic;
+    private Double syntheticProbability;
+    private com.project.ai.dto.ForensicDetailsDto forensicDetails;
     private Boolean faceMatched;
     private Double faceMatchConfidence;
 
@@ -60,6 +63,8 @@ public class VerificationResponseDto {
         List<String> inconsistencies = Collections.emptyList();
         List<String> reasons = Collections.emptyList();
 
+        com.project.ai.dto.ForensicDetailsDto forensicDetails = null;
+
         try {
             if (v.getOcrDataJson() != null) {
                 ocr = objectMapper.readValue(v.getOcrDataJson(), OcrDataDto.class);
@@ -69,6 +74,9 @@ public class VerificationResponseDto {
             }
             if (v.getReasonsJson() != null) {
                 reasons = objectMapper.readValue(v.getReasonsJson(), new TypeReference<List<String>>() {});
+            }
+            if (v.getForensicDetailsJson() != null) {
+                forensicDetails = objectMapper.readValue(v.getForensicDetailsJson(), com.project.ai.dto.ForensicDetailsDto.class);
             }
         } catch (Exception ignored) {
         }
@@ -84,6 +92,9 @@ public class VerificationResponseDto {
                 .riskLevel(v.getRiskLevel())
                 .tamperingDetected(v.getTamperingDetected())
                 .tamperingConfidence(v.getTamperingConfidence())
+                .isSynthetic(v.getIsSynthetic())
+                .syntheticProbability(v.getSyntheticProbability())
+                .forensicDetails(forensicDetails)
                 .faceMatched(v.getFaceMatched())
                 .faceMatchConfidence(v.getFaceMatchConfidence())
                 .ocrData(ocr)

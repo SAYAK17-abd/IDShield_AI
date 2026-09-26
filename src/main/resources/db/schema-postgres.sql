@@ -111,6 +111,9 @@ CREATE TABLE IF NOT EXISTS verification_results (
     ocr_data_json TEXT,
     inconsistencies_json TEXT,
     reasons_json TEXT,
+    is_synthetic BOOLEAN DEFAULT FALSE,
+    synthetic_probability DOUBLE PRECISION DEFAULT 0.0,
+    forensic_details_json TEXT,
     reviewed_by_user_id BIGINT,
     investigator_notes VARCHAR(1000),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -128,6 +131,11 @@ CREATE TABLE IF NOT EXISTS verification_results (
 CREATE INDEX IF NOT EXISTS idx_verification_document ON verification_results(document_id);
 CREATE INDEX IF NOT EXISTS idx_verification_status ON verification_results(investigation_status);
 CREATE INDEX IF NOT EXISTS idx_verification_risk_level ON verification_results(risk_level);
+
+-- Safe migration alters for existing verification_results table
+ALTER TABLE verification_results ADD COLUMN IF NOT EXISTS is_synthetic BOOLEAN DEFAULT FALSE;
+ALTER TABLE verification_results ADD COLUMN IF NOT EXISTS synthetic_probability DOUBLE PRECISION DEFAULT 0.0;
+ALTER TABLE verification_results ADD COLUMN IF NOT EXISTS forensic_details_json TEXT;
 
 -- ==============================================================================
 -- 5. AUDIT LOGS (Append-Only Security & Forensic Event Journal)

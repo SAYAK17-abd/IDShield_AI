@@ -1,4 +1,4 @@
-﻿from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any
 from pydantic import BaseModel, Field
 
 
@@ -25,11 +25,27 @@ class FaceVerificationDto(BaseModel):
     reason: Optional[str] = None
 
 
+class ForensicDetailsDto(BaseModel):
+    isSynthetic: bool = False
+    syntheticProbability: float = 0.0
+    spectralHighFreqEnergy: float = 0.0
+    elaAnomalyScore: float = 0.0
+    noiseInconsistencyScore: float = 0.0
+    qrDetected: bool = False
+    qrSignatureStatus: str = "NOT_CHECKED"  # VERIFIED_UIDAI_STRUCTURE, VERIFIED_NSDL_FORMAT, PLAIN_DATA, INVALID_OR_FAKE, NOT_FOUND
+    qrPayloadPreview: Optional[str] = None
+    checksPassed: List[str] = Field(default_factory=list)
+    checksFlagged: List[str] = Field(default_factory=list)
+
+
 class TamperingDto(BaseModel):
     detected: bool = False
     confidence: float = 0.0
     reasons: List[str] = Field(default_factory=list)
     status: str = "CLEAN"
+    isSynthetic: bool = False
+    syntheticProbability: float = 0.0
+    forensicDetails: Optional[ForensicDetailsDto] = None
 
 
 class ImageQualityDto(BaseModel):
@@ -48,7 +64,7 @@ class RiskIndicatorDto(BaseModel):
 
 class ProcessingMetaDto(BaseModel):
     processingTimeMs: int = 0
-    modelVersion: str = "InsightFace-ArcFace+RapidOCR-v1"
+    modelVersion: str = "InsightFace-ArcFace+RapidOCR-v1+ForensicAI"
 
 
 class AiAnalysisResponse(BaseModel):
@@ -60,3 +76,10 @@ class AiAnalysisResponse(BaseModel):
     inconsistencies: List[str] = Field(default_factory=list)
     riskIndicators: List[RiskIndicatorDto] = Field(default_factory=list)
     processing: Optional[ProcessingMetaDto] = None
+
+
+class ChatResponse(BaseModel):
+    reply: str
+    remediationSuggestions: List[str] = Field(default_factory=list)
+    relevantGuidelines: List[str] = Field(default_factory=list)
+    timestamp: Optional[str] = None

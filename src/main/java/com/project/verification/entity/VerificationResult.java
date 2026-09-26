@@ -68,6 +68,15 @@ public class VerificationResult {
     @Column(name = "reasons_json", columnDefinition = "TEXT")
     private String reasonsJson;
 
+    @Column(name = "is_synthetic")
+    private Boolean isSynthetic;
+
+    @Column(name = "synthetic_probability")
+    private Double syntheticProbability;
+
+    @Column(name = "forensic_details_json", columnDefinition = "TEXT")
+    private String forensicDetailsJson;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reviewed_by_user_id")
     private User reviewedBy;

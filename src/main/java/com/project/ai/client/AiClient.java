@@ -1,6 +1,8 @@
 package com.project.ai.client;
 
 import com.project.ai.dto.*;
+import com.project.chat.dto.ChatRequestDto;
+import com.project.chat.dto.ChatResponseDto;
 import com.project.exception.AiServiceException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,6 +94,40 @@ public class AiClient {
             }
 
             throw new AiServiceException("AI Screening service is currently unavailable. Please retry later.", ex);
+        }
+    }
+
+    /**
+     * Sends conversational inquiry and document context to AI Case Assistant.
+     */
+    public ChatResponseDto chatWithAssistant(ChatRequestDto request) {
+        log.info("Sending inquiry to AI Case Assistant for documentType [{}]", request.getDocumentType());
+
+        try {
+            return restClient.post()
+                    .uri("/ai/chat")
+                    .body(request)
+                    .retrieve()
+                    .onStatus(HttpStatusCode::isError, (req, resp) -> {
+                        log.error("AI service returned HTTP status [{}] for chat inquiry", resp.getStatusCode());
+                        throw new AiServiceException("AI Assistant failed with status: " + resp.getStatusCode());
+                    })
+                    .body(ChatResponseDto.class);
+        } catch (Exception ex) {
+            log.warn("AI service chat call failed: {}", ex.getMessage());
+
+            return ChatResponseDto.builder()
+                    .reply("I am the IDShield AI Assistant. I can assist you with statutory document formatting rules, photo guidelines, and explaining your screening verdict. "
+                            + (request.getVerificationContext() != null 
+                                ? "Your document screening record is currently loaded in context."
+                                : "Please upload a document to view personalized forensic recommendations."))
+                    .remediationSuggestions(List.of(
+                            "Ensure identity card is placed flat without glare",
+                            "Verify that name and DOB match your profile"
+                    ))
+                    .relevantGuidelines(List.of("UIDAI / Income Tax Department Standard Specifications"))
+                    .timestamp(java.time.Instant.now().toString())
+                    .build();
         }
     }
 
